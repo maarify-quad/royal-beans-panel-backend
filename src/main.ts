@@ -16,6 +16,6 @@ async function bootstrap() {
   );
   app.getHttpAdapter().getInstance().disable('x-powered-by');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  await app.listen(8080);
+  await app.listen(process.env.PORT);
 }
 bootstrap();

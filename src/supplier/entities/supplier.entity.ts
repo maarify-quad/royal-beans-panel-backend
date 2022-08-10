@@ -23,13 +23,13 @@ export class Supplier {
   @Column({ type: 'text', nullable: false })
   name: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', default: null })
   address: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, default: null })
   taxNo: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, default: null })
   taxOffice: string;
 
   @Column({ type: 'varchar', length: 255, default: null })

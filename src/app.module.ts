@@ -16,6 +16,7 @@ import { ProductModule } from './product/product.module';
 import { RoastModule } from './roast/roast.module';
 import { RoastDetailModule } from './roast-detail/roast-detail.module';
 import { BlendModule } from './blend/blend.module';
+import { ExcelModule } from './excel/excel.module';
 
 // Middlewares
 import { LoggerMiddleware } from './middlewares/logger.middleware';
@@ -43,6 +44,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
     RoastModule,
     RoastDetailModule,
     BlendModule,
+    ExcelModule,
   ],
   controllers: [AppController],
   providers: [

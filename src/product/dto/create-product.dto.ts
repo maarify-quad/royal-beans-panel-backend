@@ -13,7 +13,7 @@ export class CreateProductDto {
 
   @IsString({ message: 'Stok kodu metinsel bir değer olmalıdır' })
   @IsOptional()
-  stockCode: string;
+  stockCode?: string;
 
   @IsString({ message: 'Depo tipi metinsel bir değer olmalıdır' })
   @IsNotEmpty({ message: 'Depo tipi gereklidir' })
@@ -30,5 +30,5 @@ export class CreateProductDto {
   @Min(0, { message: "Rezerve miktar 0'dan büyük bir değer olmalıdır" })
   @IsNumber({}, { message: 'Rezerve miktar sayı türünde olmalıdır' })
   @IsOptional()
-  reservedAmount: number;
+  reservedAmount?: number;
 }

@@ -34,8 +34,8 @@ export class ProductService {
     return this.productRepository.save(newProduct);
   }
 
-  async saveEntity(product: Product) {
-    return this.productRepository.save(product);
+  async bulkCreate(products: CreateProductDto[]) {
+    return this.productRepository.save(products);
   }
 
   async incrementAmount(id: number, byAmount: number) {

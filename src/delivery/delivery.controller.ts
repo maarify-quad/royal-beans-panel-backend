@@ -72,6 +72,14 @@ export class DeliveryController {
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(@Body() createDeliveryDto: CreateDeliveryDto): Promise<any> {
+    // If supplier id starts with `NEW_` prefix, it means a new supplier is created on client-side so create new supplier and save it
+    if (createDeliveryDto.supplierId.startsWith('NEW_')) {
+      const newSupplier = await this.supplierService.create({
+        name: createDeliveryDto.supplierId.split('NEW_')[1],
+      });
+      createDeliveryDto.supplierId = newSupplier.id;
+    }
+
     // Delivery price set
     let subTotal = 0;
     let taxTotal = 0;
@@ -88,7 +96,11 @@ export class DeliveryController {
       if (deliveryDetail.productId <= 0) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...createProduct } = deliveryDetail.product;
+
+        // Create new product
         const newProduct = await this.productService.create(createProduct);
+
+        // Set product id to new product id
         deliveryDetail.productId = newProduct.id;
         deliveryDetail.product.id = newProduct.id;
       } else {

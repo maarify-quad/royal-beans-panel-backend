@@ -36,7 +36,10 @@ export class Delivery {
   supplierId: string;
 
   @Column({ type: 'datetime', nullable: false })
-  date: Date;
+  deliveryDate: Date;
+
+  @Column({ type: 'datetime', nullable: false })
+  invoiceDate: Date;
 
   @Column({ type: 'float', nullable: false })
   subTotal: number;

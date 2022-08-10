@@ -22,7 +22,16 @@ export class CreateDeliveryDto {
         'Sevkiyat tarihi ISO8601 formatında metinsel bir tarih değeri olmalıdır',
     },
   )
-  date: Date;
+  deliveryDate: string;
+
+  @IsDateString(
+    {},
+    {
+      message:
+        'Fatura tarihi ISO8601 formatında metinsel bir tarih değeri olmalıdır',
+    },
+  )
+  invoiceDate: string;
 
   @IsNotEmpty({ message: "Tedarikçi Id'si gereklidir" })
   @IsString({ message: 'Geçersiz tedarikçi id' })

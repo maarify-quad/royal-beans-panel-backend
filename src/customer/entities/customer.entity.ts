@@ -2,14 +2,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+// Entities
+import { PriceList } from 'src/price-list/entities/price-list.entity';
 
 @Entity({ name: 'customers' })
 export class Customer {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ type: 'number', default: null })
+  priceListId: number | null;
 
   @Column({ type: 'text', nullable: false })
   name: string;
@@ -79,4 +87,10 @@ export class Customer {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToOne(() => PriceList, (priceList) => priceList.customers, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'priceListId' })
+  priceList: PriceList | null;
 }

@@ -21,6 +21,7 @@ import { RoastDetailModule } from './roast-detail/roast-detail.module';
 import { BlendModule } from './blend/blend.module';
 import { ExcelModule } from './excel/excel.module';
 import { CustomerModule } from './customer/customer.module';
+import { PriceListModule } from './price-list/price-list.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CustomerModule } from './customer/customer.module';
     BlendModule,
     ExcelModule,
     CustomerModule,
+    PriceListModule,
   ],
   controllers: [AppController],
   providers: [

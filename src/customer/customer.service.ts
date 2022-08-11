@@ -5,6 +5,9 @@ import { Repository } from 'typeorm';
 // Entities
 import { Customer } from './entities/customer.entity';
 
+// DTOs
+import { CreateCustomerDto } from './dto/create-customer.dto';
+
 @Injectable()
 export class CustomerService {
   constructor(
@@ -14,5 +17,10 @@ export class CustomerService {
 
   async findAll(): Promise<Customer[]> {
     return await this.customerRepository.find();
+  }
+
+  async create(customer: CreateCustomerDto): Promise<Customer> {
+    const newCustomer = this.customerRepository.create(customer);
+    return await this.customerRepository.save(newCustomer);
   }
 }

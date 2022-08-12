@@ -1,12 +1,9 @@
 import { Blend } from 'src/blend/entities/blend.entity';
-import { PriceList } from 'src/price-list/entities/price-list.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -16,9 +13,6 @@ import {
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ type: 'int', default: null })
-  priceListId: number | null;
 
   @Column({ type: 'text', nullable: false })
   name: string;
@@ -54,10 +48,4 @@ export class Product {
     cascade: true,
   })
   roastDetails: RoastDetail[];
-
-  @ManyToOne(() => PriceList, (priceList) => priceList.products, {
-    cascade: true,
-  })
-  @JoinColumn({ name: 'priceListId' })
-  priceList: PriceList | null;
 }

@@ -13,6 +13,7 @@ import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import { Blend } from 'src/blend/entities/blend.entity';
 import { Customer } from 'src/customer/entities/customer.entity';
 import { PriceList } from 'src/price-list/entities/price-list.entity';
+import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PriceList } from 'src/price-list/entities/price-list.entity';
           Blend,
           Customer,
           PriceList,
+          PriceListProduct,
         ],
         synchronize: process.env.NODE_ENV !== 'production',
       }),

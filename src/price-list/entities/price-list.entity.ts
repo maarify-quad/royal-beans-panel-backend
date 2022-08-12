@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 
 // Entities
-import { Product } from 'src/product/entities/product.entity';
 import { Customer } from 'src/customer/entities/customer.entity';
+import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
 
 @Entity({ name: 'price_lists' })
 export class PriceList {
@@ -33,7 +33,7 @@ export class PriceList {
   @JoinColumn()
   customers: Customer[];
 
-  @OneToMany(() => Product, (product) => product.priceList)
+  @OneToMany(() => PriceListProduct, (product) => product.priceList)
   @JoinColumn()
-  products: Product[];
+  priceListProducts: PriceListProduct[];
 }

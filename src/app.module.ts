@@ -22,6 +22,7 @@ import { BlendModule } from './blend/blend.module';
 import { ExcelModule } from './excel/excel.module';
 import { CustomerModule } from './customer/customer.module';
 import { PriceListModule } from './price-list/price-list.module';
+import { PriceListProductModule } from './price-list-product/price-list-product.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { PriceListModule } from './price-list/price-list.module';
     ExcelModule,
     CustomerModule,
     PriceListModule,
+    PriceListProductModule,
   ],
   controllers: [AppController],
   providers: [

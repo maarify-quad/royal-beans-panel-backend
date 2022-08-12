@@ -23,6 +23,12 @@ export class PriceListService {
   async findOneById(id: number): Promise<PriceList> {
     return await this.priceListRepository.findOne({
       where: { id },
+      relations: {
+        customers: true,
+        priceListProducts: {
+          product: true,
+        },
+      },
     });
   }
 }

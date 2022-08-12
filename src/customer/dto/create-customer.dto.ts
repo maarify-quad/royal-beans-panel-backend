@@ -36,6 +36,10 @@ export class CreateCustomerDto {
   @IsOptional()
   secondContactTitle?: string;
 
+  @IsNumber()
+  @IsOptional()
+  priceListId?: number;
+
   @IsEmail()
   @MaxLength(255)
   @IsString()

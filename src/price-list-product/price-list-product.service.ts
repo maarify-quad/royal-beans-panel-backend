@@ -15,6 +15,15 @@ export class PriceListProductService {
     private readonly priceListProductRepository: Repository<PriceListProduct>,
   ) {}
 
+  async findByPriceListId(priceListId: number): Promise<PriceListProduct[]> {
+    return this.priceListProductRepository.find({
+      where: { priceListId },
+      relations: {
+        product: true,
+      },
+    });
+  }
+
   async create(
     priceListProduct: CreatePriceListProductDto,
   ): Promise<PriceListProduct> {

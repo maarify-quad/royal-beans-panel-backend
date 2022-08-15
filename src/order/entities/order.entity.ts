@@ -28,13 +28,22 @@ export class Order {
   deliveryDate: Date;
 
   @Column({ type: 'float', nullable: false })
+  customerBalanceAfterOrder: number;
+
+  @Column({ type: 'float', nullable: false })
+  subTotal: number;
+
+  @Column({ type: 'float', nullable: false })
+  taxTotal: number;
+
+  @Column({ type: 'float', nullable: false })
   total: number;
 
   @Column({ type: 'text', default: null })
   specialNote: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
-  cargoType: string;
+  deliveryType: string;
 
   @Column({ type: 'text', default: null })
   cargoTrackNo: string | null;
@@ -55,6 +64,8 @@ export class Order {
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 
-  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, {
+    cascade: true,
+  })
   orderProducts: OrderProduct[];
 }

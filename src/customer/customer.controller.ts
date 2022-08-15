@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 // Services
 import { CustomerService } from './customer.service';
@@ -19,6 +27,12 @@ export class CustomerController {
   async getCustomers() {
     const customers = await this.customerService.findAll();
     return { customers };
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async getCustomerById(@Param('id') id: number) {
+    return await this.customerService.findOneById(id);
   }
 
   @Post()

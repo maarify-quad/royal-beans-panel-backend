@@ -24,6 +24,13 @@ export class CustomerService {
     });
   }
 
+  async findOneById(id: number): Promise<Customer> {
+    return await this.customerRepository.findOne({
+      where: { id },
+      relations: { priceList: true },
+    });
+  }
+
   async create(customer: CreateCustomerDto): Promise<Customer> {
     const newCustomer = this.customerRepository.create(customer);
     return await this.customerRepository.save(newCustomer);

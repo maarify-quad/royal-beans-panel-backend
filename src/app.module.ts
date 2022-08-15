@@ -23,6 +23,8 @@ import { ExcelModule } from './excel/excel.module';
 import { CustomerModule } from './customer/customer.module';
 import { PriceListModule } from './price-list/price-list.module';
 import { PriceListProductModule } from './price-list-product/price-list-product.module';
+import { OrderModule } from './order/order.module';
+import { OrderProductModule } from './order-product/order-product';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { PriceListProductModule } from './price-list-product/price-list-product.
     CustomerModule,
     PriceListModule,
     PriceListProductModule,
+    OrderModule,
+    OrderProductModule,
   ],
   controllers: [AppController],
   providers: [

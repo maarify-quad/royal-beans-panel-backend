@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 // Entities
 import { PriceList } from 'src/price-list/entities/price-list.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 @Entity({ name: 'customers' })
 export class Customer {
@@ -93,4 +95,7 @@ export class Customer {
   })
   @JoinColumn({ name: 'priceListId' })
   priceList: PriceList | null;
+
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
 }

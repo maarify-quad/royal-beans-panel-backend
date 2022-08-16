@@ -23,6 +23,22 @@ export class OrderService {
     });
   }
 
+  async findOneByOrderNumber(orderNumber: number): Promise<Order> {
+    return await this.orderRepository.findOneOrFail({
+      where: {
+        orderNumber,
+      },
+      relations: {
+        customer: true,
+        orderProducts: {
+          priceListProduct: {
+            product: true,
+          },
+        },
+      },
+    });
+  }
+
   async create(
     createOrderDto: CreateOrderDto,
     priceSet: {

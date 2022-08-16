@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 // Services
 import { OrderService } from './order.service';
@@ -20,6 +20,12 @@ export class OrderController {
     return { orders };
   }
 
+  @Get('/orderNumber/:orderNumber')
+  async getOrderByOrderNumber(@Param('orderNumber') orderNumber: number) {
+    const order = await this.orderService.findOneByOrderNumber(orderNumber);
+    return { order };
+  }
+
   @Post()
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
     // Order price set
@@ -32,7 +38,7 @@ export class OrderController {
 
     // Calculate order price set
     createOrderDto.orderProducts.forEach((orderProduct) => {
-      priceSet.subTotal += orderProduct.total;
+      priceSet.subTotal += orderProduct.subTotal;
       priceSet.taxTotal += orderProduct.subTotal * (orderProduct.taxRate / 100);
       priceSet.total += orderProduct.total;
     });

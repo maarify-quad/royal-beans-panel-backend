@@ -15,7 +15,7 @@ import { Customer } from 'src/customer/entities/customer.entity';
 import { PriceList } from 'src/price-list/entities/price-list.entity';
 import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
 import { Order } from 'src/order/entities/order.entity';
-import { OrderProduct } from 'src/order-product/entities/order-product.module';
+import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 @Module({
   imports: [

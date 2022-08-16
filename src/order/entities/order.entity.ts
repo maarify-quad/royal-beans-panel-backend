@@ -11,7 +11,7 @@ import {
 
 // Entities
 import { Customer } from 'src/customer/entities/customer.entity';
-import { OrderProduct } from 'src/order-product/entities/order-product.module';
+import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 @Entity({ name: 'orders' })
 export class Order {

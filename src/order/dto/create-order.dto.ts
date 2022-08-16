@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { CreateOrderProductDto } from 'src/order-product/dto/create-order-product.dto';
-import { OrderProduct } from 'src/order-product/entities/order-product.module';
+import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 export class CreateOrderDto {
   @IsNumber()

@@ -50,6 +50,12 @@ export class OrderController {
     priceSet.customerBalanceAfterOrder =
       customer.currentBalance + priceSet.total;
 
+    // Update customer's current balance
+    await this.customerService.update({
+      id: customer.id,
+      currentBalance: priceSet.customerBalanceAfterOrder,
+    });
+
     return await this.orderService.create(createOrderDto, priceSet);
   }
 }

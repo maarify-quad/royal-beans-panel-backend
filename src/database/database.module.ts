@@ -11,6 +11,11 @@ import { Product } from 'src/product/entities/product.entity';
 import { Roast } from 'src/roast/entities/roast.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import { Blend } from 'src/blend/entities/blend.entity';
+import { Customer } from 'src/customer/entities/customer.entity';
+import { PriceList } from 'src/price-list/entities/price-list.entity';
+import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
+import { Order } from 'src/order/entities/order.entity';
+import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 @Module({
   imports: [
@@ -32,6 +37,11 @@ import { Blend } from 'src/blend/entities/blend.entity';
           Roast,
           RoastDetail,
           Blend,
+          Customer,
+          PriceList,
+          PriceListProduct,
+          Order,
+          OrderProduct,
         ],
         synchronize: process.env.NODE_ENV !== 'production',
       }),

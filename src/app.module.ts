@@ -4,6 +4,9 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+// Middlewares
+import { LoggerMiddleware } from './middlewares/logger.middleware';
+
 // Modules
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
@@ -17,9 +20,11 @@ import { RoastModule } from './roast/roast.module';
 import { RoastDetailModule } from './roast-detail/roast-detail.module';
 import { BlendModule } from './blend/blend.module';
 import { ExcelModule } from './excel/excel.module';
-
-// Middlewares
-import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { CustomerModule } from './customer/customer.module';
+import { PriceListModule } from './price-list/price-list.module';
+import { PriceListProductModule } from './price-list-product/price-list-product.module';
+import { OrderModule } from './order/order.module';
+import { OrderProductModule } from './order-product/order-product.module';
 
 @Module({
   imports: [
@@ -45,6 +50,11 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
     RoastDetailModule,
     BlendModule,
     ExcelModule,
+    CustomerModule,
+    PriceListModule,
+    PriceListProductModule,
+    OrderModule,
+    OrderProductModule,
   ],
   controllers: [AppController],
   providers: [

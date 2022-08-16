@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 // Services
 import { BlendService } from 'src/blend/blend.service';
@@ -21,7 +21,11 @@ export class RoastService {
   ) {}
 
   async findAll(): Promise<Roast[]> {
-    return await this.roastRepository.find();
+    return await this.roastRepository.find({
+      order: {
+        id: 'DESC',
+      },
+    });
   }
 
   async findById(id: string): Promise<Roast> {
@@ -33,6 +37,10 @@ export class RoastService {
         },
       },
     });
+  }
+
+  async findAndCount(options?: FindManyOptions<Roast>) {
+    return await this.roastRepository.findAndCount(options);
   }
 
   async createRoast(createRoastDto: CreateRoastDto): Promise<Roast> {

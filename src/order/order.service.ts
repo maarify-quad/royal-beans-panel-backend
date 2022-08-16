@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 // Entities
 import { Order } from './entities/order.entity';
@@ -40,6 +40,10 @@ export class OrderService {
         },
       },
     });
+  }
+
+  async findAndCount(options?: FindManyOptions<Order>) {
+    return await this.orderRepository.findAndCount(options);
   }
 
   async create(

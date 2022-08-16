@@ -54,6 +54,56 @@ export class OrderController {
     return { order };
   }
 
+  @Get('/customer/:customer')
+  async getOrdersByCustomer(
+    @Param('customer') customer: string,
+    @Query() query?: GetOrdersDto,
+  ) {
+    // If no query is provided, return all orders
+    if (!query) {
+      const orders = await this.orderService.findAll({
+        where: {
+          customer: {
+            name: customer,
+          },
+        },
+        order: {
+          orderNumber: 'DESC',
+        },
+      });
+      return { orders };
+    }
+
+    // Parse query params
+    const limit = parseInt(query.limit, 10) || 50;
+    const page = parseInt(query.page, 10) || 1;
+
+    // If query is provided, return orders matching query
+    const result = await this.orderService.findAndCount({
+      relations: {
+        customer: true,
+      },
+      where: {
+        customer: {
+          name: customer,
+        },
+      },
+      order: {
+        orderNumber: 'DESC',
+      },
+      take: limit,
+      skip: limit * (page - 1),
+    });
+
+    // Return orders and total count
+    const orders = result[0];
+    const total: number = result[1];
+    const totalPage = Math.ceil(total / limit);
+
+    // End response
+    return { orders, totalPage };
+  }
+
   @Post()
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
     // Order price set

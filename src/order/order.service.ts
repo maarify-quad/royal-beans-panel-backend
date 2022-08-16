@@ -15,7 +15,7 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
   ) {}
 
-  async findAll(): Promise<Order[]> {
+  async findAll(options?: FindManyOptions<Order>): Promise<Order[]> {
     return await this.orderRepository.find({
       relations: {
         customer: true,
@@ -23,6 +23,7 @@ export class OrderService {
       order: {
         orderNumber: 'DESC',
       },
+      ...options,
     });
   }
 

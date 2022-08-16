@@ -24,7 +24,7 @@ import { CustomerModule } from './customer/customer.module';
 import { PriceListModule } from './price-list/price-list.module';
 import { PriceListProductModule } from './price-list-product/price-list-product.module';
 import { OrderModule } from './order/order.module';
-import { OrderProductModule } from './order-product/order-product';
+import { OrderProductModule } from './order-product/order-product.module';
 
 @Module({
   imports: [

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { FindManyOptions, Repository, UpdateResult } from 'typeorm';
 
 // Entities
 import { Customer } from './entities/customer.entity';
@@ -21,6 +21,7 @@ export class CustomerService {
       relations: {
         priceList: true,
       },
+      order: { name: 'ASC' },
     });
   }
 
@@ -29,6 +30,10 @@ export class CustomerService {
       where: { id },
       relations: { priceList: true },
     });
+  }
+
+  async findAndCount(options?: FindManyOptions<Customer>) {
+    return await this.customerRepository.findAndCount(options);
   }
 
   async create(customer: CreateCustomerDto): Promise<Customer> {

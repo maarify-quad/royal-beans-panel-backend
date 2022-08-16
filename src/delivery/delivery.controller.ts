@@ -37,6 +37,9 @@ export class DeliveryController {
         relations: {
           supplier: true,
         },
+        order: {
+          id: 'DESC',
+        },
       });
       return { deliveries };
     }
@@ -52,6 +55,9 @@ export class DeliveryController {
       },
       take: limit,
       skip: limit * (page - 1),
+      order: {
+        id: 'DESC',
+      },
     });
 
     // Return deliveries and total count

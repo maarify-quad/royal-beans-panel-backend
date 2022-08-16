@@ -20,6 +20,9 @@ export class OrderService {
       relations: {
         customer: true,
       },
+      order: {
+        orderNumber: 'DESC',
+      },
     });
   }
 

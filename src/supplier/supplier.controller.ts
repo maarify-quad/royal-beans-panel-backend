@@ -27,7 +27,9 @@ export class SupplierController {
   async getSuppliers(@Query() query?: GetSuppliersDto): Promise<any> {
     // If no query is provided, return all suppliers
     if (!query) {
-      const suppliers = await this.supplierService.findAll();
+      const suppliers = await this.supplierService.findAll({
+        order: { name: 'ASC' },
+      });
       return { suppliers };
     }
 
@@ -39,6 +41,7 @@ export class SupplierController {
     const result = await this.supplierService.findAndCount({
       take: limit,
       skip: limit * (page - 1),
+      order: { name: 'ASC' },
     });
 
     // Return suppliers and total count

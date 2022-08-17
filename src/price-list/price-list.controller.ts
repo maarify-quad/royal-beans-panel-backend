@@ -24,6 +24,9 @@ export class PriceListController {
 
     // If query is provided, return price lists matching query
     const result = await this.priceListService.findAndCount({
+      relations: {
+        customers: true,
+      },
       take: limit,
       skip: limit * (page - 1),
     });

@@ -4,7 +4,6 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -13,8 +12,8 @@ import { CreateOrderProductDto } from 'src/order-product/dto/create-order-produc
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 export class CreateOrderDto {
-  @IsNumber()
-  customerId: number;
+  @IsString()
+  customerId: string;
 
   @IsDateString()
   deliveryDate: string;

@@ -58,7 +58,7 @@ export class CustomerController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  async getCustomerById(@Param('id') id: number) {
+  async getCustomerById(@Param('id') id: string) {
     return await this.customerService.findOneById(id);
   }
 

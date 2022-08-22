@@ -18,8 +18,8 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int', nullable: false })
-  customerId: number;
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  customerId: string;
 
   @Column({ type: 'int', nullable: false })
   orderNumber: number;
@@ -60,7 +60,9 @@ export class Order {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Customer, (customer) => customer.orders)
+  @ManyToOne(() => Customer, (customer) => customer.orders, {
+    cascade: true,
+  })
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 

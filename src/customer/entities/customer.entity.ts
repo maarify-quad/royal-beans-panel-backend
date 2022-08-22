@@ -5,7 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -15,8 +15,8 @@ import { Order } from 'src/order/entities/order.entity';
 
 @Entity({ name: 'customers' })
 export class Customer {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
   @Column({ type: 'number', default: null })
   priceListId: number | null;

@@ -25,7 +25,7 @@ export class CustomerService {
     });
   }
 
-  async findOneById(id: number): Promise<Customer> {
+  async findOneById(id: string): Promise<Customer> {
     return await this.customerRepository.findOne({
       where: { id },
       relations: { priceList: true },
@@ -37,7 +37,22 @@ export class CustomerService {
   }
 
   async create(customer: CreateCustomerDto): Promise<Customer> {
-    const newCustomer = this.customerRepository.create(customer);
+    // Find latest customer id
+    const [lastDelivery] = await this.customerRepository.find({
+      order: { id: 'DESC' },
+      take: 1,
+    });
+
+    // Generate new customer id
+    const id = lastDelivery
+      ? `M${Number(lastDelivery.id.split('M')[1]) + 1}`
+      : 'M1001';
+
+    const newCustomer = this.customerRepository.create({
+      id,
+      ...customer,
+    });
+
     return await this.customerRepository.save(newCustomer);
   }
 

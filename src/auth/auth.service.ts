@@ -8,9 +8,6 @@ import { instanceToPlain } from 'class-transformer';
 // Services
 import { UserService } from 'src/user/user.service';
 
-// DTO
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-
 // Entities
 import { User } from 'src/user/entities/user.entity';
 
@@ -35,9 +32,5 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload),
     };
-  }
-
-  async register(createUserDto: CreateUserDto) {
-    return await this.userService.create(createUserDto);
   }
 }

@@ -59,8 +59,9 @@ export class PriceListProductController {
     @Body() body: CreateBulkPriceListProductsDto,
     @UploadedFile() excel: Express.Multer.File,
   ) {
-    const priceListProducts =
-      await this.excelService.readPriceListProductsFromExcel(excel.buffer);
+    const priceListProducts = await this.excelService.readPriceListProducts(
+      excel.buffer,
+    );
 
     const createdProducts = await this.productService.bulkCreate(
       priceListProducts.map((product) => ({

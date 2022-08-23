@@ -9,9 +9,7 @@ import { IReadPriceListProductResult } from './interfaces/IReadPriceListProductR
 
 @Injectable()
 export class ExcelService {
-  async readProductsFromExcel(
-    excelBuffer: Buffer,
-  ): Promise<CreateProductDto[]> {
+  async readProducts(excelBuffer: Buffer): Promise<CreateProductDto[]> {
     // Create a workbook from buffer
     const workbook = await new Workbook().xlsx.load(excelBuffer);
 
@@ -58,7 +56,7 @@ export class ExcelService {
     return products;
   }
 
-  async readPriceListProductsFromExcel(
+  async readPriceListProducts(
     excelBuffer: Buffer,
   ): Promise<IReadPriceListProductResult[]> {
     // Create a workbook from buffer

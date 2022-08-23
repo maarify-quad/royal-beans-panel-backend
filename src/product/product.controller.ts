@@ -51,9 +51,7 @@ export class ProductController {
   async createBulkProductsFromExcel(
     @UploadedFile() excel: Express.Multer.File,
   ) {
-    const products = await this.excelService.readProductsFromExcel(
-      excel.buffer,
-    );
+    const products = await this.excelService.readProducts(excel.buffer);
     await this.productService.bulkCreate(products);
     return { success: true };
   }

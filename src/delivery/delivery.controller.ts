@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // DTOs
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { GetDeliveriesDto } from './dto/get-deliveries.dto';
+import { Response } from 'express';
 
 @Controller('deliveries')
 export class DeliveryController {
@@ -30,7 +32,17 @@ export class DeliveryController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
-  async findAll(@Query() query?: GetDeliveriesDto): Promise<any> {
+  async findAll(
+    @Res({ passthrough: true }) res: Response,
+    @Query() query?: GetDeliveriesDto,
+  ): Promise<any> {
+    // Test
+    res.cookie('test', 'testValue', {
+      sameSite: 'lax',
+      httpOnly: true,
+      secure: true,
+    });
+
     // If no query is provided, return all deliveries
     if (!query) {
       const deliveries = await this.deliveryService.findAll({

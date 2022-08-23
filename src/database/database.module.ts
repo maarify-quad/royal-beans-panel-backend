@@ -43,7 +43,7 @@ import { OrderProduct } from 'src/order-product/entities/order-product.entity';
           Order,
           OrderProduct,
         ],
-        synchronize: process.env.NODE_ENV !== 'production',
+        synchronize: process.env.TYPEORM_SYNC === 'true',
       }),
     }),
   ],

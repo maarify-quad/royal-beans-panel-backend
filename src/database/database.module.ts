@@ -16,6 +16,7 @@ import { PriceList } from 'src/price-list/entities/price-list.entity';
 import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
+import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { OrderProduct } from 'src/order-product/entities/order-product.entity';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_SCHEMA'),
         entities: [
+          RefreshToken,
           User,
           Supplier,
           Delivery,

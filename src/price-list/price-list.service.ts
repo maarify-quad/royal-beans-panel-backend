@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
+import { CreatePriceListDto } from './dto/create-price-list.dto';
 
 // Entities
 import { PriceList } from './entities/price-list.entity';
@@ -34,5 +35,10 @@ export class PriceListService {
         },
       },
     });
+  }
+
+  async create(createPriceListDto: CreatePriceListDto) {
+    const priceList = this.priceListRepository.create(createPriceListDto);
+    return await this.priceListRepository.save(priceList);
   }
 }

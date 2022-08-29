@@ -1,10 +1,11 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
 // Services
 import { PriceListService } from './price-list.service';
 
 // DTOs
 import { GetPriceListsDto } from './dto/get-price-lists.dto';
+import { CreatePriceListDto } from './dto/create-price-list.dto';
 
 @Controller('price_lists')
 export class PriceListController {
@@ -43,5 +44,10 @@ export class PriceListController {
   @Get(':id')
   async getPriceListById(@Param('id') id: string) {
     return await this.priceListService.findOneById(parseInt(id));
+  }
+
+  @Post()
+  async createPriceList(@Body() createPriceListDto: CreatePriceListDto) {
+    return await this.priceListService.create(createPriceListDto);
   }
 }

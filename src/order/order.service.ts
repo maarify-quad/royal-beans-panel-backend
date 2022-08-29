@@ -7,6 +7,7 @@ import { Order } from './entities/order.entity';
 
 // DTOs
 import { CreateOrderDto } from './dto/create-order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -73,5 +74,15 @@ export class OrderService {
 
     // Save order
     return await this.orderRepository.save(newOrder);
+  }
+
+  async update(updateOrderDto: UpdateOrderDto) {
+    const { orderNumber, ...update } = updateOrderDto;
+
+    if (update.deliveryType) {
+      update['status'] = `GÖNDERİLDİ - ${update.deliveryType}`;
+    }
+
+    return await this.orderRepository.update({ orderNumber }, update);
   }
 }

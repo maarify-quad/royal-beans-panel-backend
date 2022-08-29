@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 
 // Services
 import { OrderService } from './order.service';
@@ -7,6 +15,7 @@ import { CustomerService } from 'src/customer/customer.service';
 // DTOs
 import { CreateOrderDto } from './dto/create-order.dto';
 import { GetOrdersDto } from './dto/get-orders.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -135,5 +144,10 @@ export class OrderController {
     });
 
     return await this.orderService.create(createOrderDto, priceSet);
+  }
+
+  @Patch()
+  async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
+    return await this.orderService.update(updateOrderDto);
   }
 }

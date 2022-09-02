@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -154,5 +155,31 @@ export class OrderController {
   @Patch()
   async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
     return await this.orderService.update(updateOrderDto);
+  }
+
+  @Post('/cancel/:orderNumber')
+  async cancelOrder(@Param('orderNumber') orderNumber: number) {
+    const order = await this.orderService.findOneByOrderNumber(orderNumber);
+    if (!order || order.isCancelled) {
+      throw new NotFoundException('Sipariş bulunamadı');
+    }
+
+    const customer = await this.customerService.findOneById(order.customerId);
+    if (!customer) {
+      throw new NotFoundException('Sipariş bulunamadı');
+    }
+
+    await this.customerService.update({
+      id: order.customer.id,
+      currentBalance: customer.currentBalance - order.total,
+    });
+
+    await this.orderService.update({
+      orderNumber,
+      isCancelled: true,
+      customerBalanceAfterOrder: order.customerBalanceAfterOrder - order.total,
+    });
+
+    return { success: true };
   }
 }

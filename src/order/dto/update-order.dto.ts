@@ -1,18 +1,8 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
+import { IsNumber } from 'class-validator';
+import { Order } from '../entities/order.entity';
 
-export class UpdateOrderDto {
+export class UpdateOrderDto extends PartialType(OmitType(Order, ['id'])) {
   @IsNumber()
   orderNumber: number;
-
-  @IsString()
-  @IsOptional()
-  deliveryType?: string;
-
-  @IsString()
-  @IsOptional()
-  cargoTrackNo?: string;
-
-  @IsString()
-  @IsOptional()
-  status?: string;
 }

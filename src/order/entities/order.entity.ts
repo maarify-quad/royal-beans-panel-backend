@@ -54,6 +54,9 @@ export class Order {
   @Column({ type: 'boolean', default: false })
   isParasutVerified: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  isCancelled: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

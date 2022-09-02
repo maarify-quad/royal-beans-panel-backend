@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // DTOs
 import { CreatePriceListProductDto } from './dto/create-price-list-product.dto';
 import { CreateBulkPriceListProductsDto } from './dto/create-bulk-price-list-products.dto';
+import { UpdatePriceListProductDto } from './dto/update-price-list-product.dto';
 
 @Controller('price_list_products')
 export class PriceListProductController {
@@ -81,5 +83,11 @@ export class PriceListProductController {
     }
 
     return { success: true };
+  }
+
+  @Put()
+  @UseGuards(JwtAuthGuard)
+  async update(@Body() priceListProduct: UpdatePriceListProductDto) {
+    return await this.priceListProductService.update(priceListProduct);
   }
 }

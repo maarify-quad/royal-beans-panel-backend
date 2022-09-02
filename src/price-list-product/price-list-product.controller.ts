@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -89,5 +90,11 @@ export class PriceListProductController {
   @UseGuards(JwtAuthGuard)
   async update(@Body() priceListProduct: UpdatePriceListProductDto) {
     return await this.priceListProductService.update(priceListProduct);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async delete(@Param('id') id: number) {
+    return await this.priceListProductService.delete(id);
   }
 }

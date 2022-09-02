@@ -39,4 +39,8 @@ export class PriceListProductService {
       priceListProduct,
     );
   }
+
+  async delete(id: number) {
+    return await this.priceListProductRepository.delete(id);
+  }
 }

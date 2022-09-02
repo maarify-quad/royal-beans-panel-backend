@@ -1,13 +1,25 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 // Services
 import { PriceListService } from './price-list.service';
+
+// Guards
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 // DTOs
 import { GetPriceListsDto } from './dto/get-price-lists.dto';
 import { CreatePriceListDto } from './dto/create-price-list.dto';
 
 @Controller('price_lists')
+@UseGuards(JwtAuthGuard)
 export class PriceListController {
   constructor(private readonly priceListService: PriceListService) {}
 

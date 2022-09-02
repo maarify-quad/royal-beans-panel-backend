@@ -19,11 +19,11 @@ import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { GetSuppliersDto } from './dto/get-suppliers.dto';
 
 @Controller('suppliers')
+@UseGuards(JwtAuthGuard)
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async getSuppliers(@Query() query?: GetSuppliersDto): Promise<any> {
     // If no query is provided, return all suppliers
     if (!query) {
@@ -54,13 +54,11 @@ export class SupplierController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   getSupplierById(@Param('id') id: string): Promise<any> {
     return this.supplierService.findOneById(id);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   createSupplier(@Body() createSupplierDto: CreateSupplierDto): Promise<any> {
     return this.supplierService.create(createSupplierDto);
   }

@@ -26,6 +26,7 @@ import { CreateBulkPriceListProductsDto } from './dto/create-bulk-price-list-pro
 import { UpdatePriceListProductDto } from './dto/update-price-list-product.dto';
 
 @Controller('price_list_products')
+@UseGuards(JwtAuthGuard)
 export class PriceListProductController {
   constructor(
     private readonly priceListProductService: PriceListProductService,
@@ -34,13 +35,11 @@ export class PriceListProductController {
   ) {}
 
   @Get(':priceListId')
-  @UseGuards(JwtAuthGuard)
   async getByPriceListId(@Param('priceListId') priceListId: number) {
     return this.priceListProductService.findByPriceListId(priceListId);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(@Body() priceListProduct: CreatePriceListProductDto) {
     if (priceListProduct.productId < 0) {
       const newProduct = await this.productService.create({
@@ -57,7 +56,6 @@ export class PriceListProductController {
 
   @Post('/bulk/excel')
   @UseInterceptors(FileInterceptor('excel'))
-  @UseGuards(JwtAuthGuard)
   async createBulkProductsFromExcel(
     @Body() body: CreateBulkPriceListProductsDto,
     @UploadedFile() excel: Express.Multer.File,
@@ -87,13 +85,11 @@ export class PriceListProductController {
   }
 
   @Put()
-  @UseGuards(JwtAuthGuard)
   async update(@Body() priceListProduct: UpdatePriceListProductDto) {
     return await this.priceListProductService.update(priceListProduct);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   async delete(@Param('id') id: number) {
     return await this.priceListProductService.delete(id);
   }

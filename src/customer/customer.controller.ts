@@ -21,11 +21,11 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 
 @Controller('customers')
+@UseGuards(JwtAuthGuard)
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async getCustomers(@Query() query?: GetCustomersDto) {
     // If no query is provided, return all customers
     if (!query) {
@@ -57,19 +57,16 @@ export class CustomerController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   async getCustomerById(@Param('id') id: string) {
     return await this.customerService.findOneById(id);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async createCustomer(@Body() createCustomerDto: CreateCustomerDto) {
     return await this.customerService.create(createCustomerDto);
   }
 
   @Patch()
-  @UseGuards(JwtAuthGuard)
   async updateCustomer(@Body() updateCustomerDto: UpdateCustomerDto) {
     return await this.customerService.update(updateCustomerDto);
   }

@@ -6,11 +6,15 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 // Services
 import { OrderService } from './order.service';
 import { CustomerService } from 'src/customer/customer.service';
+
+// Guards
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 // DTOs
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -18,6 +22,7 @@ import { GetOrdersDto } from './dto/get-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
 @Controller('orders')
+@UseGuards(JwtAuthGuard)
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,

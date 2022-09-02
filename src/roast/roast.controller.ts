@@ -19,11 +19,11 @@ import { CreateRoastDto } from './dto/create-roast.dto';
 import { GetRoastsDto } from './dto/get-roasts.dto';
 
 @Controller('roasts')
+@UseGuards(JwtAuthGuard)
 export class RoastController {
   constructor(private readonly roastService: RoastService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async getRoasts(@Query() query?: GetRoastsDto) {
     // If no query is provided, return all roasts
     if (!query) {
@@ -54,14 +54,12 @@ export class RoastController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   async getRoastById(@Param('id') id: string) {
     const roast = await this.roastService.findById(id);
     return { roast };
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async createRoast(@Body() createRoastDto: CreateRoastDto) {
     return await this.roastService.createRoast(createRoastDto);
   }

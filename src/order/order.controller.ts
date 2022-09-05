@@ -13,6 +13,7 @@ import {
 // Services
 import { OrderService } from './order.service';
 import { CustomerService } from 'src/customer/customer.service';
+import { OrderProductService } from 'src/order-product/order-product.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { GetOrdersDto } from './dto/get-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { UpdateOrderProductsDto } from './dto/update-order-products.dto';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -28,6 +30,7 @@ export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     private readonly customerService: CustomerService,
+    private readonly orderProductService: OrderProductService,
   ) {}
 
   @Get()
@@ -155,6 +158,52 @@ export class OrderController {
   @Patch()
   async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
     return await this.orderService.update(updateOrderDto);
+  }
+
+  @Patch('/order_products')
+  async updateOrderProducts(
+    @Body() updateOrderProductsDto: UpdateOrderProductsDto,
+  ) {
+    const { orderNumber } = updateOrderProductsDto;
+
+    // Get order
+    const order = await this.orderService.findOneByOrderNumber(orderNumber);
+
+    // Old price set
+    const priceSet = {
+      subTotal: order.subTotal,
+      taxTotal: order.taxTotal,
+      total: order.total,
+      customerBalanceAfterOrder: order.customerBalanceAfterOrder,
+    };
+    let newOrderProductsTotal = 0;
+
+    // Calculate new price set
+    updateOrderProductsDto.orderProducts.forEach((orderProduct) => {
+      priceSet.subTotal += orderProduct.subTotal;
+      priceSet.taxTotal += orderProduct.subTotal * (orderProduct.taxRate / 100);
+      priceSet.total += orderProduct.total;
+      newOrderProductsTotal += orderProduct.total;
+    });
+
+    // Calculate customer balance after order
+    const customer = await this.customerService.findOneById(order.customerId);
+    priceSet.customerBalanceAfterOrder += newOrderProductsTotal;
+
+    // Update customer's current balance
+    await this.customerService.update({
+      id: customer.id,
+      currentBalance: customer.currentBalance + newOrderProductsTotal,
+    });
+
+    // Update order products and order price set
+    await this.orderService.updateOrderProducts(updateOrderProductsDto);
+    await this.orderService.update({
+      orderNumber,
+      ...priceSet,
+    });
+
+    return { success: true };
   }
 
   @Post('/cancel/:orderNumber')

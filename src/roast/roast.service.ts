@@ -6,11 +6,11 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { BlendService } from 'src/blend/blend.service';
 
 // Entities
+import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import { Roast } from './entities/roast.entity';
 
 // DTOs
 import { CreateRoastDto } from './dto/create-roast.dto';
-import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 
 @Injectable()
 export class RoastService {
@@ -61,11 +61,10 @@ export class RoastService {
     let totalDifferenceAmount = 0;
 
     createRoastDto.roastDetails.forEach((roastDetail) => {
-      roastDetail.forEach((detail) => {
-        totalInputAmount += detail.inputAmount;
-        totalOutputAmount += detail.outputAmount;
-        totalDifferenceAmount += detail.inputAmount - detail.outputAmount;
-      });
+      totalInputAmount += roastDetail.inputAmount;
+      totalOutputAmount += roastDetail.outputAmount;
+      totalDifferenceAmount +=
+        roastDetail.inputAmount - roastDetail.outputAmount;
     });
 
     // Create new roast
@@ -79,20 +78,18 @@ export class RoastService {
 
     // Create roast details
     const roastDetails: RoastDetail[] = [];
-    for (const [index, roundDetails] of createRoastDto.roastDetails.entries()) {
-      for (const roastDetail of roundDetails) {
-        await this.blendService.blend(
-          roastDetail.productId,
-          roastDetail.inputAmount,
-          roastDetail.outputAmount,
-        );
+    for (const [index, roastDetail] of createRoastDto.roastDetails.entries()) {
+      await this.blendService.blend(
+        roastDetail.productId,
+        roastDetail.inputAmount,
+        roastDetail.outputAmount,
+      );
 
-        roastDetails.push({
-          ...roastDetail,
-          roundId: `${id}P${index + 1}`,
-          differenceAmount: roastDetail.inputAmount - roastDetail.outputAmount,
-        });
-      }
+      roastDetails.push({
+        ...roastDetail,
+        roundId: `${id}P${index + 1}`,
+        differenceAmount: roastDetail.inputAmount - roastDetail.outputAmount,
+      });
     }
 
     // Save roast details

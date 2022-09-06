@@ -21,6 +21,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('products')
+@UseGuards(JwtAuthGuard)
 export class ProductController {
   constructor(
     private readonly productService: ProductService,
@@ -28,26 +29,22 @@ export class ProductController {
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   getProducts() {
     return this.productService.findAll();
   }
 
   @Get('/storageType/:storageType')
-  @UseGuards(JwtAuthGuard)
   async getProductsByStorageType(@Param('storageType') storageType: string) {
     return this.productService.findAllByStorageType(storageType);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async createProduct(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
   }
 
   @Post('/bulk/excel')
   @UseInterceptors(FileInterceptor('excel'))
-  @UseGuards(JwtAuthGuard)
   async createBulkProductsFromExcel(
     @UploadedFile() excel: Express.Multer.File,
   ) {

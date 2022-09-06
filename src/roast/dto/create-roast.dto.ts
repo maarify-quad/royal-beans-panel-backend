@@ -12,5 +12,5 @@ export class CreateRoastDto {
   @ArrayMinSize(1, { message: 'Kavrum için en az 1 ürün gereklidir' })
   @IsArray({ message: 'Kavrum ürünleri sizi türünde olmalıdır' })
   @Type(() => CreateRoastDetailDto)
-  roastDetails: RoastDetail[][];
+  roastDetails: RoastDetail[];
 }

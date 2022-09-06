@@ -33,4 +33,8 @@ export class OrderProductService {
       take: last,
     });
   }
+
+  async create(orderProduct: OrderProduct): Promise<OrderProduct> {
+    return await this.orderProductRepository.save(orderProduct);
+  }
 }

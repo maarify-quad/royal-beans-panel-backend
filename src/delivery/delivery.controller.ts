@@ -23,6 +23,7 @@ import { GetDeliveriesDto } from './dto/get-deliveries.dto';
 import { Response } from 'express';
 
 @Controller('deliveries')
+@UseGuards(JwtAuthGuard)
 export class DeliveryController {
   constructor(
     private readonly deliveryService: DeliveryService,
@@ -31,7 +32,6 @@ export class DeliveryController {
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async findAll(
     @Res({ passthrough: true }) res: Response,
     @Query() query?: GetDeliveriesDto,
@@ -82,13 +82,11 @@ export class DeliveryController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   findOneById(@Param('id') id: string): Promise<any> {
     return this.deliveryService.findOneById(id);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(@Body() createDeliveryDto: CreateDeliveryDto): Promise<any> {
     // If supplier id starts with `NEW_` prefix, it means a new supplier is created on client-side so create new supplier and save it
     if (createDeliveryDto.supplierId.startsWith('NEW_')) {

@@ -4,12 +4,17 @@ import {
   IsArray,
   IsDateString,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { CreateOrderProductDto } from 'src/order-product/dto/create-order-product.dto';
+
+// Entities
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
+
+// DTOs
+import { CreateOrderProductDto } from 'src/order-product/dto/create-order-product.dto';
 
 export class CreateOrderDto {
   @IsString()
@@ -21,6 +26,10 @@ export class CreateOrderDto {
   @IsString()
   @IsOptional()
   specialNote?: string;
+
+  @IsNumber()
+  @IsOptional()
+  deliveryAddressId: number;
 
   @IsString()
   @IsNotEmpty()

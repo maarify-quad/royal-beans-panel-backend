@@ -103,7 +103,7 @@ export class Customer {
   @OneToMany(
     () => DeliveryAddress,
     (deliveryAddress) => deliveryAddress.customer,
-    { cascade: true },
+    { cascade: true, eager: true },
   )
   deliveryAddresses: DeliveryAddress[];
 }

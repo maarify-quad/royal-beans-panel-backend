@@ -12,6 +12,7 @@ import {
 // Entities
 import { Customer } from 'src/customer/entities/customer.entity';
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
+import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
 
 @Entity({ name: 'orders' })
 export class Order {
@@ -20,6 +21,9 @@ export class Order {
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   customerId: string;
+
+  @Column({ type: 'int', default: null })
+  deliveryAddressId: number | null;
 
   @Column({ type: 'int', nullable: false })
   orderNumber: number;
@@ -68,6 +72,16 @@ export class Order {
   })
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
+
+  @ManyToOne(
+    () => DeliveryAddress,
+    (deliveryAddress) => deliveryAddress.orders,
+    {
+      cascade: true,
+    },
+  )
+  @JoinColumn({ name: 'deliveryAddressId' })
+  deliveryAddress: DeliveryAddress;
 
   @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, {
     cascade: true,

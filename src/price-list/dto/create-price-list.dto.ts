@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePriceListDto {
   @IsString()
@@ -7,5 +7,9 @@ export class CreatePriceListDto {
 
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  cloneDefaultPriceList?: boolean;
 }

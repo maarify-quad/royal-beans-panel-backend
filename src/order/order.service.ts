@@ -68,9 +68,10 @@ export class OrderService {
 
     // Create new order
     const newOrder = this.orderRepository.create({
-      orderNumber,
       ...createOrderDto,
       ...priceSet,
+      orderNumber,
+      deliveryAddressId: createOrderDto.deliveryAddressId || null,
     });
 
     // Save order

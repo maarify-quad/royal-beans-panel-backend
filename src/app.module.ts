@@ -25,6 +25,7 @@ import { PriceListModule } from './price-list/price-list.module';
 import { PriceListProductModule } from './price-list-product/price-list-product.module';
 import { OrderModule } from './order/order.module';
 import { OrderProductModule } from './order-product/order-product.module';
+import { DeliveryAddressModule } from './delivery-address/delivery-address.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { OrderProductModule } from './order-product/order-product.module';
     PriceListProductModule,
     OrderModule,
     OrderProductModule,
+    DeliveryAddressModule,
   ],
   controllers: [AppController],
   providers: [

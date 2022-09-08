@@ -12,6 +12,7 @@ import {
 // Entities
 import { PriceList } from 'src/price-list/entities/price-list.entity';
 import { Order } from 'src/order/entities/order.entity';
+import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
 
 @Entity({ name: 'customers' })
 export class Customer {
@@ -98,4 +99,11 @@ export class Customer {
 
   @OneToMany(() => Order, (order) => order.customer)
   orders: Order[];
+
+  @OneToMany(
+    () => DeliveryAddress,
+    (deliveryAddress) => deliveryAddress.customer,
+    { cascade: true, eager: true },
+  )
+  deliveryAddresses: DeliveryAddress[];
 }

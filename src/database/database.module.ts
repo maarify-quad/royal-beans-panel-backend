@@ -17,6 +17,7 @@ import { PriceListProduct } from 'src/price-list-product/entities/price-list-pro
 import { Order } from 'src/order/entities/order.entity';
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
+import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
           PriceListProduct,
           Order,
           OrderProduct,
+          DeliveryAddress,
         ],
         synchronize: process.env.TYPEORM_SYNC === 'true',
       }),

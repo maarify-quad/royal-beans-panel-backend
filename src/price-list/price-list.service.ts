@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
-import { CreatePriceListDto } from './dto/create-price-list.dto';
 
 // Entities
 import { PriceList } from './entities/price-list.entity';
+
+// DTOs
+import { CreatePriceListDto } from './dto/create-price-list.dto';
 
 @Injectable()
 export class PriceListService {

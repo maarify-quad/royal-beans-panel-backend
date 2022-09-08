@@ -36,13 +36,6 @@ export class DeliveryController {
     @Res({ passthrough: true }) res: Response,
     @Query() query?: GetDeliveriesDto,
   ): Promise<any> {
-    // Test
-    res.cookie('test', 'testValue', {
-      sameSite: 'lax',
-      httpOnly: true,
-      secure: true,
-    });
-
     // If no query is provided, return all deliveries
     if (!query) {
       const deliveries = await this.deliveryService.findAll({

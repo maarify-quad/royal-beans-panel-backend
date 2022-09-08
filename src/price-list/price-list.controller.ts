@@ -10,6 +10,7 @@ import {
 
 // Services
 import { PriceListService } from './price-list.service';
+import { PriceListProductService } from 'src/price-list-product/price-list-product.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -21,7 +22,10 @@ import { CreatePriceListDto } from './dto/create-price-list.dto';
 @Controller('price_lists')
 @UseGuards(JwtAuthGuard)
 export class PriceListController {
-  constructor(private readonly priceListService: PriceListService) {}
+  constructor(
+    private readonly priceListService: PriceListService,
+    private readonly priceListProductService: PriceListProductService,
+  ) {}
 
   @Get()
   async getPriceLists(@Query() query?: GetPriceListsDto) {
@@ -60,6 +64,25 @@ export class PriceListController {
 
   @Post()
   async createPriceList(@Body() createPriceListDto: CreatePriceListDto) {
-    return await this.priceListService.create(createPriceListDto);
+    if (createPriceListDto.cloneDefaultPriceList) {
+      const { priceListProducts } = await this.priceListService.findOneById(1);
+      const newPriceList = await this.priceListService.create(
+        createPriceListDto,
+      );
+
+      for (const priceListProduct of priceListProducts) {
+        await this.priceListProductService.create({
+          priceListId: newPriceList.id,
+          productId: priceListProduct.productId,
+          unitPrice: priceListProduct.unitPrice,
+          taxRate: priceListProduct.taxRate,
+        });
+      }
+
+      return newPriceList;
+    }
+
+    const newPriceList = await this.priceListService.create(createPriceListDto);
+    return newPriceList;
   }
 }

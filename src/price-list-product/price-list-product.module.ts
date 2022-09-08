@@ -45,5 +45,6 @@ import { ExcelModule } from 'src/excel/excel.module';
   ],
   controllers: [PriceListProductController],
   providers: [PriceListProductService],
+  exports: [PriceListProductService],
 })
 export class PriceListProductModule {}

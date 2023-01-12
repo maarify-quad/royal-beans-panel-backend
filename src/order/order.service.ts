@@ -3,12 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 
 // Entities
-import { Order } from './entities/order.entity';
+import { Order, OrderType } from './entities/order.entity';
 
 // DTOs
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderProductsDto } from './dto/update-order-products.dto';
+import { CreateManualOrderDto } from './dto/create-manual-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -29,10 +30,10 @@ export class OrderService {
     });
   }
 
-  async findOneByOrderNumber(orderNumber: number): Promise<Order> {
+  async findOneByOrderId(orderId: string): Promise<Order> {
     return await this.orderRepository.findOneOrFail({
       where: {
-        orderNumber,
+        orderId,
       },
       relations: {
         customer: true,
@@ -40,6 +41,7 @@ export class OrderService {
           priceListProduct: {
             product: true,
           },
+          product: true,
         },
       },
     });
@@ -50,28 +52,34 @@ export class OrderService {
   }
 
   async create(
-    createOrderDto: CreateOrderDto,
+    dto: CreateOrderDto | CreateManualOrderDto,
     priceSet: {
       subTotal: number;
       taxTotal: number;
       total: number;
     },
+    type: OrderType,
   ): Promise<Order> {
-    // Find latest delivery id
+    // Find latest order id
     const [order] = await this.orderRepository.find({
+      where: { type },
       order: { id: 'DESC' },
       take: 1,
     });
 
-    // Generate new order number
+    // Generate new order number and id
     const orderNumber = order ? order.orderNumber + 1 : 1001;
+    const orderIdPrefix = type === 'BULK' ? 'S' : 'MG';
+    const orderId = `${orderIdPrefix}${orderNumber}`;
 
     // Create new order
     const newOrder = this.orderRepository.create({
-      ...createOrderDto,
+      ...dto,
       ...priceSet,
       orderNumber,
-      deliveryAddressId: createOrderDto.deliveryAddressId || null,
+      orderId,
+      type,
+      deliveryAddressId: dto.deliveryAddressId || null,
     });
 
     // Save order
@@ -79,22 +87,22 @@ export class OrderService {
   }
 
   async update(updateOrderDto: UpdateOrderDto) {
-    const { orderNumber, ...update } = updateOrderDto;
+    const { orderId, orderNumber: _orderNumber, ...update } = updateOrderDto;
 
     if (update.deliveryType) {
       update['status'] = `GÖNDERİLDİ - ${update.deliveryType}`;
     }
 
-    return await this.orderRepository.update({ orderNumber }, update);
+    return await this.orderRepository.update({ orderId }, update);
   }
 
   async updateOrderProducts(updateOrderDto: UpdateOrderProductsDto) {
-    const { orderNumber, orderProducts } = updateOrderDto;
+    const { orderId, orderProducts } = updateOrderDto;
 
     // Find order
     const order = await this.orderRepository.findOneOrFail({
       where: {
-        orderNumber,
+        orderId,
       },
       relations: {
         orderProducts: true,

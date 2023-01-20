@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 // Entities
 import { Product } from './entities/product.entity';
@@ -17,6 +17,10 @@ export class ProductService {
 
   async findAll(): Promise<Product[]> {
     return this.productRepository.find();
+  }
+
+  async findAndCount(options?: FindManyOptions<Product>) {
+    return await this.productRepository.findAndCount(options);
   }
 
   async findAllByStorageType(storageType: string): Promise<Product[]> {

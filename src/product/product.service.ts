@@ -30,7 +30,11 @@ export class ProductService {
   }
 
   async create(product: CreateProductDto) {
-    const newProduct = this.productRepository.create(product);
+    const stockCode = await this.generateStockCode(product.storageType);
+    const newProduct = this.productRepository.create({
+      ...product,
+      stockCode,
+    });
     return this.productRepository.save(newProduct);
   }
 
@@ -44,5 +48,20 @@ export class ProductService {
 
   async decrementAmount(id: number, byAmount: number) {
     return this.productRepository.decrement({ id }, 'amount', byAmount);
+  }
+
+  async generateStockCode(_storageType: string) {
+    const storageType = _storageType === 'Other' ? 'Diğer' : _storageType;
+    const lastProduct = await this.productRepository.findOne({
+      where: { storageType },
+      order: { id: 'DESC' },
+    });
+    if (!lastProduct?.stockCode || !lastProduct) {
+      return `${storageType}-10001`;
+    }
+    const lastStockCode = lastProduct.stockCode;
+    const lastStockCodeNumber = lastStockCode.split('-')[1];
+    const newStockCodeNumber = Number(lastStockCodeNumber) + 1;
+    return `${storageType}-${newStockCodeNumber}`;
   }
 }

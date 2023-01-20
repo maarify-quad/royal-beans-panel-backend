@@ -18,6 +18,7 @@ import { Order } from 'src/order/entities/order.entity';
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
+import { Role } from 'src/role/entities/role.entity';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.
         entities: [
           RefreshToken,
           User,
+          Role,
           Supplier,
           Delivery,
           DeliveryDetail,

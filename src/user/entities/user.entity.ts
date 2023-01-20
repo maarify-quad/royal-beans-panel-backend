@@ -1,15 +1,18 @@
 import { Exclude } from 'class-transformer';
+import { genSalt, hash } from 'bcryptjs';
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-// Hashing
-import { genSalt, hash } from 'bcryptjs';
+// Entities
+import { Role } from 'src/role/entities/role.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -43,4 +46,18 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToMany(() => Role, (role) => role.users, {
+    eager: true,
+  })
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'userId',
+    },
+    inverseJoinColumn: {
+      name: 'roleId',
+    },
+  })
+  roles: Role[];
 }

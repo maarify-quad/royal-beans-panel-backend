@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseGuards,
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // DTOs
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto } from './dto/get-products.dto';
+import { BulkUpdateProductsDto } from './dto/bulk-update-products.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -32,8 +34,13 @@ export class ProductController {
 
   @Get()
   async getProducts(@Query() query: GetProductsDto) {
-    const limit = parseInt(query.limit, 10);
-    const page = parseInt(query.page, 10);
+    if (!query.limit && !query.page) {
+      const products = await this.productService.findAll();
+      return { products, totalPages: 1, totalCount: products.length };
+    }
+
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     const result = await this.productService.findAndCount({
       take: limit,
@@ -49,7 +56,7 @@ export class ProductController {
 
   @Get('/storageType/:storageType')
   async getProductsByStorageType(@Param('storageType') storageType: string) {
-    return this.productService.findAllByStorageType(storageType);
+    return this.productService.findByStorageType(storageType);
   }
 
   @Post()
@@ -65,5 +72,10 @@ export class ProductController {
     const products = await this.excelService.readProducts(excel.buffer);
     await this.productService.bulkCreate(products);
     return { success: true };
+  }
+
+  @Put('/bulk')
+  async updateProduct(@Body() dto: BulkUpdateProductsDto) {
+    return await this.productService.bulkUpdate(dto);
   }
 }

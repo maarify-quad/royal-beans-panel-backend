@@ -7,6 +7,7 @@ import { Product } from './entities/product.entity';
 
 // DTOs
 import { CreateProductDto } from './dto/create-product.dto';
+import { BulkUpdateProductsDto } from './dto/bulk-update-products.dto';
 
 @Injectable()
 export class ProductService {
@@ -23,7 +24,7 @@ export class ProductService {
     return await this.productRepository.findAndCount(options);
   }
 
-  async findAllByStorageType(storageType: string): Promise<Product[]> {
+  async findByStorageType(storageType: string): Promise<Product[]> {
     return this.productRepository.find({
       where: { storageType },
     });
@@ -46,6 +47,10 @@ export class ProductService {
     return this.productRepository.save(products);
   }
 
+  async bulkUpdate(dto: BulkUpdateProductsDto) {
+    return this.productRepository.save(dto.products);
+  }
+
   async incrementAmount(id: number, byAmount: number) {
     return this.productRepository.increment({ id }, 'amount', byAmount);
   }
@@ -54,8 +59,7 @@ export class ProductService {
     return this.productRepository.decrement({ id }, 'amount', byAmount);
   }
 
-  async generateStockCode(_storageType: string) {
-    const storageType = _storageType === 'Other' ? 'Diğer' : _storageType;
+  async generateStockCode(storageType: string) {
     const lastProduct = await this.productRepository.findOne({
       where: { storageType },
       order: { id: 'DESC' },

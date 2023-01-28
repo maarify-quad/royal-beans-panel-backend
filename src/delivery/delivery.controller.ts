@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 
@@ -20,7 +19,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // DTOs
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { GetDeliveriesDto } from './dto/get-deliveries.dto';
-import { Response } from 'express';
 
 @Controller('deliveries')
 @UseGuards(JwtAuthGuard)
@@ -32,46 +30,35 @@ export class DeliveryController {
   ) {}
 
   @Get()
-  async findAll(
-    @Res({ passthrough: true }) res: Response,
-    @Query() query?: GetDeliveriesDto,
-  ): Promise<any> {
+  async findAll(@Query() query: GetDeliveriesDto): Promise<any> {
     // If no query is provided, return all deliveries
-    if (!query) {
+    if (!query.limit && !query.page) {
       const deliveries = await this.deliveryService.findAll({
-        relations: {
-          supplier: true,
-        },
-        order: {
-          id: 'DESC',
-        },
+        relations: { supplier: true },
+        order: { id: 'DESC' },
       });
-      return { deliveries };
+      return { deliveries, totalPages: 1, totalCount: deliveries.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return deliveries matching query
     const result = await this.deliveryService.findAndCount({
-      relations: {
-        supplier: true,
-      },
+      relations: { supplier: true },
       take: limit,
       skip: limit * (page - 1),
-      order: {
-        id: 'DESC',
-      },
+      order: { id: 'DESC' },
     });
 
     // Return deliveries and total count
     const deliveries = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { deliveries, totalPage };
+    return { deliveries, totalPages, totalCount };
   }
 
   @Get(':id')

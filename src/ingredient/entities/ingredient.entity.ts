@@ -23,11 +23,15 @@ export class Ingredient {
   @Column({ type: 'float' })
   ratio: number;
 
-  @ManyToOne(() => Product, (product) => product.ingredients)
+  @ManyToOne(() => Product, (product) => product.ingredients, {
+    eager: true,
+  })
   @JoinColumn({ name: 'productId' })
   product: Product;
 
-  @ManyToOne(() => Product)
+  @ManyToOne(() => Product, {
+    eager: true,
+  })
   @JoinColumn({ name: 'ingredientProductId' })
   ingredientProduct: Product;
 }

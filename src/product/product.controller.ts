@@ -55,8 +55,29 @@ export class ProductController {
   }
 
   @Get('/storageType/:storageType')
-  async getProductsByStorageType(@Param('storageType') storageType: string) {
-    return this.productService.findByStorageType(storageType);
+  async getProductsByStorageType(
+    @Query() query: GetProductsDto,
+    @Param('storageType') storageType: string,
+  ) {
+    if (!query.limit && !query.page) {
+      const products = await this.productService.findByStorageType(storageType);
+      return { products, totalPages: 1, totalCount: products.length };
+    }
+
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.productService.findAndCount({
+      where: { storageType },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const products = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { products, totalPages, totalCount };
   }
 
   @Post()
@@ -88,7 +109,7 @@ export class ProductController {
       where: { storageType: 'FN' },
       take: limit,
       skip: (page - 1) * limit,
-      relations: { ingredients: { product: true, ingredientProduct: true } },
+      relations: { ingredients: true },
     });
 
     const products = result[0];

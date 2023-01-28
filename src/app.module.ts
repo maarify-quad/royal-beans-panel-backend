@@ -27,6 +27,7 @@ import { OrderModule } from './order/order.module';
 import { OrderProductModule } from './order-product/order-product.module';
 import { DeliveryAddressModule } from './delivery-address/delivery-address.module';
 import { RoleModule } from './role/role.module';
+import { IngredientModule } from './ingredient/ingredient.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { RoleModule } from './role/role.module';
     DeliveryModule,
     DeliveryDetailModule,
     ProductModule,
+    IngredientModule,
     RoastModule,
     RoastDetailModule,
     BlendModule,

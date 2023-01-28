@@ -78,4 +78,23 @@ export class ProductController {
   async updateProduct(@Body() dto: BulkUpdateProductsDto) {
     return await this.productService.bulkUpdate(dto);
   }
+
+  @Get('/ingredients')
+  async getProductsWithIngredients(@Query() query: GetProductsDto) {
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.productService.findAndCount({
+      where: { storageType: 'FN' },
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: { ingredients: { product: true, ingredientProduct: true } },
+    });
+
+    const products = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { products, totalPages, totalCount };
+  }
 }

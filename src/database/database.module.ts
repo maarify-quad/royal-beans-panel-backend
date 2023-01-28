@@ -19,6 +19,7 @@ import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
 import { Role } from 'src/role/entities/role.entity';
+import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { Role } from 'src/role/entities/role.entity';
           Delivery,
           DeliveryDetail,
           Product,
+          Ingredient,
           Roast,
           RoastDetail,
           Blend,

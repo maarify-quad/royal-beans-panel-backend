@@ -1,4 +1,5 @@
 import { Blend } from 'src/blend/entities/blend.entity';
+import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import {
   Column,
@@ -48,4 +49,7 @@ export class Product {
     cascade: true,
   })
   roastDetails: RoastDetail[];
+
+  @OneToMany(() => Ingredient, (ingredient) => ingredient.product)
+  ingredients: Ingredient[];
 }

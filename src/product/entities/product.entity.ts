@@ -18,8 +18,8 @@ export class Product {
   @Column({ type: 'text', nullable: false })
   name: string;
 
-  @Column({ type: 'text', nullable: true, default: null })
-  stockCode: string | null;
+  @Column({ type: 'varchar', length: 255, unique: true })
+  stockCode: string;
 
   @Column({ type: 'text', nullable: false })
   storageType: string;

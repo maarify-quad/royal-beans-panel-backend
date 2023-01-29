@@ -118,4 +118,9 @@ export class ProductController {
 
     return { products, totalPages, totalCount };
   }
+
+  @Get('/:stockCode/ingredients')
+  async getProductByIdWithIngredients(@Param('stockCode') stockCode: string) {
+    return await this.productService.findByStockCodeWithIngredients(stockCode);
+  }
 }

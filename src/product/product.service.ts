@@ -34,6 +34,15 @@ export class ProductService {
     return this.productRepository.findOne({ where: { id } });
   }
 
+  async findByStockCodeWithIngredients(
+    stockCode: string,
+  ): Promise<Product | null> {
+    return this.productRepository.findOne({
+      where: { stockCode },
+      relations: { ingredients: true },
+    });
+  }
+
   async create(product: CreateProductDto) {
     const stockCode = await this.generateStockCode(product.storageType);
     const newProduct = this.productRepository.create({

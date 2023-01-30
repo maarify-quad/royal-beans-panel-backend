@@ -18,4 +18,8 @@ export class IngredientService {
   async createMany(dto: CreateIngredientsDto) {
     return await this.ingredientRepo.save(dto.ingredients);
   }
+
+  async delete(id: number) {
+    return await this.ingredientRepo.delete(id);
+  }
 }

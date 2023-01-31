@@ -12,6 +12,7 @@ import {
 
 // Services
 import { OrderService } from './order.service';
+import { StockService } from 'src/stock/stock.service';
 import { CustomerService } from 'src/customer/customer.service';
 
 // Guards
@@ -29,6 +30,7 @@ import { CreateManualOrderDto } from './dto/create-manual-order.dto';
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
+    private readonly stockService: StockService,
     private readonly customerService: CustomerService,
   ) {}
 
@@ -172,6 +174,15 @@ export class OrderController {
 
   @Patch()
   async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
+    const order = await this.orderService.findOneByOrderId(
+      updateOrderDto.orderId,
+    );
+    if (updateOrderDto.deliveryType && !order.status.startsWith('GÖNDERİLDİ')) {
+      await this.stockService.updateStocksFromOrderProducts(
+        order.orderProducts,
+        order.type,
+      );
+    }
     return await this.orderService.update(updateOrderDto);
   }
 

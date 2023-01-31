@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsRelations, Repository } from 'typeorm';
 import { OrderProduct } from './entities/order-product.entity';
 
 @Injectable()
@@ -9,6 +9,16 @@ export class OrderProductService {
     @InjectRepository(OrderProduct)
     private readonly orderProductRepository: Repository<OrderProduct>,
   ) {}
+
+  async findOneWithRelations(
+    id: number,
+    relations?: FindOptionsRelations<OrderProduct>,
+  ) {
+    return await this.orderProductRepository.findOne({
+      where: { id },
+      relations,
+    });
+  }
 
   async findLatestProductsByCustomer(
     customer: string,

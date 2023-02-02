@@ -4,7 +4,7 @@ import { OrderType } from '../entities/order.entity';
 export class GetOrdersDto {
   @IsNumberString({}, { message: 'Limit metinsel sayı türünde olmalıdır' })
   @IsOptional()
-  readonly limit = '1';
+  readonly limit = '25';
 
   @IsNumberString({}, { message: 'Sayfa metinsel sayı türünde olmalıdır' })
   @IsOptional()

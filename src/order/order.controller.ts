@@ -35,16 +35,16 @@ export class OrderController {
   ) {}
 
   @Get()
-  async getOrders(@Query() query?: GetOrdersDto) {
+  async getOrders(@Query() query: GetOrdersDto) {
     // If no query is provided, return all orders
-    if (!query) {
+    if (!query.limit && !query.page && !query.type) {
       const orders = await this.orderService.findAll();
-      return { orders };
+      return { orders, totalPages: 1, totalCount: orders.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10);
-    const page = parseInt(query.page, 10);
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return orders matching query
     const result = await this.orderService.findAndCount({
@@ -57,11 +57,11 @@ export class OrderController {
 
     // Return orders and total count
     const orders = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { orders, totalPage };
+    return { orders, totalPages, totalCount };
   }
 
   @Get('/orderId/:orderId')

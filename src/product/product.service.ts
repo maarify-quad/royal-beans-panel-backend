@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOptionsRelations, Repository } from 'typeorm';
 
 // Entities
 import { Product } from './entities/product.entity';
@@ -34,12 +34,13 @@ export class ProductService {
     return this.productRepository.findOne({ where: { id } });
   }
 
-  async findByStockCodeWithIngredients(
+  async findByStockCodeWithRelations(
     stockCode: string,
+    relations?: FindOptionsRelations<Product>,
   ): Promise<Product | null> {
     return this.productRepository.findOne({
       where: { stockCode },
-      relations: { ingredients: true },
+      relations,
     });
   }
 
@@ -52,7 +53,16 @@ export class ProductService {
     return this.productRepository.save(newProduct);
   }
 
-  async bulkCreate(products: CreateProductDto[]) {
+  async bulkCreate(dto: CreateProductDto[]) {
+    const products = [];
+    for (const product of dto) {
+      const stockCode = await this.generateStockCode(product.storageType);
+      const newProduct = {
+        ...product,
+        stockCode,
+      };
+      products.push(newProduct);
+    }
     return this.productRepository.save(products);
   }
 

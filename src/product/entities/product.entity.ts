@@ -1,4 +1,5 @@
 import { Blend } from 'src/blend/entities/blend.entity';
+import { DeliveryDetail } from 'src/delivery-detail/entities/delivery-detail.entity';
 import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import {
@@ -38,6 +39,9 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => DeliveryDetail, (deliveryDetail) => deliveryDetail.product)
+  deliveryDetails: DeliveryDetail[];
 
   @OneToMany(() => Blend, (blend) => blend.outputProduct)
   outputBlends: Blend[];

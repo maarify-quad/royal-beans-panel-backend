@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -80,26 +81,6 @@ export class ProductController {
     return { products, totalPages, totalCount };
   }
 
-  @Post()
-  async createProduct(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
-  }
-
-  @Post('/bulk/excel')
-  @UseInterceptors(FileInterceptor('excel'))
-  async createBulkProductsFromExcel(
-    @UploadedFile() excel: Express.Multer.File,
-  ) {
-    const products = await this.excelService.readProducts(excel.buffer);
-    await this.productService.bulkCreate(products);
-    return { success: true };
-  }
-
-  @Put('/bulk')
-  async updateProduct(@Body() dto: BulkUpdateProductsDto) {
-    return await this.productService.bulkUpdate(dto);
-  }
-
   @Get('/ingredients')
   async getProductsWithIngredients(@Query() query: GetProductsDto) {
     const limit = parseInt(query.limit || '25', 10);
@@ -121,6 +102,63 @@ export class ProductController {
 
   @Get('/:stockCode/ingredients')
   async getProductByIdWithIngredients(@Param('stockCode') stockCode: string) {
-    return await this.productService.findByStockCodeWithIngredients(stockCode);
+    return await this.productService.findByStockCodeWithRelations(stockCode, {
+      ingredients: true,
+    });
+  }
+
+  @Get('/:stockCode/deliveries')
+  async getProductDeliveries(
+    @Query() query: GetProductsDto,
+    @Param('stockCode') stockCode: string,
+  ) {
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.productService.findAndCount({
+      where: { stockCode },
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: { deliveryDetails: { delivery: true } },
+    });
+
+    const products = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { products, totalPages, totalCount };
+  }
+
+  @Get('/:stockCode')
+  async getProductByStockCode(@Param('stockCode') stockCode: string) {
+    const product = await this.productService.findByStockCodeWithRelations(
+      stockCode,
+    );
+
+    if (!product) {
+      throw new NotFoundException('Stok koduyla eşleşen ürün bulunamadı');
+    }
+
+    return product;
+  }
+
+  @Post()
+  async createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.productService.create(createProductDto);
+  }
+
+  @Post('/bulk/excel')
+  @UseInterceptors(FileInterceptor('excel'))
+  async createBulkProductsFromExcel(
+    @UploadedFile() excel: Express.Multer.File,
+  ) {
+    const products = await this.excelService.readProducts(excel.buffer);
+    await this.productService.bulkCreate(products);
+    return { success: true };
+  }
+
+  @Put('/bulk')
+  async updateProduct(@Body() dto: BulkUpdateProductsDto) {
+    return await this.productService.bulkUpdate(dto);
   }
 }

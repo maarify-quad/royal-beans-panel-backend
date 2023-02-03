@@ -30,7 +30,7 @@ export class DeliveryController {
   ) {}
 
   @Get()
-  async findAll(@Query() query: GetDeliveriesDto): Promise<any> {
+  async findAll(@Query() query: GetDeliveriesDto) {
     // If no query is provided, return all deliveries
     if (!query.limit && !query.page) {
       const deliveries = await this.deliveryService.findAll({
@@ -62,12 +62,44 @@ export class DeliveryController {
   }
 
   @Get(':id')
-  findOneById(@Param('id') id: string): Promise<any> {
+  findOneById(@Param('id') id: string) {
     return this.deliveryService.findOneById(id);
   }
 
+  @Get('/product/:stockCode')
+  async getProductDeliveryDetails(
+    @Query() query: GetDeliveriesDto,
+    @Param('stockCode') stockCode: string,
+  ) {
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.deliveryService.findAndCount({
+      where: { deliveryDetails: { product: { stockCode } } },
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: {
+        deliveryDetails: { product: true, delivery: { supplier: true } },
+      },
+    });
+
+    const deliveryDetails = result[0]
+      .map((delivery) => {
+        const deliveryDetails = delivery.deliveryDetails.filter(
+          (deliveryDetail) => deliveryDetail.product.stockCode === stockCode,
+        );
+
+        return deliveryDetails;
+      })
+      .flat();
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { deliveryDetails, totalPages, totalCount };
+  }
+
   @Post()
-  async create(@Body() createDeliveryDto: CreateDeliveryDto): Promise<any> {
+  async create(@Body() createDeliveryDto: CreateDeliveryDto) {
     // If supplier id starts with `NEW_` prefix, it means a new supplier is created on client-side so create new supplier and save it
     if (createDeliveryDto.supplierId.startsWith('NEW_')) {
       const newSupplier = await this.supplierService.create({

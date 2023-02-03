@@ -50,7 +50,7 @@ export class ProductService {
       ...product,
       stockCode,
     });
-    return this.productRepository.save(newProduct);
+    return await this.productRepository.save(newProduct);
   }
 
   async bulkCreate(dto: CreateProductDto[]) {

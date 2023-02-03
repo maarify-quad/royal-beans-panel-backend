@@ -120,17 +120,19 @@ export class DeliveryController {
       taxTotal += deliveryDetail.subTotal * (deliveryDetail.taxRate / 100);
       total += deliveryDetail.total;
 
-      // If product id is negative it means a new product is created on client-side so create new product and save it
-      if (deliveryDetail.productId <= 0) {
+      // If product id is less than 1 it means a new product is created on client-side so create new product and save it
+      if (deliveryDetail.productId < 1) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...createProduct } = deliveryDetail.product;
 
         // Create new product
         const newProduct = await this.productService.create(createProduct);
+        console.log(newProduct);
 
         // Set product id to new product id
         deliveryDetail.productId = newProduct.id;
         deliveryDetail.product.id = newProduct.id;
+        deliveryDetail.product.stockCode = newProduct.stockCode;
       } else {
         // Update existing product's amount
         await this.productService.incrementAmount(

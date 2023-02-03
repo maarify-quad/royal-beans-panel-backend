@@ -63,12 +63,17 @@ export class DeliveryService {
     newDelivery.supplierId = delivery.supplierId;
 
     // Map over delivery details and calculate tax price
-    newDelivery.deliveryDetails = delivery.deliveryDetails.map((detail) => {
-      return {
-        ...detail,
-        taxTotal: detail.subTotal * (detail.taxRate / 100),
-      };
-    });
+    newDelivery.deliveryDetails = delivery.deliveryDetails.map(
+      ({ product: _product, ...detail }) => {
+        console.log(detail.productId);
+
+        return {
+          ...detail,
+          productId: detail.productId,
+          taxTotal: detail.subTotal * (detail.taxRate / 100),
+        };
+      },
+    ) as any;
 
     // Save new delivery
     return this.deliveryRepository.save(newDelivery);

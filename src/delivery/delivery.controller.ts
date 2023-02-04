@@ -98,6 +98,27 @@ export class DeliveryController {
     return { deliveryDetails, totalPages, totalCount };
   }
 
+  @Get('/supplier/:id')
+  async getSupplierDeliveries(
+    @Query() query: GetDeliveriesDto,
+    @Param('id') id: string,
+  ) {
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.deliveryService.findAndCount({
+      where: { supplierId: id },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const deliveries = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { deliveries, totalPages, totalCount };
+  }
+
   @Post()
   async create(@Body() createDeliveryDto: CreateDeliveryDto) {
     // If supplier id starts with `NEW_` prefix, it means a new supplier is created on client-side so create new supplier and save it

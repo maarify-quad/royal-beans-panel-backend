@@ -23,12 +23,9 @@ export class SupplierService {
     return await this.supplierRepository.findAndCount(options);
   }
 
-  async findOneById(id: string): Promise<Supplier> {
+  async findOneById(id: string) {
     return this.supplierRepository.findOne({
       where: { id },
-      relations: {
-        deliveries: true,
-      },
     });
   }
 

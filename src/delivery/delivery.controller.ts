@@ -32,7 +32,7 @@ export class DeliveryController {
   @Get()
   async findAll(@Query() query: GetDeliveriesDto) {
     // If no query is provided, return all deliveries
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const deliveries = await this.deliveryService.findAll({
         relations: { supplier: true },
         order: { id: 'DESC' },

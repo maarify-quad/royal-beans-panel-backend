@@ -24,9 +24,9 @@ export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @Get()
-  async getSuppliers(@Query() query: GetSuppliersDto): Promise<any> {
+  async getSuppliers(@Query() query: GetSuppliersDto) {
     // If no query is provided, return all suppliers
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const suppliers = await this.supplierService.findAll({
         order: { name: 'ASC' },
       });
@@ -54,12 +54,12 @@ export class SupplierController {
   }
 
   @Get(':id')
-  getSupplierById(@Param('id') id: string): Promise<any> {
+  getSupplierById(@Param('id') id: string) {
     return this.supplierService.findOneById(id);
   }
 
   @Post()
-  createSupplier(@Body() createSupplierDto: CreateSupplierDto): Promise<any> {
+  createSupplier(@Body() createSupplierDto: CreateSupplierDto) {
     return this.supplierService.create(createSupplierDto);
   }
 }

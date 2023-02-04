@@ -60,7 +60,7 @@ export class ProductController {
     @Query() query: GetProductsDto,
     @Param('storageType') storageType: string,
   ) {
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const products = await this.productService.findByStorageType(storageType);
       return { products, totalPages: 1, totalCount: products.length };
     }

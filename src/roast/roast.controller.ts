@@ -26,7 +26,7 @@ export class RoastController {
   @Get()
   async getRoasts(@Query() query: GetRoastsDto) {
     // If no query is provided, return all roasts
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const roasts = await this.roastService.findAll();
       return { roasts, totalPages: 1, totalCount: roasts.length };
     }

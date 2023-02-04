@@ -37,7 +37,7 @@ export class OrderController {
   @Get()
   async getOrders(@Query() query: GetOrdersDto) {
     // If no query is provided, return all orders
-    if (!query.limit && !query.page && !query.type) {
+    if (!query.limit || !query.page || !query.type) {
       const orders = await this.orderService.findAll();
       return { orders, totalPages: 1, totalCount: orders.length };
     }
@@ -76,7 +76,7 @@ export class OrderController {
     @Query() query: GetOrdersDto,
   ) {
     // If no query is provided, return all orders
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const orders = await this.orderService.findAll({
         where: {
           customer: {
@@ -91,8 +91,8 @@ export class OrderController {
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10);
-    const page = parseInt(query.page, 10);
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return orders matching query
     const result = await this.orderService.findAndCount({

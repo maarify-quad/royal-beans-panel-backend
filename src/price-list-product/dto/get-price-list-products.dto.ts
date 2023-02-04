@@ -1,11 +1,11 @@
 import { IsNumberString, IsOptional } from 'class-validator';
 
-export class GetDeliveriesDto {
+export class GetPriceListProductsDto {
   @IsNumberString({}, { message: 'Limit metinsel sayı türünde olmalıdır' })
   @IsOptional()
-  limit?: string;
+  readonly limit?: string;
 
   @IsNumberString({}, { message: 'Sayfa metinsel sayı türünde olmalıdır' })
   @IsOptional()
-  page?: string;
+  readonly page?: string;
 }

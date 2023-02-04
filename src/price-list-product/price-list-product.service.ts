@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 
 // Entities
 import { PriceListProduct } from './entities/price-list-product.entity';
@@ -16,13 +16,17 @@ export class PriceListProductService {
     private readonly priceListProductRepository: Repository<PriceListProduct>,
   ) {}
 
-  async findByPriceListId(priceListId: number): Promise<PriceListProduct[]> {
+  async findByPriceListId(priceListId: number) {
     return this.priceListProductRepository.find({
       where: { priceListId },
       relations: {
         product: true,
       },
     });
+  }
+
+  async findAndCount(options?: FindManyOptions<PriceListProduct>) {
+    return await this.priceListProductRepository.findAndCount(options);
   }
 
   async create(

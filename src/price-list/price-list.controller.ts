@@ -30,14 +30,14 @@ export class PriceListController {
   @Get()
   async getPriceLists(@Query() query: GetPriceListsDto) {
     // If no query is provided, return all price lists
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const priceLists = await this.priceListService.findAll();
       return { priceLists };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 25;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return price lists matching query
     const result = await this.priceListService.findAndCount({

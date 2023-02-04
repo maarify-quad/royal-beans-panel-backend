@@ -28,7 +28,7 @@ export class CustomerController {
   @Get()
   async getCustomers(@Query() query: GetCustomersDto) {
     // If no query is provided, return all customers
-    if (!query.limit && !query.page) {
+    if (!query.limit || !query.page) {
       const customers = await this.customerService.findAll();
       return { customers, totalPages: 1, totalCount: customers.length };
     }

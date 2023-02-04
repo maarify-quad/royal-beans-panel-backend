@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreatePriceListProductDto } from './dto/create-price-list-product.dto';
 import { CreateBulkPriceListProductsDto } from './dto/create-bulk-price-list-products.dto';
 import { UpdatePriceListProductDto } from './dto/update-price-list-product.dto';
+import { GetPriceListProductsDto } from './dto/get-price-list-products.dto';
 
 @Controller('price_list_products')
 @UseGuards(JwtAuthGuard)
@@ -35,8 +37,37 @@ export class PriceListProductController {
   ) {}
 
   @Get(':priceListId')
-  async getByPriceListId(@Param('priceListId') priceListId: number) {
-    return this.priceListProductService.findByPriceListId(priceListId);
+  async getPriceListProducts(
+    @Param('priceListId') priceListId: number,
+    @Query() query: GetPriceListProductsDto,
+  ) {
+    if (!query.limit || !query.page) {
+      const priceListProducts =
+        await this.priceListProductService.findByPriceListId(priceListId);
+      return {
+        priceListProducts,
+        totalPages: 1,
+        totalCount: priceListProducts.length,
+      };
+    }
+
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.priceListProductService.findAndCount({
+      where: { priceListId },
+      relations: {
+        product: true,
+      },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const priceListProducts = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { priceListProducts, totalPages, totalCount };
   }
 
   @Post()

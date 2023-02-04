@@ -24,18 +24,18 @@ export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @Get()
-  async getSuppliers(@Query() query?: GetSuppliersDto): Promise<any> {
+  async getSuppliers(@Query() query: GetSuppliersDto): Promise<any> {
     // If no query is provided, return all suppliers
-    if (!query) {
+    if (!query.limit && !query.page) {
       const suppliers = await this.supplierService.findAll({
         order: { name: 'ASC' },
       });
-      return { suppliers };
+      return { suppliers, totalPages: 1, totalCount: suppliers.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return suppliers matching query
     const result = await this.supplierService.findAndCount({
@@ -46,11 +46,11 @@ export class SupplierController {
 
     // Return suppliers and total count
     const suppliers = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { suppliers, totalPage };
+    return { suppliers, totalPages, totalCount };
   }
 
   @Get(':id')

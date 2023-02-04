@@ -24,16 +24,16 @@ export class RoastController {
   constructor(private readonly roastService: RoastService) {}
 
   @Get()
-  async getRoasts(@Query() query?: GetRoastsDto) {
+  async getRoasts(@Query() query: GetRoastsDto) {
     // If no query is provided, return all roasts
-    if (!query) {
+    if (!query.limit && !query.page) {
       const roasts = await this.roastService.findAll();
-      return { roasts };
+      return { roasts, totalPages: 1, totalCount: roasts.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return roasts matching query
     const result = await this.roastService.findAndCount({
@@ -46,11 +46,11 @@ export class RoastController {
 
     // Return roasts and total count
     const roasts = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { roasts, totalPage };
+    return { roasts, totalPages, totalCount };
   }
 
   @Get(':id')

@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductService } from 'src/product/product.service';
 import { Repository } from 'typeorm';
+
+// Services
+import { ProductService } from 'src/product/product.service';
+
+// Entities
 import { Blend } from './entities/blend.entity';
 
 @Injectable()

@@ -1,8 +1,13 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderProductDto {
   @IsNumber()
+  @IsOptional()
   priceListProductId: number;
+
+  @IsNumber()
+  @IsOptional()
+  productId: number;
 
   @IsString()
   grindType: string;

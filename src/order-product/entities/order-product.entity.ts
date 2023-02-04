@@ -11,6 +11,7 @@ import {
 // Entities
 import { Order } from 'src/order/entities/order.entity';
 import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Entity({ name: 'order_products' })
 export class OrderProduct {
@@ -20,8 +21,11 @@ export class OrderProduct {
   @Column({ type: 'int', nullable: false })
   orderId: number;
 
-  @Column({ type: 'int', nullable: false })
-  priceListProductId: number;
+  @Column({ type: 'int', nullable: true, default: null })
+  priceListProductId: number | null;
+
+  @Column({ type: 'int', nullable: true, default: null })
+  productId: number | null;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   grindType: string;
@@ -53,5 +57,9 @@ export class OrderProduct {
 
   @ManyToOne(() => PriceListProduct)
   @JoinColumn({ name: 'priceListProductId' })
-  priceListProduct: PriceListProduct;
+  priceListProduct: PriceListProduct | null;
+
+  @ManyToOne(() => Product)
+  @JoinColumn({ name: 'productId' })
+  product: Product | null;
 }

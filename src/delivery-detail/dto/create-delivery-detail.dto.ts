@@ -1,7 +1,7 @@
 import { IsNumber, IsString } from 'class-validator';
 
 export class CreateDeliveryDetailDto {
-  @IsNumber({}, { message: "Ürün Id'si gereklidir" })
+  @IsNumber()
   productId: number;
 
   @IsNumber({}, { message: 'Ürün miktarı sayı türünde olmalıdır' })

@@ -1,4 +1,6 @@
 import { Blend } from 'src/blend/entities/blend.entity';
+import { DeliveryDetail } from 'src/delivery-detail/entities/delivery-detail.entity';
+import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import {
   Column,
@@ -17,8 +19,8 @@ export class Product {
   @Column({ type: 'text', nullable: false })
   name: string;
 
-  @Column({ type: 'text', nullable: true, default: null })
-  stockCode: string | null;
+  @Column({ type: 'varchar', length: 255, unique: true })
+  stockCode: string;
 
   @Column({ type: 'text', nullable: false })
   storageType: string;
@@ -38,6 +40,9 @@ export class Product {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @OneToMany(() => DeliveryDetail, (deliveryDetail) => deliveryDetail.product)
+  deliveryDetails: DeliveryDetail[];
+
   @OneToMany(() => Blend, (blend) => blend.outputProduct)
   outputBlends: Blend[];
 
@@ -48,4 +53,7 @@ export class Product {
     cascade: true,
   })
   roastDetails: RoastDetail[];
+
+  @OneToMany(() => Ingredient, (ingredient) => ingredient.product)
+  ingredients: Ingredient[];
 }

@@ -26,16 +26,16 @@ export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   @Get()
-  async getCustomers(@Query() query?: GetCustomersDto) {
+  async getCustomers(@Query() query: GetCustomersDto) {
     // If no query is provided, return all customers
-    if (!query) {
+    if (!query.limit && !query.page) {
       const customers = await this.customerService.findAll();
-      return { customers };
+      return { customers, totalPages: 1, totalCount: customers.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return customers matching query
     const result = await this.customerService.findAndCount({
@@ -49,11 +49,11 @@ export class CustomerController {
 
     // Return customers and total count
     const customers = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { customers, totalPage };
+    return { customers, totalPages, totalCount };
   }
 
   @Get(':id')

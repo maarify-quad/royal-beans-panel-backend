@@ -12,8 +12,8 @@ import {
 
 // Services
 import { OrderService } from './order.service';
+import { StockService } from 'src/stock/stock.service';
 import { CustomerService } from 'src/customer/customer.service';
-import { OrderProductService } from 'src/order-product/order-product.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -23,52 +23,50 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { GetOrdersDto } from './dto/get-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderProductsDto } from './dto/update-order-products.dto';
+import { CreateManualOrderDto } from './dto/create-manual-order.dto';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrderController {
   constructor(
     private readonly orderService: OrderService,
+    private readonly stockService: StockService,
     private readonly customerService: CustomerService,
-    private readonly orderProductService: OrderProductService,
   ) {}
 
   @Get()
-  async getOrders(@Query() query?: GetOrdersDto) {
+  async getOrders(@Query() query: GetOrdersDto) {
     // If no query is provided, return all orders
-    if (!query) {
+    if (!query.limit && !query.page && !query.type) {
       const orders = await this.orderService.findAll();
-      return { orders };
+      return { orders, totalPages: 1, totalCount: orders.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return orders matching query
     const result = await this.orderService.findAndCount({
-      relations: {
-        customer: true,
-      },
-      order: {
-        orderNumber: 'DESC',
-      },
+      ...(query.type && { where: { type: query.type } }),
+      relations: { customer: true },
+      order: { createdAt: 'DESC' },
       take: limit,
       skip: limit * (page - 1),
     });
 
     // Return orders and total count
     const orders = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { orders, totalPage };
+    return { orders, totalPages, totalCount };
   }
 
-  @Get('/orderNumber/:orderNumber')
-  async getOrderByOrderNumber(@Param('orderNumber') orderNumber: number) {
-    const order = await this.orderService.findOneByOrderNumber(orderNumber);
+  @Get('/orderId/:orderId')
+  async getOrderByOrderID(@Param('orderId') orderId: string) {
+    const order = await this.orderService.findOneByOrderId(orderId);
     return { order };
   }
 
@@ -93,8 +91,8 @@ export class OrderController {
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit, 10);
+    const page = parseInt(query.page, 10);
 
     // If query is provided, return orders matching query
     const result = await this.orderService.findAndCount({
@@ -152,11 +150,39 @@ export class OrderController {
       currentBalance: priceSet.customerBalanceAfterOrder,
     });
 
-    return await this.orderService.create(createOrderDto, priceSet);
+    return await this.orderService.create(createOrderDto, priceSet, 'BULK');
+  }
+
+  @Post('/manual')
+  async createManualOrder(@Body() dto: CreateManualOrderDto) {
+    // Order price set
+    const priceSet = {
+      subTotal: 0,
+      taxTotal: 0,
+      total: 0,
+    };
+
+    // Calculate order price set
+    dto.orderProducts.forEach((orderProduct) => {
+      priceSet.subTotal += orderProduct.subTotal;
+      priceSet.taxTotal += orderProduct.subTotal * (orderProduct.taxRate / 100);
+      priceSet.total += orderProduct.total;
+    });
+
+    return await this.orderService.create(dto, priceSet, 'MANUAL');
   }
 
   @Patch()
   async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
+    const order = await this.orderService.findOneByOrderId(
+      updateOrderDto.orderId,
+    );
+    if (updateOrderDto.deliveryType && !order.status.startsWith('GÖNDERİLDİ')) {
+      await this.stockService.updateStocksFromOrderProducts(
+        order.orderProducts,
+        order.type,
+      );
+    }
     return await this.orderService.update(updateOrderDto);
   }
 
@@ -164,10 +190,10 @@ export class OrderController {
   async updateOrderProducts(
     @Body() updateOrderProductsDto: UpdateOrderProductsDto,
   ) {
-    const { orderNumber } = updateOrderProductsDto;
+    const { orderId } = updateOrderProductsDto;
 
     // Get order
-    const order = await this.orderService.findOneByOrderNumber(orderNumber);
+    const order = await this.orderService.findOneByOrderId(orderId);
 
     // Old price set
     const priceSet = {
@@ -199,16 +225,49 @@ export class OrderController {
     // Update order products and order price set
     await this.orderService.updateOrderProducts(updateOrderProductsDto);
     await this.orderService.update({
-      orderNumber,
+      orderId,
       ...priceSet,
     });
 
     return { success: true };
   }
 
-  @Post('/cancel/:orderNumber')
-  async cancelOrder(@Param('orderNumber') orderNumber: number) {
-    const order = await this.orderService.findOneByOrderNumber(orderNumber);
+  @Patch('/manual/order_products')
+  async updateManualOrderProducts(
+    @Body() updateOrderProductsDto: UpdateOrderProductsDto,
+  ) {
+    const { orderId } = updateOrderProductsDto;
+
+    // Get order
+    const order = await this.orderService.findOneByOrderId(orderId);
+
+    // Old price set
+    const priceSet = {
+      subTotal: order.subTotal,
+      taxTotal: order.taxTotal,
+      total: order.total,
+    };
+
+    // Calculate new price set
+    updateOrderProductsDto.orderProducts.forEach((orderProduct) => {
+      priceSet.subTotal += orderProduct.subTotal;
+      priceSet.taxTotal += orderProduct.subTotal * (orderProduct.taxRate / 100);
+      priceSet.total += orderProduct.total;
+    });
+
+    // Update order products and order price set
+    await this.orderService.updateOrderProducts(updateOrderProductsDto);
+    await this.orderService.update({
+      orderId,
+      ...priceSet,
+    });
+
+    return { success: true };
+  }
+
+  @Post('/cancel/:orderId')
+  async cancelOrder(@Param('orderId') orderId: string) {
+    const order = await this.orderService.findOneByOrderId(orderId);
     if (!order || order.isCancelled) {
       throw new NotFoundException('Sipariş bulunamadı');
     }
@@ -224,7 +283,7 @@ export class OrderController {
     });
 
     await this.orderService.update({
-      orderNumber,
+      orderId,
       isCancelled: true,
       customerBalanceAfterOrder: order.customerBalanceAfterOrder - order.total,
     });

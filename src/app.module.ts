@@ -26,6 +26,8 @@ import { PriceListProductModule } from './price-list-product/price-list-product.
 import { OrderModule } from './order/order.module';
 import { OrderProductModule } from './order-product/order-product.module';
 import { DeliveryAddressModule } from './delivery-address/delivery-address.module';
+import { RoleModule } from './role/role.module';
+import { IngredientModule } from './ingredient/ingredient.module';
 
 @Module({
   imports: [
@@ -42,11 +44,13 @@ import { DeliveryAddressModule } from './delivery-address/delivery-address.modul
     }),
     DatabaseModule,
     UserModule,
+    RoleModule,
     AuthModule,
     SupplierModule,
     DeliveryModule,
     DeliveryDetailModule,
     ProductModule,
+    IngredientModule,
     RoastModule,
     RoastDetailModule,
     BlendModule,

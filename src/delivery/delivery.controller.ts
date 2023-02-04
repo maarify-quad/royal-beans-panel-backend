@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Query,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 
@@ -20,7 +19,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // DTOs
 import { CreateDeliveryDto } from './dto/create-delivery.dto';
 import { GetDeliveriesDto } from './dto/get-deliveries.dto';
-import { Response } from 'express';
 
 @Controller('deliveries')
 @UseGuards(JwtAuthGuard)
@@ -32,55 +30,76 @@ export class DeliveryController {
   ) {}
 
   @Get()
-  async findAll(
-    @Res({ passthrough: true }) res: Response,
-    @Query() query?: GetDeliveriesDto,
-  ): Promise<any> {
+  async findAll(@Query() query: GetDeliveriesDto) {
     // If no query is provided, return all deliveries
-    if (!query) {
+    if (!query.limit && !query.page) {
       const deliveries = await this.deliveryService.findAll({
-        relations: {
-          supplier: true,
-        },
-        order: {
-          id: 'DESC',
-        },
+        relations: { supplier: true },
+        order: { id: 'DESC' },
       });
-      return { deliveries };
+      return { deliveries, totalPages: 1, totalCount: deliveries.length };
     }
 
     // Parse query params
-    const limit = parseInt(query.limit, 10) || 50;
-    const page = parseInt(query.page, 10) || 1;
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
 
     // If query is provided, return deliveries matching query
     const result = await this.deliveryService.findAndCount({
-      relations: {
-        supplier: true,
-      },
+      relations: { supplier: true },
       take: limit,
       skip: limit * (page - 1),
-      order: {
-        id: 'DESC',
-      },
+      order: { id: 'DESC' },
     });
 
     // Return deliveries and total count
     const deliveries = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { deliveries, totalPage };
+    return { deliveries, totalPages, totalCount };
   }
 
   @Get(':id')
-  findOneById(@Param('id') id: string): Promise<any> {
+  findOneById(@Param('id') id: string) {
     return this.deliveryService.findOneById(id);
   }
 
+  @Get('/product/:stockCode')
+  async getProductDeliveryDetails(
+    @Query() query: GetDeliveriesDto,
+    @Param('stockCode') stockCode: string,
+  ) {
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.deliveryService.findAndCount({
+      where: { deliveryDetails: { product: { stockCode } } },
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: {
+        deliveryDetails: { product: true, delivery: { supplier: true } },
+      },
+    });
+
+    const deliveryDetails = result[0]
+      .map((delivery) => {
+        const deliveryDetails = delivery.deliveryDetails.filter(
+          (deliveryDetail) => deliveryDetail.product.stockCode === stockCode,
+        );
+
+        return deliveryDetails;
+      })
+      .flat();
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { deliveryDetails, totalPages, totalCount };
+  }
+
   @Post()
-  async create(@Body() createDeliveryDto: CreateDeliveryDto): Promise<any> {
+  async create(@Body() createDeliveryDto: CreateDeliveryDto) {
     // If supplier id starts with `NEW_` prefix, it means a new supplier is created on client-side so create new supplier and save it
     if (createDeliveryDto.supplierId.startsWith('NEW_')) {
       const newSupplier = await this.supplierService.create({
@@ -101,17 +120,19 @@ export class DeliveryController {
       taxTotal += deliveryDetail.subTotal * (deliveryDetail.taxRate / 100);
       total += deliveryDetail.total;
 
-      // If product id is negative it means a new product is created on client-side so create new product and save it
-      if (deliveryDetail.productId <= 0) {
+      // If product id is less than 1 it means a new product is created on client-side so create new product and save it
+      if (deliveryDetail.productId < 1) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...createProduct } = deliveryDetail.product;
 
         // Create new product
         const newProduct = await this.productService.create(createProduct);
+        console.log(newProduct);
 
         // Set product id to new product id
         deliveryDetail.productId = newProduct.id;
         deliveryDetail.product.id = newProduct.id;
+        deliveryDetail.product.stockCode = newProduct.stockCode;
       } else {
         // Update existing product's amount
         await this.productService.incrementAmount(

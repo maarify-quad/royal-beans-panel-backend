@@ -73,10 +73,10 @@ export class OrderController {
   @Get('/customer/:customer')
   async getOrdersByCustomer(
     @Param('customer') customer: string,
-    @Query() query?: GetOrdersDto,
+    @Query() query: GetOrdersDto,
   ) {
     // If no query is provided, return all orders
-    if (!query) {
+    if (!query.limit && !query.page) {
       const orders = await this.orderService.findAll({
         where: {
           customer: {
@@ -113,11 +113,11 @@ export class OrderController {
 
     // Return orders and total count
     const orders = result[0];
-    const total: number = result[1];
-    const totalPage = Math.ceil(total / limit);
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
 
     // End response
-    return { orders, totalPage };
+    return { orders, totalCount, totalPages };
   }
 
   @Post()

@@ -54,16 +54,14 @@ export class ProductService {
   }
 
   async bulkCreate(dto: CreateProductDto[]) {
-    const products = [];
     for (const product of dto) {
       const stockCode = await this.generateStockCode(product.storageType);
       const newProduct = {
         ...product,
         stockCode,
       };
-      products.push(newProduct);
+      await this.productRepository.save(newProduct);
     }
-    return this.productRepository.save(products);
   }
 
   async bulkUpdate(dto: BulkUpdateProductsDto) {

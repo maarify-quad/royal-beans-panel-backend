@@ -1,6 +1,10 @@
-import { IsNumberString, IsOptional } from 'class-validator';
+import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class GetDeliveriesDto {
+  @IsString()
+  @IsOptional()
+  withDeleted?: string;
+
   @IsNumberString({}, { message: 'Limit metinsel sayı türünde olmalıdır' })
   @IsOptional()
   limit?: string;

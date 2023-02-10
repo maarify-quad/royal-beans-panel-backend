@@ -17,7 +17,9 @@ export class DeliveryDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Delivery, (delivery) => delivery.deliveryDetails)
+  @ManyToOne(() => Delivery, (delivery) => delivery.deliveryDetails, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'deliveryId' })
   delivery: Delivery;
 

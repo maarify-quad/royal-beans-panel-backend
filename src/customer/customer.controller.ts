@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -29,7 +31,9 @@ export class CustomerController {
   async getCustomers(@Query() query: GetCustomersDto) {
     // If no query is provided, return all customers
     if (!query.limit || !query.page) {
-      const customers = await this.customerService.findAll();
+      const customers = await this.customerService.findAll({
+        withDeleted: query.withDeleted === 'true',
+      });
       return { customers, totalPages: 1, totalCount: customers.length };
     }
 
@@ -45,6 +49,7 @@ export class CustomerController {
       take: limit,
       skip: limit * (page - 1),
       order: { name: 'ASC' },
+      withDeleted: query.withDeleted === 'true',
     });
 
     // Return customers and total count
@@ -58,7 +63,7 @@ export class CustomerController {
 
   @Get(':id')
   async getCustomerById(@Param('id') id: string) {
-    return await this.customerService.findOneById(id);
+    return await this.customerService.findOneById(id, { withDeleted: true });
   }
 
   @Post()
@@ -69,5 +74,14 @@ export class CustomerController {
   @Patch()
   async updateCustomer(@Body() updateCustomerDto: UpdateCustomerDto) {
     return await this.customerService.update(updateCustomerDto);
+  }
+
+  @Delete(':id')
+  async deleteCustomer(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException();
+    }
+
+    return await this.customerService.deleteById(id);
   }
 }

@@ -18,19 +18,19 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
   ) {}
 
-  async findAll(options?: FindManyOptions<Order>): Promise<Order[]> {
+  async findAll(options?: FindManyOptions<Order>) {
     return await this.orderRepository.find({
       relations: {
         customer: true,
       },
       order: {
-        orderNumber: 'DESC',
+        createdAt: 'DESC',
       },
       ...options,
     });
   }
 
-  async findOneByOrderId(orderId: string): Promise<Order> {
+  async findByOrderId(orderId: string, options?: FindManyOptions<Order>) {
     return await this.orderRepository.findOneOrFail({
       where: {
         orderId,
@@ -44,6 +44,7 @@ export class OrderService {
           product: true,
         },
       },
+      ...options,
     });
   }
 
@@ -59,7 +60,7 @@ export class OrderService {
       total: number;
     },
     type: OrderType,
-  ): Promise<Order> {
+  ) {
     // Find latest order id
     const [order] = await this.orderRepository.find({
       where: { type },

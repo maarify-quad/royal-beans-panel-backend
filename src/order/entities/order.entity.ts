@@ -107,6 +107,7 @@ export class Order {
 
   @ManyToOne(() => Customer, (customer) => customer.orders, {
     cascade: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'customerId' })
   customer: Customer | null;
@@ -116,6 +117,7 @@ export class Order {
     (deliveryAddress) => deliveryAddress.orders,
     {
       cascade: true,
+      onDelete: 'CASCADE',
     },
   )
   @JoinColumn({ name: 'deliveryAddressId' })

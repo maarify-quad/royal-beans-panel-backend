@@ -45,7 +45,9 @@ export class DeliveryAddress {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Customer, (customer) => customer.deliveryAddresses)
+  @ManyToOne(() => Customer, (customer) => customer.deliveryAddresses, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'customerId' })
   customer: Customer;
 

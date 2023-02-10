@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 // Entities
 import { PriceList } from './entities/price-list.entity';
@@ -15,7 +15,7 @@ export class PriceListService {
     private readonly priceListRepository: Repository<PriceList>,
   ) {}
 
-  async findAll(): Promise<PriceList[]> {
+  async findAll() {
     return await this.priceListRepository.find({
       relations: {
         customers: true,
@@ -27,7 +27,7 @@ export class PriceListService {
     return await this.priceListRepository.findAndCount(options);
   }
 
-  async findOneById(id: number): Promise<PriceList> {
+  async findOneById(id: number, options?: FindOneOptions<PriceList>) {
     return await this.priceListRepository.findOne({
       where: { id },
       relations: {
@@ -36,6 +36,7 @@ export class PriceListService {
           product: true,
         },
       },
+      ...options,
     });
   }
 

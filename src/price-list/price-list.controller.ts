@@ -58,8 +58,13 @@ export class PriceListController {
   }
 
   @Get(':id')
-  async getPriceListById(@Param('id') id: string) {
-    return await this.priceListService.findOneById(parseInt(id));
+  async getPriceListById(
+    @Param('id') id: string,
+    @Query('withDeleted') withDeleted?: string,
+  ) {
+    return await this.priceListService.findOneById(parseInt(id), {
+      withDeleted: withDeleted === 'true',
+    });
   }
 
   @Post()

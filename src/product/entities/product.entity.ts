@@ -5,6 +5,7 @@ import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -39,6 +40,9 @@ export class Product {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date | null;
 
   @OneToMany(() => DeliveryDetail, (deliveryDetail) => deliveryDetail.product)
   deliveryDetails: DeliveryDetail[];

@@ -93,7 +93,7 @@ export class Customer {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+  deletedAt: Date | null;
 
   @ManyToOne(() => PriceList, (priceList) => priceList.customers, {
     cascade: true,

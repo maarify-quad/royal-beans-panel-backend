@@ -20,10 +20,7 @@ export class OrderProductService {
     });
   }
 
-  async findLatestProductsByCustomer(
-    customer: string,
-    last = 5,
-  ): Promise<OrderProduct[]> {
+  async findLatestByCustomer(customer: string, last: number) {
     return await this.orderProductRepository.find({
       where: {
         order: {
@@ -37,14 +34,13 @@ export class OrderProductService {
           product: true,
         },
       },
-      order: {
-        createdAt: 'DESC',
-      },
+      order: { createdAt: 'DESC' },
       take: last,
+      // withDeleted: true,
     });
   }
 
-  async create(orderProduct: OrderProduct): Promise<OrderProduct> {
+  async create(orderProduct: OrderProduct) {
     return await this.orderProductRepository.save(orderProduct);
   }
 }

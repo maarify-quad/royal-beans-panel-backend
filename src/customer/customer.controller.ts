@@ -32,6 +32,7 @@ export class CustomerController {
     // If no query is provided, return all customers
     if (!query.limit || !query.page) {
       const customers = await this.customerService.findAll({
+        order: { deletedAt: 'ASC', name: 'ASC' },
         withDeleted: query.withDeleted === 'true',
       });
       return { customers, totalPages: 1, totalCount: customers.length };
@@ -48,7 +49,7 @@ export class CustomerController {
       },
       take: limit,
       skip: limit * (page - 1),
-      order: { name: 'ASC' },
+      order: { deletedAt: 'ASC', name: 'ASC' },
       withDeleted: query.withDeleted === 'true',
     });
 

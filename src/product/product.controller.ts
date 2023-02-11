@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -102,16 +104,16 @@ export class ProductController {
 
   @Get('/:stockCode/ingredients')
   async getProductByIdWithIngredients(@Param('stockCode') stockCode: string) {
-    return await this.productService.findByStockCodeWithRelations(stockCode, {
-      ingredients: true,
+    return await this.productService.findByStockCode(stockCode, {
+      relations: { ingredients: true },
     });
   }
 
   @Get('/:stockCode')
   async getProductByStockCode(@Param('stockCode') stockCode: string) {
-    const product = await this.productService.findByStockCodeWithRelations(
-      stockCode,
-    );
+    const product = await this.productService.findByStockCode(stockCode, {
+      withDeleted: true,
+    });
 
     if (!product) {
       throw new NotFoundException('Stok koduyla eşleşen ürün bulunamadı');
@@ -138,5 +140,14 @@ export class ProductController {
   @Put('/bulk')
   async updateProduct(@Body() dto: BulkUpdateProductsDto) {
     return await this.productService.bulkUpdate(dto);
+  }
+
+  @Delete(':stockCode')
+  async deleteProduct(@Param('stockCode') stockCode: string) {
+    if (!stockCode) {
+      throw new BadRequestException();
+    }
+
+    return await this.productService.deleteByStockCode(stockCode);
   }
 }

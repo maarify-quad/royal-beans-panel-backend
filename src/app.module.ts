@@ -18,7 +18,6 @@ import { DeliveryDetailModule } from './delivery-detail/delivery-detail.module';
 import { ProductModule } from './product/product.module';
 import { RoastModule } from './roast/roast.module';
 import { RoastDetailModule } from './roast-detail/roast-detail.module';
-import { BlendModule } from './blend/blend.module';
 import { ExcelModule } from './excel/excel.module';
 import { CustomerModule } from './customer/customer.module';
 import { PriceListModule } from './price-list/price-list.module';
@@ -28,6 +27,7 @@ import { OrderProductModule } from './order-product/order-product.module';
 import { DeliveryAddressModule } from './delivery-address/delivery-address.module';
 import { RoleModule } from './role/role.module';
 import { IngredientModule } from './ingredient/ingredient.module';
+import { RoastIngredientModule } from './roast-ingredient/roast-ingredient.module';
 
 @Module({
   imports: [
@@ -53,7 +53,7 @@ import { IngredientModule } from './ingredient/ingredient.module';
     IngredientModule,
     RoastModule,
     RoastDetailModule,
-    BlendModule,
+    RoastIngredientModule,
     ExcelModule,
     CustomerModule,
     PriceListModule,

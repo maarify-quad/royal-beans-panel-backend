@@ -102,6 +102,25 @@ export class ProductController {
     return { products, totalPages, totalCount };
   }
 
+  @Get('/roast_ingredients')
+  async getProductsWithRoastIngredients(@Query() query: GetProductsDto) {
+    const limit = parseInt(query.limit || '25', 10);
+    const page = parseInt(query.page || '1', 10);
+
+    const result = await this.productService.findAndCount({
+      where: { storageType: 'YM' },
+      take: limit,
+      skip: (page - 1) * limit,
+      relations: { roastIngredients: true },
+    });
+
+    const products = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { products, totalPages, totalCount };
+  }
+
   @Get('/:stockCode/ingredients')
   async getProductByIdWithIngredients(@Param('stockCode') stockCode: string) {
     return await this.productService.findByStockCode(stockCode, {

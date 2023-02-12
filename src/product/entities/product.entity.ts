@@ -13,6 +13,7 @@ import { DeliveryDetail } from 'src/delivery-detail/entities/delivery-detail.ent
 import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
+import { ShopifyIngredient } from 'src/shopify-ingredient/entities/shopify-ingredient.entity';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -54,6 +55,12 @@ export class Product {
     (roastIngredient) => roastIngredient.product,
   )
   roastIngredients: RoastIngredient[];
+
+  @OneToMany(
+    () => ShopifyIngredient,
+    (shopifyIngredient) => shopifyIngredient.product,
+  )
+  shopifyIngredients: ShopifyIngredient[];
 
   @OneToMany(() => RoastDetail, (roastDetail) => roastDetail.product, {
     cascade: true,

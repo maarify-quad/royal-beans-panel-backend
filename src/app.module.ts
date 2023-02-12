@@ -28,6 +28,7 @@ import { DeliveryAddressModule } from './delivery-address/delivery-address.modul
 import { RoleModule } from './role/role.module';
 import { IngredientModule } from './ingredient/ingredient.module';
 import { RoastIngredientModule } from './roast-ingredient/roast-ingredient.module';
+import { ShopifyIngredientModule } from './shopify-ingredient/shopify-ingredient.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { RoastIngredientModule } from './roast-ingredient/roast-ingredient.modul
     OrderModule,
     OrderProductModule,
     DeliveryAddressModule,
+    ShopifyIngredientModule,
   ],
   controllers: [AppController],
   providers: [

@@ -16,15 +16,40 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepository.find();
+  async findAll(options?: FindManyOptions<Product>) {
+    return this.productRepository.find(options);
   }
 
   async findAndCount(options?: FindManyOptions<Product>) {
     return await this.productRepository.findAndCount(options);
   }
 
-  async findByStorageType(storageType: string): Promise<Product[]> {
+  async findByPagination(
+    pagination: { page?: string; limit?: string },
+    options?: FindManyOptions<Product>,
+  ) {
+    const page = pagination.page ? parseInt(pagination.page, 10) : null;
+    const limit = pagination.limit ? parseInt(pagination.limit, 10) : null;
+
+    if (!page || !limit) {
+      const products = await this.productRepository.find(options);
+      return { products, totalPages: 1, totalCount: products.length };
+    }
+
+    const result = await this.productRepository.findAndCount({
+      ...options,
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const products = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { products, totalPages, totalCount };
+  }
+
+  async findByStorageType(storageType: string) {
     return this.productRepository.find({
       where: { storageType },
     });

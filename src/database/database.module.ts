@@ -20,6 +20,7 @@ import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.
 import { Role } from 'src/role/entities/role.entity';
 import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
+import { ShopifyIngredient } from 'src/shopify-ingredient/entities/shopify-ingredient.entity';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.
           Order,
           OrderProduct,
           DeliveryAddress,
+          ShopifyIngredient,
         ],
         synchronize: process.env.TYPEORM_SYNC === 'true',
       }),

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 // Entities
 import { Delivery } from './entities/delivery.entity';
@@ -23,7 +23,7 @@ export class DeliveryService {
     return await this.deliveryRepository.findAndCount(options);
   }
 
-  async findOneById(id: string): Promise<Delivery> {
+  async findOneById(id: string, options?: FindOneOptions<Delivery>) {
     return this.deliveryRepository.findOne({
       where: { id },
       relations: {
@@ -32,6 +32,7 @@ export class DeliveryService {
           product: true,
         },
       },
+      ...options,
     });
   }
 
@@ -42,7 +43,7 @@ export class DeliveryService {
       taxTotal: number;
       total: number;
     },
-  ): Promise<Delivery> {
+  ) {
     // Find latest delivery id
     const [lastDelivery] = await this.deliveryRepository.find({
       order: { id: 'DESC' },
@@ -77,5 +78,9 @@ export class DeliveryService {
 
     // Save new delivery
     return this.deliveryRepository.save(newDelivery);
+  }
+
+  async deleteById(id: string) {
+    return await this.deliveryRepository.softDelete(id);
   }
 }

@@ -8,10 +8,6 @@ export class UpdateProductDto {
   @IsNotEmpty({ message: 'Ürün adı gereklidir' })
   name: string;
 
-  @IsString({ message: 'Depo tipi metinsel bir değer olmalıdır' })
-  @IsNotEmpty({ message: 'Depo tipi gereklidir' })
-  storageType: string;
-
   @IsNumber({}, { message: 'Miktar sayı türünde olmalıdır' })
   amount: number;
 

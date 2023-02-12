@@ -16,19 +16,21 @@ export class CustomerService {
     private readonly customerRepository: Repository<Customer>,
   ) {}
 
-  async findAll(): Promise<Customer[]> {
+  async findAll(options?: FindManyOptions<Customer>) {
     return await this.customerRepository.find({
       relations: {
         priceList: true,
       },
-      order: { name: 'ASC' },
+      order: { name: 'ASC', deletedAt: 'ASC' },
+      ...options,
     });
   }
 
-  async findOneById(id: string): Promise<Customer> {
+  async findOneById(id: string, options?: FindManyOptions<Customer>) {
     return await this.customerRepository.findOne({
       where: { id },
       relations: { priceList: true },
+      ...options,
     });
   }
 
@@ -36,16 +38,17 @@ export class CustomerService {
     return await this.customerRepository.findAndCount(options);
   }
 
-  async create(customer: CreateCustomerDto): Promise<Customer> {
+  async create(customer: CreateCustomerDto) {
     // Find latest customer id
-    const [lastDelivery] = await this.customerRepository.find({
+    const [lastCustomer] = await this.customerRepository.find({
       order: { id: 'DESC' },
       take: 1,
+      withDeleted: true,
     });
 
     // Generate new customer id
-    const id = lastDelivery
-      ? `M${Number(lastDelivery.id.split('M')[1]) + 1}`
+    const id = lastCustomer
+      ? `M${Number(lastCustomer.id.split('M')[1]) + 1}`
       : 'M1001';
 
     const newCustomer = this.customerRepository.create({
@@ -58,5 +61,9 @@ export class CustomerService {
 
   async update(customer: UpdateCustomerDto): Promise<UpdateResult> {
     return await this.customerRepository.update({ id: customer.id }, customer);
+  }
+
+  async deleteById(id: string) {
+    return await this.customerRepository.softDelete({ id });
   }
 }

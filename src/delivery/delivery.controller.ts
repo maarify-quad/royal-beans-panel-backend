@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -36,6 +38,7 @@ export class DeliveryController {
       const deliveries = await this.deliveryService.findAll({
         relations: { supplier: true },
         order: { id: 'DESC' },
+        withDeleted: query.withDeleted === 'true',
       });
       return { deliveries, totalPages: 1, totalCount: deliveries.length };
     }
@@ -50,6 +53,7 @@ export class DeliveryController {
       take: limit,
       skip: limit * (page - 1),
       order: { id: 'DESC' },
+      withDeleted: query.withDeleted === 'true',
     });
 
     // Return deliveries and total count
@@ -63,7 +67,7 @@ export class DeliveryController {
 
   @Get(':id')
   findOneById(@Param('id') id: string) {
-    return this.deliveryService.findOneById(id);
+    return this.deliveryService.findOneById(id, { withDeleted: true });
   }
 
   @Get('/product/:stockCode')
@@ -110,6 +114,7 @@ export class DeliveryController {
       where: { supplierId: id },
       take: limit,
       skip: (page - 1) * limit,
+      withDeleted: query.withDeleted === 'true',
     });
 
     const deliveries = result[0];
@@ -175,5 +180,14 @@ export class DeliveryController {
       taxTotal,
       total,
     });
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    if (!id) {
+      throw new BadRequestException();
+    }
+
+    return this.deliveryService.deleteById(id);
   }
 }

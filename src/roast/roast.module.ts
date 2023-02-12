@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
-// Modules
-import { BlendModule } from 'src/blend/blend.module';
+import { RoastIngredientModule } from 'src/roast-ingredient/roast-ingredient.module';
 
 // Controllers
 import { RoastController } from './roast.controller';
@@ -14,7 +12,7 @@ import { RoastService } from './roast.service';
 import { Roast } from './entities/roast.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Roast]), BlendModule],
+  imports: [TypeOrmModule.forFeature([Roast]), RoastIngredientModule],
   controllers: [RoastController],
   providers: [RoastService],
 })

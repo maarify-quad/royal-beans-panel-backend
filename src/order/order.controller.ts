@@ -38,7 +38,7 @@ export class OrderController {
   async getOrders(@Query() query: GetOrdersDto) {
     // If no query is provided, return all orders
     if (!query.limit || !query.page || !query.type) {
-      const orders = await this.orderService.findAll();
+      const orders = await this.orderService.findAll({ withDeleted: true });
       return { orders, totalPages: 1, totalCount: orders.length };
     }
 
@@ -53,6 +53,7 @@ export class OrderController {
       order: { createdAt: 'DESC' },
       take: limit,
       skip: limit * (page - 1),
+      withDeleted: true,
     });
 
     // Return orders and total count
@@ -65,13 +66,15 @@ export class OrderController {
   }
 
   @Get('/orderId/:orderId')
-  async getOrderByOrderID(@Param('orderId') orderId: string) {
-    const order = await this.orderService.findOneByOrderId(orderId);
+  async getByOrderId(@Param('orderId') orderId: string) {
+    const order = await this.orderService.findByOrderId(orderId, {
+      withDeleted: true,
+    });
     return { order };
   }
 
   @Get('/customer/:customer')
-  async getOrdersByCustomer(
+  async getByCustomer(
     @Param('customer') customer: string,
     @Query() query: GetOrdersDto,
   ) {
@@ -86,6 +89,7 @@ export class OrderController {
         order: {
           orderNumber: 'DESC',
         },
+        withDeleted: true,
       });
       return { orders };
     }
@@ -109,6 +113,7 @@ export class OrderController {
       },
       take: limit,
       skip: limit * (page - 1),
+      withDeleted: true,
     });
 
     // Return orders and total count
@@ -174,9 +179,7 @@ export class OrderController {
 
   @Patch()
   async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
-    const order = await this.orderService.findOneByOrderId(
-      updateOrderDto.orderId,
-    );
+    const order = await this.orderService.findByOrderId(updateOrderDto.orderId);
     if (updateOrderDto.deliveryType && !order.status.startsWith('GÖNDERİLDİ')) {
       await this.stockService.updateStocksFromOrderProducts(
         order.orderProducts,
@@ -193,7 +196,7 @@ export class OrderController {
     const { orderId } = updateOrderProductsDto;
 
     // Get order
-    const order = await this.orderService.findOneByOrderId(orderId);
+    const order = await this.orderService.findByOrderId(orderId);
 
     // Old price set
     const priceSet = {
@@ -239,7 +242,7 @@ export class OrderController {
     const { orderId } = updateOrderProductsDto;
 
     // Get order
-    const order = await this.orderService.findOneByOrderId(orderId);
+    const order = await this.orderService.findByOrderId(orderId);
 
     // Old price set
     const priceSet = {
@@ -267,7 +270,7 @@ export class OrderController {
 
   @Post('/cancel/:orderId')
   async cancelOrder(@Param('orderId') orderId: string) {
-    const order = await this.orderService.findOneByOrderId(orderId);
+    const order = await this.orderService.findByOrderId(orderId);
     if (!order || order.isCancelled) {
       throw new NotFoundException('Sipariş bulunamadı');
     }

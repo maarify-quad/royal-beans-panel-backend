@@ -1,15 +1,18 @@
-import { Blend } from 'src/blend/entities/blend.entity';
-import { DeliveryDetail } from 'src/delivery-detail/entities/delivery-detail.entity';
-import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
-import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+// Entities
+import { DeliveryDetail } from 'src/delivery-detail/entities/delivery-detail.entity';
+import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
+import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
+import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -40,14 +43,17 @@ export class Product {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt: Date | null;
+
   @OneToMany(() => DeliveryDetail, (deliveryDetail) => deliveryDetail.product)
   deliveryDetails: DeliveryDetail[];
 
-  @OneToMany(() => Blend, (blend) => blend.outputProduct)
-  outputBlends: Blend[];
-
-  @OneToMany(() => Blend, (blend) => blend.inputProduct)
-  inputBlends: Blend[];
+  @OneToMany(
+    () => RoastIngredient,
+    (roastIngredient) => roastIngredient.product,
+  )
+  roastIngredients: RoastIngredient[];
 
   @OneToMany(() => RoastDetail, (roastDetail) => roastDetail.product, {
     cascade: true,

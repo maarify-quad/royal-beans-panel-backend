@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, FindOptionsRelations, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 
 // Entities
 import { Product } from './entities/product.entity';
@@ -34,13 +34,13 @@ export class ProductService {
     return this.productRepository.findOne({ where: { id } });
   }
 
-  async findByStockCodeWithRelations(
+  async findByStockCode(
     stockCode: string,
-    relations?: FindOptionsRelations<Product>,
+    options?: FindOneOptions<Product>,
   ): Promise<Product | null> {
     return this.productRepository.findOne({
       where: { stockCode },
-      relations,
+      ...options,
     });
   }
 
@@ -74,6 +74,10 @@ export class ProductService {
 
   async decrementAmount(id: number, byAmount: number) {
     return this.productRepository.decrement({ id }, 'amount', byAmount);
+  }
+
+  async deleteByStockCode(stockCode: string) {
+    return this.productRepository.softDelete({ stockCode });
   }
 
   async generateStockCode(storageType: string) {

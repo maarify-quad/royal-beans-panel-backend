@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -91,6 +92,9 @@ export class Customer {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @DeleteDateColumn()
+  deletedAt: Date | null;
+
   @ManyToOne(() => PriceList, (priceList) => priceList.customers, {
     cascade: true,
   })
@@ -103,7 +107,7 @@ export class Customer {
   @OneToMany(
     () => DeliveryAddress,
     (deliveryAddress) => deliveryAddress.customer,
-    { cascade: true, eager: true },
+    { eager: true },
   )
   deliveryAddresses: DeliveryAddress[];
 }

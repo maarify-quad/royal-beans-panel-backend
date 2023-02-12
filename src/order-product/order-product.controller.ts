@@ -1,4 +1,11 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 // Services
 import { OrderProductService } from './order-product.service';
@@ -11,10 +18,20 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 export class OrderProductController {
   constructor(private readonly orderProductService: OrderProductService) {}
 
-  @Get('/latest/:customer')
-  async getLatestProductsByCustomer(@Param('customer') customer: string) {
-    const orderProducts =
-      await this.orderProductService.findLatestProductsByCustomer(customer);
+  @Get('/customer/:customer')
+  async getOrderProductsByCustomer(
+    @Param('customer') customer: string,
+    @Query('limit') limit = 5,
+  ) {
+    if (limit && (limit < 1 || limit > 15)) {
+      throw new BadRequestException('Limit 1 ile 15 arasında olmalıdır.');
+    }
+
+    const orderProducts = await this.orderProductService.findLatestByCustomer(
+      customer,
+      limit,
+    );
+
     return { orderProducts };
   }
 }

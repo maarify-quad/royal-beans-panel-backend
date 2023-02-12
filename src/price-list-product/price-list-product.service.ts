@@ -22,6 +22,7 @@ export class PriceListProductService {
       relations: {
         product: true,
       },
+      withDeleted: true,
     });
   }
 

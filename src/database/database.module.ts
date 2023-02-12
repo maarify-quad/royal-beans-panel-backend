@@ -10,7 +10,6 @@ import { DeliveryDetail } from 'src/delivery-detail/entities/delivery-detail.ent
 import { Product } from 'src/product/entities/product.entity';
 import { Roast } from 'src/roast/entities/roast.entity';
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
-import { Blend } from 'src/blend/entities/blend.entity';
 import { Customer } from 'src/customer/entities/customer.entity';
 import { PriceList } from 'src/price-list/entities/price-list.entity';
 import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
@@ -20,6 +19,7 @@ import { RefreshToken } from 'src/auth/entities/refresh-token.entity';
 import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
 import { Role } from 'src/role/entities/role.entity';
 import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
+import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
 
 @Module({
   imports: [
@@ -43,7 +43,7 @@ import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
           Ingredient,
           Roast,
           RoastDetail,
-          Blend,
+          RoastIngredient,
           Customer,
           PriceList,
           PriceListProduct,

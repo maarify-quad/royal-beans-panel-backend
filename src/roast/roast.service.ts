@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 
 // Services
-import { BlendService } from 'src/blend/blend.service';
+import { RoastIngredientService } from 'src/roast-ingredient/roast-ingredient.service';
 
 // Entities
 import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
@@ -17,7 +17,7 @@ export class RoastService {
   constructor(
     @InjectRepository(Roast)
     private readonly roastRepository: Repository<Roast>,
-    private readonly blendService: BlendService,
+    private readonly roastIngredientService: RoastIngredientService,
   ) {}
 
   async findAll(): Promise<Roast[]> {
@@ -79,7 +79,8 @@ export class RoastService {
     // Create roast details
     const roastDetails: RoastDetail[] = [];
     for (const [index, roastDetail] of createRoastDto.roastDetails.entries()) {
-      await this.blendService.blend(
+      // TODO: replace with roastIngredientService.blend
+      await this.roastIngredientService.processRoast(
         roastDetail.productId,
         roastDetail.inputAmount,
         roastDetail.outputAmount,

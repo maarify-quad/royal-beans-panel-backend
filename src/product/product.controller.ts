@@ -37,24 +37,7 @@ export class ProductController {
 
   @Get()
   async getProducts(@Query() query: GetProductsDto) {
-    if (!query.limit && !query.page) {
-      const products = await this.productService.findAll();
-      return { products, totalPages: 1, totalCount: products.length };
-    }
-
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    const result = await this.productService.findAndCount({
-      take: limit,
-      skip: (page - 1) * limit,
-    });
-
-    const products = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return { products, totalPages, totalCount };
+    return await this.productService.findByPagination(query);
   }
 
   @Get('/storageType/:storageType')
@@ -62,63 +45,29 @@ export class ProductController {
     @Query() query: GetProductsDto,
     @Param('storageType') storageType: string,
   ) {
-    if (!query.limit || !query.page) {
-      const products = await this.productService.findByStorageType(storageType);
-      return { products, totalPages: 1, totalCount: products.length };
+    if (!storageType) {
+      throw new BadRequestException('storageType is required');
     }
 
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    const result = await this.productService.findAndCount({
+    return await this.productService.findByPagination(query, {
       where: { storageType },
-      take: limit,
-      skip: (page - 1) * limit,
     });
-
-    const products = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return { products, totalPages, totalCount };
   }
 
   @Get('/ingredients')
   async getProductsWithIngredients(@Query() query: GetProductsDto) {
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    const result = await this.productService.findAndCount({
+    return await this.productService.findByPagination(query, {
       where: { storageType: 'FN' },
-      take: limit,
-      skip: (page - 1) * limit,
       relations: { ingredients: true },
     });
-
-    const products = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return { products, totalPages, totalCount };
   }
 
   @Get('/roast_ingredients')
   async getProductsWithRoastIngredients(@Query() query: GetProductsDto) {
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    const result = await this.productService.findAndCount({
+    return await this.productService.findByPagination(query, {
       where: { storageType: 'YM' },
-      take: limit,
-      skip: (page - 1) * limit,
       relations: { roastIngredients: true },
     });
-
-    const products = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return { products, totalPages, totalCount };
   }
 
   @Get('/:stockCode/ingredients')

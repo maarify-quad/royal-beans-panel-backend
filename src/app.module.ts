@@ -28,7 +28,8 @@ import { DeliveryAddressModule } from './delivery-address/delivery-address.modul
 import { RoleModule } from './role/role.module';
 import { IngredientModule } from './ingredient/ingredient.module';
 import { RoastIngredientModule } from './roast-ingredient/roast-ingredient.module';
-import { ShopifyIngredientModule } from './shopify-ingredient/shopify-ingredient.module';
+import { ShopifyProductModule } from './shopify-product/shopify-product.module';
+import { ShopifyApiModule } from './shopify-api/shopify-api.module';
 
 @Module({
   imports: [
@@ -62,7 +63,8 @@ import { ShopifyIngredientModule } from './shopify-ingredient/shopify-ingredient
     OrderModule,
     OrderProductModule,
     DeliveryAddressModule,
-    ShopifyIngredientModule,
+    ShopifyProductModule,
+    ShopifyApiModule,
   ],
   controllers: [AppController],
   providers: [

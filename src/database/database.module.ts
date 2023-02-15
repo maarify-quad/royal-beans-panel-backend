@@ -20,7 +20,8 @@ import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.
 import { Role } from 'src/role/entities/role.entity';
 import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
-import { ShopifyIngredient } from 'src/shopify-ingredient/entities/shopify-ingredient.entity';
+import { ShopifyProduct } from 'src/shopify-product/entities/shopify-product.entity';
+import { ShopifyProductToProduct } from 'src/shopify-product/entities/shopify-product-to-product.entity';
 
 @Module({
   imports: [
@@ -51,7 +52,8 @@ import { ShopifyIngredient } from 'src/shopify-ingredient/entities/shopify-ingre
           Order,
           OrderProduct,
           DeliveryAddress,
-          ShopifyIngredient,
+          ShopifyProduct,
+          ShopifyProductToProduct,
         ],
         synchronize: process.env.TYPEORM_SYNC === 'true',
       }),

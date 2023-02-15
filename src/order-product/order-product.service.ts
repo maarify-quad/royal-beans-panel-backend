@@ -36,7 +36,7 @@ export class OrderProductService {
       },
       order: { createdAt: 'DESC' },
       take: last,
-      // withDeleted: true,
+      withDeleted: true,
     });
   }
 

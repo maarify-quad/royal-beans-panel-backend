@@ -70,13 +70,6 @@ export class ProductController {
     });
   }
 
-  @Get('/shopify_ingredients')
-  async getProductsWithShopifyIngredients(@Query() query: GetProductsDto) {
-    return await this.productService.findByPagination(query, {
-      relations: { shopifyIngredients: true },
-    });
-  }
-
   @Get('/:stockCode/ingredients')
   async getProductByIdWithIngredients(@Param('stockCode') stockCode: string) {
     return await this.productService.findByStockCode(stockCode, {

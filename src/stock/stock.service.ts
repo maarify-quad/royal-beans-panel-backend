@@ -7,6 +7,7 @@ import { OrderProductService } from 'src/order-product/order-product.service';
 // Entities
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 import { OrderType } from 'src/order/entities/order.entity';
+import { ShopifyProduct } from 'src/shopify-product/entities/shopify-product.entity';
 
 @Injectable()
 export class StockService {
@@ -63,6 +64,20 @@ export class StockService {
           orderProduct.quantity,
         );
       }
+    }
+  }
+
+  async updateStocksFromShopifyProduct(
+    shopifyProduct: ShopifyProduct,
+    lineItemQuantity: number,
+  ) {
+    for (const ingredient of shopifyProduct.ingredients) {
+      const product = ingredient.product;
+
+      await this.productService.decrementAmount(
+        product.id,
+        ingredient.quantity * lineItemQuantity,
+      );
     }
   }
 }

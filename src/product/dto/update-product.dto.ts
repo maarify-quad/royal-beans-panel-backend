@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProductDto {
   @IsNumber()
@@ -14,4 +14,8 @@ export class UpdateProductDto {
   @IsString({ message: 'Miktar birimi metinsel bir değer olmalıdır' })
   @IsNotEmpty({ message: 'Miktarı birimi gereklidir' })
   amountUnit: string;
+
+  @IsString({ message: 'Etiket metinsel bir değer olmalıdır' })
+  @IsOptional()
+  tag: string | null;
 }

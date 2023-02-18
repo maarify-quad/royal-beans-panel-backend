@@ -8,6 +8,7 @@ import { Product } from './entities/product.entity';
 // DTOs
 import { CreateProductDto } from './dto/create-product.dto';
 import { BulkUpdateProductsDto } from './dto/bulk-update-products.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -25,19 +26,32 @@ export class ProductService {
   }
 
   async findByPagination(
-    pagination: { page?: string; limit?: string },
+    query: {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    },
     options?: FindManyOptions<Product>,
   ) {
-    const page = pagination.page ? parseInt(pagination.page, 10) : null;
-    const limit = pagination.limit ? parseInt(pagination.limit, 10) : null;
+    const page = query.page ? parseInt(query.page, 10) : null;
+    const limit = query.limit ? parseInt(query.limit, 10) : null;
+
+    const order = {
+      [query.sortBy || 'id']: query.sortOrder || 'ASC',
+    };
 
     if (!page || !limit) {
-      const products = await this.productRepository.find(options);
+      const products = await this.productRepository.find({
+        ...options,
+        order,
+      });
       return { products, totalPages: 1, totalCount: products.length };
     }
 
     const result = await this.productRepository.findAndCount({
       ...options,
+      order,
       take: limit,
       skip: (page - 1) * limit,
     });
@@ -87,6 +101,11 @@ export class ProductService {
       };
       await this.productRepository.save(newProduct);
     }
+  }
+
+  async update(id: number, dto: UpdateProductDto) {
+    const { id: _id, ...update } = dto;
+    return this.productRepository.update(id, update);
   }
 
   async bulkUpdate(dto: BulkUpdateProductsDto) {

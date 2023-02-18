@@ -26,6 +26,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto } from './dto/get-products.dto';
 import { BulkUpdateProductsDto } from './dto/bulk-update-products.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -105,8 +106,13 @@ export class ProductController {
     return { success: true };
   }
 
+  @Put('/:id')
+  async updateProduct(@Param('id') id: number, @Body() dto: UpdateProductDto) {
+    return await this.productService.update(id, dto);
+  }
+
   @Put('/bulk')
-  async updateProduct(@Body() dto: BulkUpdateProductsDto) {
+  async updateProductsBulk(@Body() dto: BulkUpdateProductsDto) {
     return await this.productService.bulkUpdate(dto);
   }
 

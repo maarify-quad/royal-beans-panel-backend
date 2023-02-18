@@ -38,6 +38,9 @@ export class Product {
   @Column({ type: 'float', nullable: false, default: 0 })
   reservedAmount: number;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  tag: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

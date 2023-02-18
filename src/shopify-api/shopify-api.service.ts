@@ -15,14 +15,20 @@ export class ShopifyApiService {
 
   async get<T>(
     path: string,
-    query?: { limit?: number; fields?: string },
+    params?: { limit?: number; fields?: string },
+    query?: { [key: string]: string },
   ): Promise<T> {
     const apiURL = this.getApiURL(path);
-    if (query.limit) {
-      apiURL.searchParams.set('limit', query.limit.toString());
+    if (params.limit) {
+      apiURL.searchParams.set('limit', params.limit.toString());
     }
-    if (query.fields) {
-      apiURL.searchParams.set('fields', query.fields);
+    if (params.fields) {
+      apiURL.searchParams.set('fields', params.fields);
+    }
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        apiURL.searchParams.set(key, value);
+      });
     }
     const { data } = await firstValueFrom(
       this.httpService.get(apiURL.toString()).pipe(

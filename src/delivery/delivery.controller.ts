@@ -85,6 +85,7 @@ export class DeliveryController {
       relations: {
         deliveryDetails: { product: true, delivery: { supplier: true } },
       },
+      withDeleted: true,
     });
 
     const deliveryDetails = result[0]
@@ -126,14 +127,6 @@ export class DeliveryController {
 
   @Post()
   async create(@Body() createDeliveryDto: CreateDeliveryDto) {
-    // If supplier id starts with `NEW_` prefix, it means a new supplier is created on client-side so create new supplier and save it
-    if (createDeliveryDto.supplierId.startsWith('NEW_')) {
-      const newSupplier = await this.supplierService.create({
-        name: createDeliveryDto.supplierId.split('NEW_')[1],
-      });
-      createDeliveryDto.supplierId = newSupplier.id;
-    }
-
     // Delivery price set
     let subTotal = 0;
     let taxTotal = 0;
@@ -146,26 +139,11 @@ export class DeliveryController {
       taxTotal += deliveryDetail.subTotal * (deliveryDetail.taxRate / 100);
       total += deliveryDetail.total;
 
-      // If product id is less than 1 it means a new product is created on client-side so create new product and save it
-      if (deliveryDetail.productId < 1) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, ...createProduct } = deliveryDetail.product;
-
-        // Create new product
-        const newProduct = await this.productService.create(createProduct);
-        console.log(newProduct);
-
-        // Set product id to new product id
-        deliveryDetail.productId = newProduct.id;
-        deliveryDetail.product.id = newProduct.id;
-        deliveryDetail.product.stockCode = newProduct.stockCode;
-      } else {
-        // Update existing product's amount
-        await this.productService.incrementAmount(
-          deliveryDetail.productId,
-          deliveryDetail.quantity,
-        );
-      }
+      // Update existing product's amount
+      await this.productService.incrementAmount(
+        deliveryDetail.productId,
+        deliveryDetail.quantity,
+      );
     }
 
     // Add total delivery price to supplier's total volume

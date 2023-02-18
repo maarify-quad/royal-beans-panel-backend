@@ -23,6 +23,44 @@ export class DeliveryService {
     return await this.deliveryRepository.findAndCount(options);
   }
 
+  async findByPagination(
+    query: {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    },
+    options?: FindManyOptions<Delivery>,
+  ) {
+    const page = query.page ? parseInt(query.page, 10) : null;
+    const limit = query.limit ? parseInt(query.limit, 10) : null;
+
+    const order = {
+      [query.sortBy || 'id']: query.sortOrder || 'ASC',
+    };
+
+    if (!page || !limit) {
+      const deliveries = await this.deliveryRepository.find({
+        ...options,
+        order,
+      });
+      return { deliveries, totalPages: 1, totalCount: deliveries.length };
+    }
+
+    const result = await this.deliveryRepository.findAndCount({
+      ...options,
+      order,
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const deliveries = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { deliveries, totalPages, totalCount };
+  }
+
   async findOneById(id: string, options?: FindOneOptions<Delivery>) {
     return this.deliveryRepository.findOne({
       where: { id },

@@ -21,4 +21,8 @@ export class DeliveryAddressService {
     );
     return this.deliveryAddressRepo.save(newDeliveryAddress);
   }
+
+  async deleteById(id: number) {
+    return this.deliveryAddressRepo.delete(id);
+  }
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
 // Services
 import { DeliveryAddressService } from './delivery-address.service';
@@ -18,8 +26,15 @@ export class DeliveryAddressController {
 
   @Post()
   async create(@Body() createDeliveryAddressDto: CreateDeliveryAddressDto) {
-    console.log('createDeliveryAddressDto', createDeliveryAddressDto);
-
     return await this.deliveryAddressService.create(createDeliveryAddressDto);
+  }
+
+  @Delete(':id')
+  async deleteById(@Param('id') id: number) {
+    if (!id) {
+      throw new BadRequestException('id is required');
+    }
+
+    return await this.deliveryAddressService.deleteById(id);
   }
 }

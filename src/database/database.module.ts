@@ -22,6 +22,7 @@ import { Ingredient } from 'src/ingredient/entities/ingredient.entity';
 import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
 import { ShopifyProduct } from 'src/shopify-product/entities/shopify-product.entity';
 import { ShopifyProductToProduct } from 'src/shopify-product/entities/shopify-product-to-product.entity';
+import { Tag } from 'src/tag/entities/tag.entity';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ShopifyProductToProduct } from 'src/shopify-product/entities/shopify-pr
           DeliveryAddress,
           ShopifyProduct,
           ShopifyProductToProduct,
+          Tag,
         ],
         synchronize: process.env.TYPEORM_SYNC === 'true',
       }),

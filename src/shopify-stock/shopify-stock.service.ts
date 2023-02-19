@@ -56,13 +56,15 @@ export class ShopifyStockService {
         const shopifyProduct = await this.shopifyProductService.findByVariantId(
           variantId,
           {
-            relations: { ingredients: { product: true } },
+            relations: { ingredients: { product: { ingredients: true } } },
           },
         );
 
         if (shopifyProduct) {
+          const { productTitle, variantTitle, variantId } = shopifyProduct;
+
           this.logger.debug(
-            `Updating stocks for ${shopifyProduct.productTitle} / ${shopifyProduct.variantTitle} (${shopifyProduct.variantId}) with quantity ${lineItem.quantity}`,
+            `Updating stocks for ${productTitle} / ${variantTitle} (${variantId}) with quantity ${lineItem.quantity}`,
           );
 
           await this.stockService.updateStocksFromShopifyProduct(

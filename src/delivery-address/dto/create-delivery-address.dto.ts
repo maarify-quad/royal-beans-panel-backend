@@ -1,4 +1,4 @@
-import { IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class CreateDeliveryAddressDto {
   @IsString()
@@ -27,4 +27,8 @@ export class CreateDeliveryAddressDto {
   @MaxLength(255)
   @IsString()
   receiverCity: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isPrimary?: boolean;
 }

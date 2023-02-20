@@ -7,6 +7,7 @@ import { DeliveryAddress } from './entities/delivery-address.entity';
 
 // DTOs
 import { CreateDeliveryAddressDto } from './dto/create-delivery-address.dto';
+import { UpdateDeliveryAddressDto } from './dto/update-delivery-address.dto';
 
 @Injectable()
 export class DeliveryAddressService {
@@ -15,11 +16,19 @@ export class DeliveryAddressService {
     private readonly deliveryAddressRepo: Repository<DeliveryAddress>,
   ) {}
 
-  async create(createDeliveryAddressDto: CreateDeliveryAddressDto) {
-    const newDeliveryAddress = this.deliveryAddressRepo.create(
-      createDeliveryAddressDto,
-    );
+  async create(dto: CreateDeliveryAddressDto) {
+    const newDeliveryAddress = this.deliveryAddressRepo.create(dto);
     return this.deliveryAddressRepo.save(newDeliveryAddress);
+  }
+
+  async update(dto: UpdateDeliveryAddressDto) {
+    if (dto.isPrimary) {
+      await this.deliveryAddressRepo.update(
+        { customerId: dto.customerId },
+        { isPrimary: false },
+      );
+    }
+    return await this.deliveryAddressRepo.save(dto);
   }
 
   async deleteById(id: number) {

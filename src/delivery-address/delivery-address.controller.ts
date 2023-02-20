@@ -5,6 +5,7 @@ import {
   Delete,
   Param,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 // DTOs
 import { CreateDeliveryAddressDto } from './dto/create-delivery-address.dto';
+import { UpdateDeliveryAddressDto } from './dto/update-delivery-address.dto';
 
 @Controller('delivery_addresses')
 @UseGuards(JwtAuthGuard)
@@ -25,8 +27,17 @@ export class DeliveryAddressController {
   ) {}
 
   @Post()
-  async create(@Body() createDeliveryAddressDto: CreateDeliveryAddressDto) {
-    return await this.deliveryAddressService.create(createDeliveryAddressDto);
+  async create(@Body() dto: CreateDeliveryAddressDto) {
+    return await this.deliveryAddressService.create(dto);
+  }
+
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() dto: UpdateDeliveryAddressDto) {
+    if (id !== dto.id) {
+      throw new BadRequestException('id mismatch');
+    }
+
+    return await this.deliveryAddressService.update(dto);
   }
 
   @Delete(':id')

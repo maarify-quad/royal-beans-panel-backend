@@ -66,6 +66,7 @@ export class OrderService {
       where: { type },
       order: { id: 'DESC' },
       take: 1,
+      withDeleted: true,
     });
 
     // Generate new order number and id

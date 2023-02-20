@@ -30,16 +30,8 @@ export class SupplierService {
   }
 
   async create(supplier: CreateSupplierDto) {
-    // Find latest supplier id
-    const [lastSupplier] = await this.supplierRepository.find({
-      order: { id: 'DESC' },
-      take: 1,
-    });
-
     // Generate new supplier id
-    const id = lastSupplier
-      ? `T${Number(lastSupplier.id.split('T')[1]) + 1}`
-      : 'T1001';
+    const id = await this.generateId();
 
     // Create new supplier
     const newSupplier = this.supplierRepository.create({
@@ -57,5 +49,19 @@ export class SupplierService {
     });
     supplier.totalVolume += incrementBy;
     return this.supplierRepository.save(supplier);
+  }
+
+  async generateId() {
+    // Find latest supplier id
+    const [lastSupplier] = await this.supplierRepository.find({
+      order: { id: 'DESC' },
+      take: 1,
+      withDeleted: true,
+    });
+
+    // Generate new supplier id
+    return lastSupplier
+      ? `T${Number(lastSupplier.id.split('T')[1]) + 1}`
+      : 'T1001';
   }
 }

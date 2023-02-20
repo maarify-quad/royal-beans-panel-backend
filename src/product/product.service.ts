@@ -128,6 +128,7 @@ export class ProductService {
     const lastProduct = await this.productRepository.findOne({
       where: { storageType },
       order: { id: 'DESC' },
+      withDeleted: true,
     });
     if (!lastProduct?.stockCode || !lastProduct) {
       return `${storageType}-10001`;

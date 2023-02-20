@@ -18,26 +18,29 @@ export class DeliveryAddress {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar' })
   customerId: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255 })
   receiverName: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   receiverAddress: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255 })
   receiverPhone: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255 })
   receiverProvince: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255 })
   receiverCity: string;
+
+  @Column({ type: 'bool', default: false })
+  isPrimary: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

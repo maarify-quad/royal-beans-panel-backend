@@ -32,41 +32,15 @@ export class DeliveryController {
   ) {}
 
   @Get()
-  async findAll(@Query() query: GetDeliveriesDto) {
-    // If no query is provided, return all deliveries
-    if (!query.limit || !query.page) {
-      const deliveries = await this.deliveryService.findAll({
-        relations: { supplier: true },
-        order: { id: 'DESC' },
-        withDeleted: query.withDeleted === 'true',
-      });
-      return { deliveries, totalPages: 1, totalCount: deliveries.length };
-    }
-
-    // Parse query params
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    // If query is provided, return deliveries matching query
-    const result = await this.deliveryService.findAndCount({
+  async getDeliveries(@Query() query: GetDeliveriesDto) {
+    return await this.deliveryService.findByPagination(query, {
       relations: { supplier: true },
-      take: limit,
-      skip: limit * (page - 1),
-      order: { id: 'DESC' },
       withDeleted: query.withDeleted === 'true',
     });
-
-    // Return deliveries and total count
-    const deliveries = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // End response
-    return { deliveries, totalPages, totalCount };
   }
 
   @Get(':id')
-  findOneById(@Param('id') id: string) {
+  getDeliveryById(@Param('id') id: string) {
     return this.deliveryService.findOneById(id, { withDeleted: true });
   }
 
@@ -75,20 +49,16 @@ export class DeliveryController {
     @Query() query: GetDeliveriesDto,
     @Param('stockCode') stockCode: string,
   ) {
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
+    const { deliveries, totalCount, totalPages } =
+      await this.deliveryService.findByPagination(query, {
+        where: { deliveryDetails: { product: { stockCode } } },
+        relations: {
+          deliveryDetails: { product: true, delivery: { supplier: true } },
+        },
+        withDeleted: true,
+      });
 
-    const result = await this.deliveryService.findAndCount({
-      where: { deliveryDetails: { product: { stockCode } } },
-      take: limit,
-      skip: (page - 1) * limit,
-      relations: {
-        deliveryDetails: { product: true, delivery: { supplier: true } },
-      },
-      withDeleted: true,
-    });
-
-    const deliveryDetails = result[0]
+    const deliveryDetails = deliveries
       .map((delivery) => {
         const deliveryDetails = delivery.deliveryDetails.filter(
           (deliveryDetail) => deliveryDetail.product.stockCode === stockCode,
@@ -97,8 +67,6 @@ export class DeliveryController {
         return deliveryDetails;
       })
       .flat();
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
 
     return { deliveryDetails, totalPages, totalCount };
   }
@@ -108,21 +76,10 @@ export class DeliveryController {
     @Query() query: GetDeliveriesDto,
     @Param('id') id: string,
   ) {
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    const result = await this.deliveryService.findAndCount({
+    return await this.deliveryService.findByPagination(query, {
       where: { supplierId: id },
-      take: limit,
-      skip: (page - 1) * limit,
       withDeleted: query.withDeleted === 'true',
     });
-
-    const deliveries = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return { deliveries, totalPages, totalCount };
   }
 
   @Post()

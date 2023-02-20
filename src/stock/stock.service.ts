@@ -74,10 +74,19 @@ export class StockService {
     for (const ingredient of shopifyProduct.ingredients) {
       const product = ingredient.product;
 
-      await this.productService.decrementAmount(
-        product.id,
-        ingredient.quantity * lineItemQuantity,
-      );
+      if (product.amount > 0) {
+        await this.productService.decrementAmount(
+          product.id,
+          ingredient.quantity * lineItemQuantity,
+        );
+      } else {
+        for (const ingredient of product.ingredients) {
+          await this.productService.decrementAmount(
+            ingredient.ingredientProductId,
+            ingredient.ratio * lineItemQuantity,
+          );
+        }
+      }
     }
   }
 }

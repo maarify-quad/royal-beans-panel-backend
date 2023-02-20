@@ -31,6 +31,7 @@ import { RoastIngredientModule } from './roast-ingredient/roast-ingredient.modul
 import { ShopifyProductModule } from './shopify-product/shopify-product.module';
 import { ShopifyApiModule } from './shopify-api/shopify-api.module';
 import { ShopifyStockModule } from './shopify-stock/shopify-stock.module';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { ShopifyStockModule } from './shopify-stock/shopify-stock.module';
     ShopifyProductModule,
     ShopifyApiModule,
     ShopifyStockModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [

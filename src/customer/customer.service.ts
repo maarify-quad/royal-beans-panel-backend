@@ -39,17 +39,8 @@ export class CustomerService {
   }
 
   async create(customer: CreateCustomerDto) {
-    // Find latest customer id
-    const [lastCustomer] = await this.customerRepository.find({
-      order: { id: 'DESC' },
-      take: 1,
-      withDeleted: true,
-    });
-
     // Generate new customer id
-    const id = lastCustomer
-      ? `M${Number(lastCustomer.id.split('M')[1]) + 1}`
-      : 'M1001';
+    const id = await this.generateId();
 
     const newCustomer = this.customerRepository.create({
       id,
@@ -65,5 +56,19 @@ export class CustomerService {
 
   async deleteById(id: string) {
     return await this.customerRepository.softDelete({ id });
+  }
+
+  async generateId() {
+    // Find latest customer id
+    const [lastCustomer] = await this.customerRepository.find({
+      order: { id: 'DESC' },
+      take: 1,
+      withDeleted: true,
+    });
+
+    // Generate new customer id
+    return lastCustomer
+      ? `M${Number(lastCustomer.id.split('M')[1]) + 1}`
+      : 'M1001';
   }
 }

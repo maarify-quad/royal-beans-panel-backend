@@ -82,16 +82,8 @@ export class DeliveryService {
       total: number;
     },
   ) {
-    // Find latest delivery id
-    const [lastDelivery] = await this.deliveryRepository.find({
-      order: { id: 'DESC' },
-      take: 1,
-    });
-
     // Generate new delivery id
-    const id = lastDelivery
-      ? `S${Number(lastDelivery.id.split('S')[1]) + 1}`
-      : 'S1001';
+    const id = await this.generateId();
 
     // Create new delivery
     const newDelivery = this.deliveryRepository.create({
@@ -104,8 +96,6 @@ export class DeliveryService {
     // Map over delivery details and calculate tax price
     newDelivery.deliveryDetails = delivery.deliveryDetails.map(
       ({ product: _product, ...detail }) => {
-        console.log(detail.productId);
-
         return {
           ...detail,
           productId: detail.productId,
@@ -120,5 +110,19 @@ export class DeliveryService {
 
   async deleteById(id: string) {
     return await this.deliveryRepository.softDelete(id);
+  }
+
+  async generateId() {
+    // Find latest delivery id
+    const [lastDelivery] = await this.deliveryRepository.find({
+      order: { id: 'DESC' },
+      take: 1,
+      withDeleted: true,
+    });
+
+    // Generate new delivery id
+    return lastDelivery
+      ? `S${Number(lastDelivery.id.split('S')[1]) + 1}`
+      : 'S1001';
   }
 }

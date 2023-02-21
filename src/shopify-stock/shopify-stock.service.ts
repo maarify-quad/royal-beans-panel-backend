@@ -33,7 +33,7 @@ export class ShopifyStockService {
 
     const { orders } = await this.shopifyApiService.get<any>(
       'orders.json',
-      { limit: 1, fields: 'id,name,line_items' },
+      { limit: 250, fields: 'id,name,line_items' },
       {
         created_at_min: startDate,
         created_at_max: endDate,

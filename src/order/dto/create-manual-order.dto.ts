@@ -14,6 +14,7 @@ import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 
 // DTOs
 import { CreateOrderProductDto } from 'src/order-product/dto/create-order-product.dto';
+import { OrderSource } from '../entities/order.entity';
 
 export class CreateManualOrderDto {
   @IsString()
@@ -50,6 +51,10 @@ export class CreateManualOrderDto {
   @IsString()
   @IsOptional()
   specialNote?: string;
+
+  @IsString()
+  @IsOptional()
+  source?: OrderSource = 'dashboard';
 
   @ValidateNested({ each: true })
   @ArrayMinSize(1)

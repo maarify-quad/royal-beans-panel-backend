@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -27,4 +28,8 @@ export class CreateProductDto {
   @IsNumber({}, { message: 'Rezerve miktar sayı türünde olmalıdır' })
   @IsOptional()
   reservedAmount?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isShopifyProduct?: boolean;
 }

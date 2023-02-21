@@ -15,6 +15,7 @@ import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
 
 export type OrderType = 'BULK' | 'MANUAL';
+export type OrderSource = 'dashboard' | 'shopify';
 
 @Entity({ name: 'orders' })
 export class Order {
@@ -92,6 +93,9 @@ export class Order {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   manualInvoiceStatus: string | null;
+
+  @Column({ type: 'varchar', length: 255, default: 'dashboard' })
+  source: OrderSource;
 
   @Column({ type: 'boolean', default: false })
   isParasutVerified: boolean;

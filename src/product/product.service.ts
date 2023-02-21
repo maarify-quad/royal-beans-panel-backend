@@ -63,20 +63,11 @@ export class ProductService {
     return { products, totalPages, totalCount };
   }
 
-  async findByStorageType(storageType: string) {
-    return this.productRepository.find({
-      where: { storageType },
-    });
+  async findOne(options?: FindOneOptions<Product>) {
+    return this.productRepository.findOne(options);
   }
 
-  async findOne(id: number): Promise<Product | null> {
-    return this.productRepository.findOne({ where: { id } });
-  }
-
-  async findByStockCode(
-    stockCode: string,
-    options?: FindOneOptions<Product>,
-  ): Promise<Product | null> {
+  async findByStockCode(stockCode: string, options?: FindOneOptions<Product>) {
     return this.productRepository.findOne({
       where: { stockCode },
       ...options,

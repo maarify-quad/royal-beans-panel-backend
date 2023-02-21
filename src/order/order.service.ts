@@ -42,6 +42,7 @@ export class OrderService {
             product: true,
           },
           product: true,
+          shopifyProduct: true,
         },
       },
       ...options,

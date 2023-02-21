@@ -3,11 +3,15 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 export class CreateOrderProductDto {
   @IsNumber()
   @IsOptional()
-  priceListProductId: number;
+  priceListProductId?: number;
 
   @IsNumber()
   @IsOptional()
-  productId: number;
+  productId?: number;
+
+  @IsString()
+  @IsOptional()
+  shopifyProductId?: number;
 
   @IsString()
   grindType: string;

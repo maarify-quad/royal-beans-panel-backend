@@ -1,12 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
-import * as dayjs from 'dayjs';
 
 // Services
 import { ShopifyApiService } from 'src/shopify-api/shopify-api.service';
 import { StockService } from 'src/stock/stock.service';
 import { ShopifyProductService } from 'src/shopify-product/shopify-product.service';
 import { OrderService } from 'src/order/order.service';
+import { ProductService } from 'src/product/product.service';
 
 // DTOs
 import { CreateManualOrderDto } from 'src/order/dto/create-manual-order.dto';
@@ -18,19 +17,14 @@ export class ShopifyStockService {
     private readonly shopifyProductService: ShopifyProductService,
     private readonly stockService: StockService,
     private readonly orderService: OrderService,
+    private readonly productService: ProductService,
   ) {}
 
   private readonly logger = new Logger(ShopifyStockService.name);
 
-  // Every day at 23:59
-  @Cron('59 23 * * *')
-  async updateStocksFromShopifyOrders() {
-    const today = dayjs();
-    const startDate = today.startOf('day').toISOString();
-    const endDate = today.endOf('day').toISOString();
-
+  async processDailyShopifyOrders(startDate: string, endDate: string) {
     this.logger.debug(
-      `Running updateStocksFromShopifyOrders cron job with orders from ${startDate} to ${endDate}`,
+      `Running processDailyShopifyOrders cron job with orders from ${startDate} to ${endDate}`,
     );
 
     const { orders } = await this.shopifyApiService.get<any>(
@@ -83,6 +77,7 @@ export class ShopifyStockService {
           variantId,
           {
             relations: { ingredients: { product: { ingredients: true } } },
+            withDeleted: true,
           },
         );
 
@@ -96,8 +91,26 @@ export class ShopifyStockService {
           const unitPrice = parseFloat(lineItem.price);
           const taxRate = parseFloat(lineItem.tax_lines[0].rate);
 
+          let product = await this.productService.findOne({
+            where: {
+              name: `${productTitle} / ${variantTitle}`,
+              source: 'shopify',
+            },
+            relations: { ingredients: { product: { ingredients: true } } },
+            withDeleted: true,
+          });
+          if (!product) {
+            product = await this.productService.create({
+              name: `${productTitle} / ${variantTitle}`,
+              storageType: 'Shopify',
+              amount: 0,
+              amountUnit: '-',
+              source: 'shopify',
+            });
+          }
+
           const inBasketProduct = manualOrder.orderProducts.find(
-            (op) => op.shopifyProductId === shopifyProduct.id,
+            (op) => op.productId === product.id,
           );
           if (inBasketProduct) {
             inBasketProduct.quantity += lineItem.quantity;
@@ -106,7 +119,7 @@ export class ShopifyStockService {
               unitPrice * lineItem.quantity * (1 + taxRate);
           } else {
             manualOrder.orderProducts.push({
-              shopifyProductId: shopifyProduct.id,
+              productId: product.id,
               grindType: '-',
               quantity: lineItem.quantity,
               unitPrice,
@@ -140,6 +153,6 @@ export class ShopifyStockService {
       status: 'GÖNDERİLDİ',
     });
 
-    this.logger.debug('Finished updateStocksFromShopifyOrders cron job');
+    this.logger.debug('Finished processDailyShopifyOrders cron job');
   }
 }

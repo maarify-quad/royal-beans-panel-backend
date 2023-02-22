@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShopifyApiModule } from 'src/shopify-api/shopify-api.module';
 import { StockModule } from 'src/stock/stock.module';
@@ -17,7 +17,7 @@ import { ShopifyProductToProduct } from './entities/shopify-product-to-product.e
   imports: [
     TypeOrmModule.forFeature([ShopifyProduct, ShopifyProductToProduct]),
     ShopifyApiModule,
-    StockModule,
+    forwardRef(() => StockModule),
   ],
   controllers: [ShopifyProductController],
   providers: [ShopifyProductService],

@@ -38,7 +38,9 @@ export class ProductController {
 
   @Get()
   async getProducts(@Query() query: GetProductsDto) {
-    return await this.productService.findByPagination(query);
+    return await this.productService.findByPagination(query, {
+      where: { source: 'dashboard' },
+    });
   }
 
   @Get('/storageType/:storageType')
@@ -60,6 +62,7 @@ export class ProductController {
     return await this.productService.findByPagination(query, {
       where: { storageType: 'FN' },
       relations: { ingredients: true },
+      withDeleted: true,
     });
   }
 
@@ -68,6 +71,7 @@ export class ProductController {
     return await this.productService.findByPagination(query, {
       where: { storageType: 'YM' },
       relations: { roastIngredients: true },
+      withDeleted: true,
     });
   }
 
@@ -75,6 +79,7 @@ export class ProductController {
   async getProductByIdWithIngredients(@Param('stockCode') stockCode: string) {
     return await this.productService.findByStockCode(stockCode, {
       relations: { ingredients: true },
+      withDeleted: true,
     });
   }
 

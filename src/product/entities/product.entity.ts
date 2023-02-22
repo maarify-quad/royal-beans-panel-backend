@@ -15,6 +15,12 @@ import { RoastDetail } from 'src/roast-detail/entities/roast-detail.entity';
 import { RoastIngredient } from 'src/roast-ingredient/entities/roast-ingredient.entity';
 import { ShopifyProductToProduct } from 'src/shopify-product/entities/shopify-product-to-product.entity';
 
+export type ProductSource =
+  | 'dashboard'
+  | 'shopify'
+  | 'trendyol'
+  | 'hepsiburada';
+
 @Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn()
@@ -40,6 +46,9 @@ export class Product {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   tag: string | null;
+
+  @Column({ type: 'varchar', length: 255, default: 'dashboard' })
+  source: ProductSource;
 
   @CreateDateColumn()
   createdAt: Date;

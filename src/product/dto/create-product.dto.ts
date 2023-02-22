@@ -1,11 +1,13 @@
 import {
-  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   Min,
 } from 'class-validator';
+
+// Entities
+import { ProductSource } from '../entities/product.entity';
 
 export class CreateProductDto {
   @IsString({ message: 'Ürün adı metinsel bir değer olmalıdır' })
@@ -29,7 +31,7 @@ export class CreateProductDto {
   @IsOptional()
   reservedAmount?: number;
 
-  @IsBoolean()
+  @IsString()
   @IsOptional()
-  isShopifyProduct?: boolean;
+  source?: ProductSource;
 }

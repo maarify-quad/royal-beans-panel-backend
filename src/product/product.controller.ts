@@ -111,14 +111,14 @@ export class ProductController {
     return { success: true };
   }
 
-  @Put('/:id')
-  async updateProduct(@Param('id') id: number, @Body() dto: UpdateProductDto) {
-    return await this.productService.update(id, dto);
-  }
-
   @Put('/bulk')
   async updateProductsBulk(@Body() dto: BulkUpdateProductsDto) {
     return await this.productService.bulkUpdate(dto);
+  }
+
+  @Put(':id')
+  async updateProduct(@Param('id') id: number, @Body() dto: UpdateProductDto) {
+    return await this.productService.update(id, dto);
   }
 
   @Delete(':stockCode')

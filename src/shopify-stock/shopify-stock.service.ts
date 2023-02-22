@@ -26,8 +26,8 @@ export class ShopifyStockService {
   @Cron('59 23 * * *')
   async updateStocksFromShopifyOrders() {
     const today = dayjs();
-    const startDate = today.subtract(2, 'day').startOf('day').toISOString();
-    const endDate = today.subtract(1, 'day').endOf('day').toISOString();
+    const startDate = today.startOf('day').toISOString();
+    const endDate = today.endOf('day').toISOString();
 
     this.logger.debug(
       `Running updateStocksFromShopifyOrders cron job with orders from ${startDate} to ${endDate}`,

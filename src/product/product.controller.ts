@@ -38,6 +38,16 @@ export class ProductController {
 
   @Get()
   async getProducts(@Query() query: GetProductsDto) {
+    if (query.search) {
+      const search = query.search.toLowerCase();
+      return await this.productService.findBySearch(
+        { ...query, search },
+        {
+          where: { source: 'dashboard' },
+        },
+      );
+    }
+
     return await this.productService.findByPagination(query, {
       where: { source: 'dashboard' },
     });
@@ -50,6 +60,16 @@ export class ProductController {
   ) {
     if (!storageType) {
       throw new BadRequestException('storageType is required');
+    }
+
+    if (query.search) {
+      const search = query.search;
+      return await this.productService.findBySearch(
+        { ...query, search },
+        {
+          where: { storageType },
+        },
+      );
     }
 
     return await this.productService.findByPagination(query, {

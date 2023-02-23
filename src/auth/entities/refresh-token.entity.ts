@@ -23,6 +23,9 @@ export class RefreshToken {
   @Column({ type: 'text', nullable: false })
   refreshToken: string;
 
+  @Column({ type: 'datetime', nullable: false })
+  expiresAt: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

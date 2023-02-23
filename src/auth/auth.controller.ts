@@ -8,11 +8,13 @@ import {
   Req,
   Res,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Request as IRequest, Response } from 'express';
 
 // Services
 import { AuthService } from './auth.service';
+import { RefreshTokenService } from './refresh-token.service';
 
 // Guards
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -22,7 +24,10 @@ import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly refreshTokenService: RefreshTokenService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
@@ -32,16 +37,17 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body() _loginDto: LoginDto,
   ) {
-    // Login the user then generate a JWT and refresh token
+    // Login the user, generate a JWT and refresh token
     const { accessToken, refreshToken } = await this.authService.login(
       req.user,
+      true,
     );
 
-    // Set the refresh token in the response header
+    // Set the refresh token in the cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict',
     });
 
     return { accessToken, user: req.user };
@@ -53,18 +59,21 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     // Validate the refresh token in the request cookie
-    const refreshToken = await this.authService.validateRefreshToken(req);
+    const refreshToken = await this.refreshTokenService.isValidRefreshToken(
+      req.cookies.refreshToken,
+    );
+    if (!refreshToken) {
+      res.cookie('refreshToken', '', {
+        maxAge: -1,
+      });
+      throw new UnauthorizedException();
+    }
 
-    // Login the user then generate a JWT and refresh token
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.authService.login(refreshToken.user);
-
-    // Set the refresh token in the response header
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
+    // Login the user then generate a JWT
+    const { accessToken } = await this.authService.login(
+      refreshToken.user,
+      false,
+    );
 
     return { accessToken, user: refreshToken.user };
   }
@@ -72,26 +81,32 @@ export class AuthController {
   @Get('profile')
   async getProfile(@Request() req, @Res({ passthrough: true }) res: Response) {
     // Validate the refresh token in the request cookie
-    const refreshToken = await this.authService.validateRefreshToken(req);
+    const refreshToken = await this.refreshTokenService.isValidRefreshToken(
+      req.cookies.refreshToken,
+    );
+    if (!refreshToken) {
+      res.cookie('refreshToken', '', {
+        maxAge: -1,
+      });
+      throw new UnauthorizedException();
+    }
 
-    // Login the user then generate a JWT and refresh token
-    const { accessToken, refreshToken: newRefreshToken } =
-      await this.authService.login(refreshToken.user);
-
-    // Set the refresh token in the response header
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
+    // Login the user then generate a JWT
+    const { accessToken } = await this.authService.login(
+      refreshToken.user,
+      false,
+    );
 
     return { accessToken, user: refreshToken.user };
   }
 
   @Get('logout')
-  async logout(@Req() req, @Res({ passthrough: true }) res: Response) {
+  async logout(
+    @Req() req: IRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     // Logout user
-    await this.authService.logout(req);
+    await this.authService.logout(req.cookies.refreshToken);
 
     // Clear cookies
     res.cookie('refreshToken', '', {

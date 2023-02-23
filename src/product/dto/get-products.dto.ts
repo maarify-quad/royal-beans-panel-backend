@@ -15,5 +15,9 @@ export class GetProductsDto {
 
   @IsString()
   @IsOptional()
-  sortOrder?: string;
+  sortOrder?: 'ASC' | 'DESC' = 'ASC';
+
+  @IsString()
+  @IsOptional()
+  search?: string;
 }

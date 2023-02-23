@@ -1,9 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Request } from 'express';
 
 // Utils
 import { compare } from 'bcryptjs';
-import { generateKeySync } from 'crypto';
 import { instanceToPlain } from 'class-transformer';
 
 // Services
@@ -22,7 +20,7 @@ export class AuthService {
     private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<any> {
+  async validateUser(username: string, pass: string) {
     const user = await this.userService.findOneByUsername(username);
     const isValid = user ? await compare(pass, user.password) : false;
     if (isValid) {
@@ -31,53 +29,34 @@ export class AuthService {
     return null;
   }
 
-  async validateRefreshToken(req: Request): Promise<any> {
-    const refreshTokenCookie = req.cookies.refreshToken;
-    const refreshToken = await this.refreshTokenService.findOne(
-      refreshTokenCookie,
-    );
-    if (!refreshToken) {
-      throw new UnauthorizedException();
-    }
-    return refreshToken;
-  }
-
-  async login(user: User) {
+  async login(user: User, withRefreshToken = true) {
     // Convert User instance to plain object for JWT payload
     const payload = instanceToPlain(user);
 
-    // Generate refresh token
-    const refreshToken = generateKeySync('hmac', { length: 64 })
-      .export()
-      .toString('hex');
+    if (withRefreshToken) {
+      // Generate refresh token
+      const refreshToken = await this.refreshTokenService.generateRefreshToken(
+        user.id,
+      );
 
-    // Check if user already has a refresh token
-    const existingRefreshToken = await this.refreshTokenService.findOneByUserId(
-      user.id,
-    );
-
-    // If user already has a refresh token, update it
-    if (existingRefreshToken) {
-      await this.refreshTokenService.update(refreshToken, user.id);
-    } else {
-      // Create a new refresh token
-      await this.refreshTokenService.create(refreshToken, user.id);
+      return {
+        accessToken: this.jwtService.sign(payload),
+        refreshToken,
+      };
     }
 
     return {
       accessToken: this.jwtService.sign(payload),
-      refreshToken,
     };
   }
 
-  async logout(req: Request): Promise<any> {
-    const refreshTokenCookie = req.cookies.refreshToken;
-    const refreshToken = await this.refreshTokenService.findOne(
-      refreshTokenCookie,
+  async logout(refreshToken: string) {
+    const refreshTokenEntity = await this.refreshTokenService.findOne(
+      refreshToken,
     );
-    if (!refreshToken) {
+    if (!refreshTokenEntity) {
       throw new UnauthorizedException();
     }
-    await this.refreshTokenService.delete(refreshTokenCookie);
+    await this.refreshTokenService.delete(refreshToken);
   }
 }

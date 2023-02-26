@@ -6,16 +6,21 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 // Services
 import { ShopifyProductService } from './shopify-product.service';
 import { ShopifyApiService } from 'src/shopify-api/shopify-api.service';
 
+// Guards
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+
 // DTOs
 import { CreateShopifyProductIngredientsDto } from './dto/create-shopify-product-ingredients.dto';
 
 @Controller('shopify_products')
+@UseGuards(JwtAuthGuard)
 export class ShopifyProductController {
   constructor(
     private readonly shopifyProductService: ShopifyProductService,

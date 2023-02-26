@@ -5,15 +5,20 @@ import {
   Delete,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 // Services
 import { RoastIngredientService } from './roast-ingredient.service';
 
+// Guards
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+
 // DTOs
 import { CreateRoastIngredientDto } from './dto/create-roast-ingredient.dto';
 
 @Controller('roast_ingredients')
+@UseGuards(JwtAuthGuard)
 export class RoastIngredientController {
   constructor(
     private readonly roastIngredientService: RoastIngredientService,

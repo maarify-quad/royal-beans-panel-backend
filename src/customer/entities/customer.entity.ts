@@ -86,6 +86,9 @@ export class Customer {
   @Column({ type: 'text', default: null })
   specialNote?: string;
 
+  @Column({ type: 'varchar', length: 255, default: null })
+  parasutId: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

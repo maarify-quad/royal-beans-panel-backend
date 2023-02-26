@@ -32,6 +32,7 @@ import { ShopifyProductModule } from './shopify-product/shopify-product.module';
 import { ShopifyApiModule } from './shopify-api/shopify-api.module';
 import { ShopifyStockModule } from './shopify-stock/shopify-stock.module';
 import { TagModule } from './tag/tag.module';
+import { ParasutModule } from './parasut/parasut.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { TagModule } from './tag/tag.module';
     ShopifyApiModule,
     ShopifyStockModule,
     TagModule,
+    ParasutModule,
   ],
   controllers: [AppController],
   providers: [

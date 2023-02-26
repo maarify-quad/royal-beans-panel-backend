@@ -36,6 +36,11 @@ jobs:
           SHOPIFY_USERNAME: ${{ secrets.SHOPIFY_USERNAME }}
           SHOPIFY_PASSWORD: ${{ secrets.SHOPIFY_PASSWORD }}
           SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          PARASUT_BASE_URL: ${{ secrets.PARASUT_BASE_URL }}
+          PARASUT_USERNAME: ${{ secrets.PARASUT_USERNAME }}
+          PARASUT_PASSWORD: ${{ secrets.PARASUT_PASSWORD }}
+          PARASUT_CLIENT_ID: ${{ secrets.PARASUT_CLIENT_ID }}
+          PARASUT_COMPANY_ID: ${{ secrets.PARASUT_COMPANY_ID }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           PORT: ${{ secrets.PORT }}
 

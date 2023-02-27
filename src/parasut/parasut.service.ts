@@ -7,7 +7,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import * as jwt from 'jsonwebtoken';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class ParasutService {
@@ -17,17 +17,14 @@ export class ParasutService {
   ) {
     this.httpService.axiosRef.interceptors.request.use(async (config) => {
       config.headers['Content-Type'] = 'application/json';
-      if (!config.url.endsWith('redirect_uri=urn:ietf:wg:oauth:2.0:oob')) {
+      // If it is not a token request, add the access token to the header
+      if (!config.url?.includes('oauth/token')) {
+        if (this.expiresIn && this.expiresIn.isBefore(dayjs())) {
+          await this.refreshAccessToken();
+        }
         if (!this.accessToken) {
           await this.getAccessToken();
         }
-
-        const decoded = jwt.decode(this.accessToken);
-        const now = new Date().getTime() / 1000;
-        if (decoded && decoded['exp'] < now) {
-          await this.refreshAccessToken();
-        }
-
         config.headers['Authorization'] = `Bearer ${this.accessToken}`;
       }
       return config;
@@ -36,6 +33,7 @@ export class ParasutService {
 
   private accessToken = '';
   private refreshToken = '';
+  private expiresIn: dayjs.Dayjs | null = null;
   private readonly logger = new Logger(ParasutService.name);
 
   async getAccessToken() {
@@ -52,6 +50,7 @@ export class ParasutService {
     );
     this.accessToken = data.access_token;
     this.refreshToken = data.refresh_token;
+    this.expiresIn = dayjs().add(data.expires_in - 120, 'second');
   }
 
   async refreshAccessToken() {
@@ -68,6 +67,7 @@ export class ParasutService {
     );
     this.accessToken = data.access_token;
     this.refreshToken = data.refresh_token;
+    this.expiresIn = dayjs().add(data.expires_in - 120, 'second');
   }
 
   async getContactById(id: string) {

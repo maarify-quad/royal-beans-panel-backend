@@ -27,32 +27,7 @@ export class SupplierController {
 
   @Get()
   async getSuppliers(@Query() query: GetSuppliersDto) {
-    // If no query is provided, return all suppliers
-    if (!query.limit || !query.page) {
-      const suppliers = await this.supplierService.findAll({
-        order: { name: 'ASC' },
-      });
-      return { suppliers, totalPages: 1, totalCount: suppliers.length };
-    }
-
-    // Parse query params
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    // If query is provided, return suppliers matching query
-    const result = await this.supplierService.findAndCount({
-      take: limit,
-      skip: limit * (page - 1),
-      order: { name: 'ASC' },
-    });
-
-    // Return suppliers and total count
-    const suppliers = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // End response
-    return { suppliers, totalPages, totalCount };
+    return await this.supplierService.findByPagination(query);
   }
 
   @Get(':id')

@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
   ValidateNested,
 } from 'class-validator';
 
@@ -17,29 +18,34 @@ import { CreateOrderProductDto } from 'src/order-product/dto/create-order-produc
 import { OrderSource } from '../entities/order.entity';
 
 export class CreateManualOrderDto {
+  @MaxLength(255)
   @IsString()
   @IsNotEmpty()
   receiver: string;
 
+  @MaxLength(255)
   @IsString()
-  @IsNotEmpty()
-  receiverNeighborhood: string;
+  @IsOptional()
+  receiverNeighborhood?: string;
 
   @IsString()
-  @IsNotEmpty()
-  receiverAddress: string;
+  @IsOptional()
+  receiverAddress?: string;
 
+  @MaxLength(255)
   @IsString()
-  @IsNotEmpty()
-  receiverCity: string;
+  @IsOptional()
+  receiverCity?: string;
 
+  @MaxLength(255)
   @IsString()
-  @IsNotEmpty()
-  receiverProvince: string;
+  @IsOptional()
+  receiverProvince?: string;
 
+  @MaxLength(255)
   @IsString()
-  @IsNotEmpty()
-  receiverPhone: string;
+  @IsOptional()
+  receiverPhone?: string;
 
   @IsEmpty()
   deliveryAddressId?: number;

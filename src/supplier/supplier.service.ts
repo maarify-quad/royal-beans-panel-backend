@@ -7,6 +7,7 @@ import { Supplier } from './entities/supplier.entity';
 
 // DTOs
 import { CreateSupplierDto } from './dto/create-supplier.dto';
+import { UpdateSupplierDto } from './dto/update-supplier.dto';
 
 @Injectable()
 export class SupplierService {
@@ -41,6 +42,10 @@ export class SupplierService {
 
     // Save new supplier
     return this.supplierRepository.save(newSupplier);
+  }
+
+  async update(id: string, supplier: UpdateSupplierDto) {
+    return this.supplierRepository.update({ id }, supplier);
   }
 
   async incrementTotalVolume(id: string, incrementBy: number) {

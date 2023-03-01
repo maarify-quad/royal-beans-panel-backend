@@ -24,25 +24,25 @@ export class Supplier {
   name: string;
 
   @Column({ type: 'text', default: null })
-  address: string;
+  address: string | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
-  taxNo: string;
+  taxNo: string | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
-  taxOffice: string;
+  taxOffice: string | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
-  contactName: string;
+  contactName: string | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
-  contactPosition: string;
+  contactPosition: string | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
-  contactPhone: string;
+  contactPhone: string | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
-  contactEmail: string;
+  contactEmail: string | null;
 
   @Column({ type: 'float', nullable: false, default: 0 })
   totalVolume: number;

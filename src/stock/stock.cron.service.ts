@@ -9,15 +9,17 @@ import { ShopifyStockService } from 'src/shopify-stock/shopify-stock.service';
 export class StockCronService {
   constructor(private readonly shopifyStockService: ShopifyStockService) {}
 
-  // @Cron('59 18 * * *')
-  // async updateDailyStocks() {
-  //   const today = dayjs();
-  //   const startDate = today.subtract(1, 'day').startOf('day').toISOString();
-  //   const endDate = today.subtract(1, 'day').endOf('day').toISOString();
+  @Cron('* * * * *')
+  async updateDailyStocks() {
+    const today = dayjs();
+    const startDate = today.startOf('day').toISOString();
+    const endDate = today.endOf('day').toISOString();
 
-  //   await this.shopifyStockService.processDailyShopifyOrders(
-  //     startDate,
-  //     endDate,
-  //   );
-  // }
+    console.log('updateDailyStocks', startDate, endDate);
+
+    // await this.shopifyStockService.processDailyShopifyOrders(
+    //   startDate,
+    //   endDate,
+    // );
+  }
 }

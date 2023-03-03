@@ -7,6 +7,7 @@ import { PriceList } from './entities/price-list.entity';
 
 // DTOs
 import { CreatePriceListDto } from './dto/create-price-list.dto';
+import { CreatePriceListWithProductsDto } from './dto/create-price-list-with-products.dto';
 
 @Injectable()
 export class PriceListService {
@@ -40,8 +41,22 @@ export class PriceListService {
     });
   }
 
-  async create(createPriceListDto: CreatePriceListDto) {
-    const priceList = this.priceListRepository.create(createPriceListDto);
+  async create(dto: CreatePriceListDto) {
+    const priceList = this.priceListRepository.create(dto);
     return await this.priceListRepository.save(priceList);
+  }
+
+  async createWithProducts(dto: CreatePriceListWithProductsDto) {
+    const priceList = this.priceListRepository.create({
+      name: dto.name,
+    });
+    return await this.priceListRepository.save({
+      ...priceList,
+      priceListProducts: dto.products.map((product) => ({
+        productId: product.productId,
+        unitPrice: product.unitPrice,
+        taxRate: product.taxRate,
+      })),
+    });
   }
 }

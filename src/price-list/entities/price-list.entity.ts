@@ -33,7 +33,9 @@ export class PriceList {
   @JoinColumn()
   customers: Customer[];
 
-  @OneToMany(() => PriceListProduct, (product) => product.priceList)
+  @OneToMany(() => PriceListProduct, (product) => product.priceList, {
+    cascade: true,
+  })
   @JoinColumn()
   priceListProducts: PriceListProduct[];
 }

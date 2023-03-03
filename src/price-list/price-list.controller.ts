@@ -18,6 +18,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // DTOs
 import { GetPriceListsDto } from './dto/get-price-lists.dto';
 import { CreatePriceListDto } from './dto/create-price-list.dto';
+import { CreatePriceListWithProductsDto } from './dto/create-price-list-with-products.dto';
 
 @Controller('price_lists')
 @UseGuards(JwtAuthGuard)
@@ -89,5 +90,12 @@ export class PriceListController {
 
     const newPriceList = await this.priceListService.create(createPriceListDto);
     return newPriceList;
+  }
+
+  @Post('with_products')
+  async createPriceListWithProducts(
+    @Body() dto: CreatePriceListWithProductsDto,
+  ) {
+    return await this.priceListService.createWithProducts(dto);
   }
 }

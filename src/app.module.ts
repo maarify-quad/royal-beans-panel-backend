@@ -33,6 +33,8 @@ import { ShopifyApiModule } from './shopify-api/shopify-api.module';
 import { ShopifyStockModule } from './shopify-stock/shopify-stock.module';
 import { TagModule } from './tag/tag.module';
 import { ParasutModule } from './parasut/parasut.module';
+import { ShopifyWebhookModule } from './shopify-webhook/shopify-webhook.module';
+import { ShopifyFulfillmentModule } from './shopify-fulfillment/shopify-fulfillment.module';
 
 @Module({
   imports: [
@@ -69,8 +71,10 @@ import { ParasutModule } from './parasut/parasut.module';
     ShopifyProductModule,
     ShopifyApiModule,
     ShopifyStockModule,
+    ShopifyFulfillmentModule,
     TagModule,
     ParasutModule,
+    ShopifyWebhookModule,
   ],
   controllers: [AppController],
   providers: [

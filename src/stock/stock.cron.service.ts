@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import * as dayjs from 'dayjs';
 
 // Services
 import { ShopifyStockService } from 'src/shopify-stock/shopify-stock.service';
@@ -11,17 +10,11 @@ export class StockCronService {
 
   private readonly logger = new Logger(StockCronService.name);
 
-  @Cron('59 18 * * *')
+  // Runs every day at 20:00 GMT (23:00 GMT+3 in Istanbul/Turkey)
+  @Cron('0 20 * * *')
   async updateDailyStocks() {
-    const today = dayjs();
-    const startDate = today.startOf('day').toISOString();
-    const endDate = today.endOf('day').toISOString();
+    this.logger.debug('Running updateDailyStocks');
 
-    this.logger.debug('updateDailyStocks', startDate, endDate);
-
-    await this.shopifyStockService.processDailyShopifyOrders(
-      startDate,
-      endDate,
-    );
+    await this.shopifyStockService.processDailyShopifyOrders();
   }
 }

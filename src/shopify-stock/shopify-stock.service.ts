@@ -6,6 +6,7 @@ import { StockService } from 'src/stock/stock.service';
 import { ShopifyProductService } from 'src/shopify-product/shopify-product.service';
 import { OrderService } from 'src/order/order.service';
 import { ProductService } from 'src/product/product.service';
+import { ShopifyFulfillmentService } from 'src/shopify-fulfillment/shopify-fulfillment.service';
 
 // DTOs
 import { CreateManualOrderDto } from 'src/order/dto/create-manual-order.dto';
@@ -18,28 +19,38 @@ export class ShopifyStockService {
     private readonly stockService: StockService,
     private readonly orderService: OrderService,
     private readonly productService: ProductService,
+    private readonly shopifyFulfillmentService: ShopifyFulfillmentService,
   ) {}
 
   private readonly logger = new Logger(ShopifyStockService.name);
 
-  async processDailyShopifyOrders(startDate: string, endDate: string) {
-    this.logger.debug(
-      `Running processDailyShopifyOrders cron job with orders from ${startDate} to ${endDate}`,
-    );
+  async processDailyShopifyOrders() {
+    this.logger.debug(`Running processDailyShopifyOrders cron job`);
 
-    const { orders } = await this.shopifyApiService.get<any>(
-      'orders.json',
-      {
-        limit: 250,
-        fields: 'id,name,line_items,subtotal_price,total_tax,total_price',
-      },
-      {
-        created_at_min: startDate,
-        created_at_max: endDate,
-        fulfillment_status: 'shipped',
-        status: 'any',
-      },
-    );
+    const orders = [];
+    const fulfilledOrders = await this.shopifyFulfillmentService.findAll();
+
+    for (const fulfilledOrder of fulfilledOrders) {
+      try {
+        const { order } = await this.shopifyApiService.get<any>(
+          `orders/${fulfilledOrder.orderId}.json`,
+          {
+            fields: 'id,name,line_items,subtotal_price,total_tax,total_price',
+          },
+        );
+
+        orders.push(order);
+      } catch {
+        this.logger.error(
+          `Failed to get order ${fulfilledOrder.orderId} from Shopify, skipping...`,
+        );
+      }
+    }
+
+    if (!orders.length) {
+      this.logger.debug(`No orders found, skipping...`);
+      return;
+    }
 
     this.logger.debug(`Found ${orders.length} orders, updating stocks...`);
 
@@ -152,6 +163,10 @@ export class ShopifyStockService {
       orderId,
       status: 'GÖNDERİLDİ',
     });
+
+    for (const order of orders) {
+      await this.shopifyFulfillmentService.deleteByOrderId(String(order.id));
+    }
 
     this.logger.debug('Finished processDailyShopifyOrders cron job');
   }

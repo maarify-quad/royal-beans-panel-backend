@@ -47,6 +47,11 @@ export class ShopifyStockService {
       }
     }
 
+    if (!orders.length) {
+      this.logger.debug(`No orders found, skipping...`);
+      return;
+    }
+
     this.logger.debug(`Found ${orders.length} orders, updating stocks...`);
 
     const manualOrder: CreateManualOrderDto = {

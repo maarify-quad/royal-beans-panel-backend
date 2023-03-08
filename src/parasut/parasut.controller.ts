@@ -95,6 +95,7 @@ export class ParasutController {
         attributes: {
           item_type: 'invoice',
           issue_date: dayjs().format('YYYY-MM-DD'),
+          due_date: dayjs().format('YYYY-MM-DD'),
         },
         relationships: {
           details: {

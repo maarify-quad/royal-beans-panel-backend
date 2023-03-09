@@ -226,7 +226,10 @@ export class OrderController {
     });
 
     // Update order products and order price set
-    await this.orderService.updateOrderProducts(updateOrderProductsDto);
+    await this.orderService.updateOrderProducts(
+      updateOrderProductsDto,
+      order.type,
+    );
     await this.orderService.update({
       orderId,
       ...priceSet,
@@ -259,7 +262,10 @@ export class OrderController {
     });
 
     // Update order products and order price set
-    await this.orderService.updateOrderProducts(updateOrderProductsDto);
+    await this.orderService.updateOrderProducts(
+      updateOrderProductsDto,
+      order.type,
+    );
     await this.orderService.update({
       orderId,
       ...priceSet,

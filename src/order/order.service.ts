@@ -98,7 +98,10 @@ export class OrderService {
     return await this.orderRepository.update({ orderId }, update);
   }
 
-  async updateOrderProducts(updateOrderDto: UpdateOrderProductsDto) {
+  async updateOrderProducts(
+    updateOrderDto: UpdateOrderProductsDto,
+    type: OrderType,
+  ) {
     const { orderId, orderProducts } = updateOrderDto;
 
     // Find order
@@ -111,8 +114,30 @@ export class OrderService {
       },
     });
 
-    // Append new order products
-    order.orderProducts = [...order.orderProducts, ...orderProducts];
+    // New order products
+    const newOrderProducts = [...order.orderProducts];
+
+    // Update existing order products
+    orderProducts.forEach((orderProduct) => {
+      const productIdPath =
+        type === 'BULK' ? 'priceListProductId' : 'productId';
+
+      const existingProduct = newOrderProducts.find(
+        (op) =>
+          op[productIdPath] === orderProduct[productIdPath] &&
+          op.grindType === orderProduct.grindType,
+      );
+
+      if (existingProduct) {
+        existingProduct.quantity += orderProduct.quantity;
+        existingProduct.subTotal += orderProduct.subTotal;
+        existingProduct.total += orderProduct.total;
+      } else {
+        newOrderProducts.push(orderProduct);
+      }
+    });
+
+    order.orderProducts = newOrderProducts;
 
     // Save order
     return await this.orderRepository.save(order);

@@ -36,33 +36,11 @@ export class OrderController {
 
   @Get()
   async getOrders(@Query() query: GetOrdersDto) {
-    // If no query is provided, return all orders
-    if (!query.limit || !query.page || !query.type) {
-      const orders = await this.orderService.findAll({ withDeleted: true });
-      return { orders, totalPages: 1, totalCount: orders.length };
-    }
-
-    // Parse query params
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    // If query is provided, return orders matching query
-    const result = await this.orderService.findAndCount({
+    return await this.orderService.findByPagination(query, {
       ...(query.type && { where: { type: query.type } }),
       relations: { customer: true },
-      order: { createdAt: 'DESC' },
-      take: limit,
-      skip: limit * (page - 1),
       withDeleted: true,
     });
-
-    // Return orders and total count
-    const orders = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // End response
-    return { orders, totalPages, totalCount };
   }
 
   @Get('/orderId/:orderId')
@@ -78,51 +56,14 @@ export class OrderController {
     @Param('customer') customer: string,
     @Query() query: GetOrdersDto,
   ) {
-    // If no query is provided, return all orders
-    if (!query.limit || !query.page) {
-      const orders = await this.orderService.findAll({
-        where: {
-          customer: {
-            name: customer,
-          },
-        },
-        order: {
-          orderNumber: 'DESC',
-        },
-        withDeleted: true,
-      });
-      return { orders };
-    }
-
-    // Parse query params
-    const limit = parseInt(query.limit || '25', 10);
-    const page = parseInt(query.page || '1', 10);
-
-    // If query is provided, return orders matching query
-    const result = await this.orderService.findAndCount({
-      relations: {
-        customer: true,
-      },
+    return await this.orderService.findByPagination(query, {
       where: {
         customer: {
           name: customer,
         },
       },
-      order: {
-        orderNumber: 'DESC',
-      },
-      take: limit,
-      skip: limit * (page - 1),
       withDeleted: true,
     });
-
-    // Return orders and total count
-    const orders = result[0];
-    const totalCount = result[1];
-    const totalPages = Math.ceil(totalCount / limit);
-
-    // End response
-    return { orders, totalCount, totalPages };
   }
 
   @Post()

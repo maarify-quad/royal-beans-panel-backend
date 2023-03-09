@@ -2,13 +2,21 @@ import { IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { OrderType } from '../entities/order.entity';
 
 export class GetOrdersDto {
-  @IsNumberString({}, { message: 'Limit metinsel sayı türünde olmalıdır' })
+  @IsNumberString()
   @IsOptional()
-  readonly limit?: string;
+  page?: string;
 
-  @IsNumberString({}, { message: 'Sayfa metinsel sayı türünde olmalıdır' })
+  @IsNumberString()
   @IsOptional()
-  readonly page?: string;
+  limit?: string;
+
+  @IsString()
+  @IsOptional()
+  sortBy?: string;
+
+  @IsString()
+  @IsOptional()
+  sortOrder?: 'ASC' | 'DESC' = 'ASC';
 
   @IsIn(['BULK', 'MANUAL'])
   @IsString()

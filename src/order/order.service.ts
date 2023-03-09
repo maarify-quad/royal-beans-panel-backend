@@ -18,6 +18,44 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
   ) {}
 
+  async findByPagination(
+    query: {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    },
+    options?: FindManyOptions<Order>,
+  ) {
+    const page = query.page ? parseInt(query.page, 10) : null;
+    const limit = query.limit ? parseInt(query.limit, 10) : null;
+
+    const order = {
+      [query.sortBy || 'id']: query.sortOrder || 'ASC',
+    };
+
+    if (!page || !limit) {
+      const orders = await this.orderRepository.find({
+        ...options,
+        order,
+      });
+      return { orders, totalPages: 1, totalCount: orders.length };
+    }
+
+    const result = await this.orderRepository.findAndCount({
+      ...options,
+      order,
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+
+    const orders = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { orders, totalPages, totalCount };
+  }
+
   async findAll(options?: FindManyOptions<Order>) {
     return await this.orderRepository.find({
       relations: {

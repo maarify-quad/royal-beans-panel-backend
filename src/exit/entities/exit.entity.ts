@@ -9,8 +9,9 @@ import {
 } from 'typeorm';
 
 // Entities
-import { Customer } from 'src/customer/entities/customer.entity';
+
 import { Product } from 'src/product/entities/product.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 @Entity({ name: 'exits' })
 export class Exit {
@@ -20,14 +21,11 @@ export class Exit {
   @Column({ type: 'datetime' })
   date: Date;
 
-  @Column({ type: 'varchar', length: 255 })
-  action: string;
+  @Column({ type: 'int', nullable: true, default: null })
+  orderId: number | null;
 
   @Column({ type: 'int' })
   productId: number;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  customerId: string | null;
 
   @Column({ type: 'float' })
   amount: number;
@@ -44,11 +42,11 @@ export class Exit {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Customer, {
+  @ManyToOne(() => Order, {
     cascade: true,
   })
-  @JoinColumn({ name: 'customerId' })
-  customer: Customer | null;
+  @JoinColumn({ name: 'orderId' })
+  order: Order | null;
 
   @ManyToOne(() => Product, {
     cascade: true,

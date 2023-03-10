@@ -22,7 +22,7 @@ export class ShopifyProductToProduct {
   @Column()
   productId: number;
 
-  @Column()
+  @Column({ type: 'float' })
   quantity: number;
 
   @CreateDateColumn()

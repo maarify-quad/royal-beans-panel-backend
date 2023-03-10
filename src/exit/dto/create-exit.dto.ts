@@ -12,17 +12,12 @@ export class CreateExitDTO {
   @IsDateString()
   date: string;
 
-  @MaxLength(255)
-  @IsString()
-  @IsNotEmpty()
-  action: string;
+  @IsNumber()
+  @IsOptional()
+  orderId: number | null;
 
   @IsNumber()
   productId: number;
-
-  @IsString()
-  @IsOptional()
-  customerId: string | null;
 
   @IsNumber()
   @IsNotEmpty()

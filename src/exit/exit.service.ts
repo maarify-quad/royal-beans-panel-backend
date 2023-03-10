@@ -4,6 +4,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 
 // Services
 import { OrderProductService } from 'src/order-product/order-product.service';
+import { ShopifyProductService } from 'src/shopify-product/shopify-product.service';
 
 // Entities
 import { Exit, ExitType } from './entities/exit.entity';
@@ -17,6 +18,7 @@ export class ExitService {
   constructor(
     @InjectRepository(Exit) private readonly exitRepo: Repository<Exit>,
     private readonly orderProductService: OrderProductService,
+    private readonly shopifyProductService: ShopifyProductService,
   ) {}
 
   async findByPagination(
@@ -89,8 +91,7 @@ export class ExitService {
 
       const exit = {
         date: new Date().toISOString(),
-        action: order.orderId,
-        customerId: order.customerId,
+        orderId: order.id,
         amount: orderProduct.quantity,
         type: 'order' as ExitType,
       };
@@ -121,5 +122,51 @@ export class ExitService {
         });
       }
     }
+  }
+
+  async createExitsFromShopifyOrder(order: Order) {
+    const orderProducts = order.orderProducts;
+    const exits: CreateExitDTO[] = [];
+
+    for (let i = 0; i < orderProducts.length; i++) {
+      // Get order product with relations
+      const orderProduct = await this.orderProductService.findOneWithRelations(
+        orderProducts[i].id,
+        {
+          product: true,
+        },
+      );
+
+      const ingredients =
+        await this.shopifyProductService.findShopifyProductToProduct({
+          where: {
+            shopifyProductId: orderProduct.shopifyProductId,
+          },
+          relations: {
+            product: true,
+          },
+        });
+
+      for (const ingredient of ingredients) {
+        const isInExits = exits.find(
+          (e) => e.productId === ingredient.productId,
+        );
+
+        if (isInExits) {
+          isInExits.amount += orderProduct.quantity * ingredient.quantity;
+        } else {
+          exits.push({
+            orderId: order.id,
+            productId: ingredient.productId,
+            date: new Date().toISOString(),
+            amount: orderProduct.quantity * ingredient.quantity,
+            storageAmountAfterExit: ingredient.product.amount,
+            type: 'order',
+          });
+        }
+      }
+    }
+
+    await this.exitRepo.save(exits);
   }
 }

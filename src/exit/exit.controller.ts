@@ -17,6 +17,7 @@ export class ExitController {
   ) {
     return await this.exitService.findByPagination(query, {
       where: { productId },
+      relations: { order: { customer: true }, product: true },
       withDeleted: true,
     });
   }

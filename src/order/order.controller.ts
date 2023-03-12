@@ -14,6 +14,7 @@ import {
 import { OrderService } from './order.service';
 import { StockService } from 'src/stock/stock.service';
 import { CustomerService } from 'src/customer/customer.service';
+import { ExitService } from 'src/exit/exit.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -32,6 +33,7 @@ export class OrderController {
     private readonly orderService: OrderService,
     private readonly stockService: StockService,
     private readonly customerService: CustomerService,
+    private readonly exitService: ExitService,
   ) {}
 
   @Get()
@@ -121,12 +123,17 @@ export class OrderController {
   @Patch()
   async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
     const order = await this.orderService.findByOrderId(updateOrderDto.orderId);
+
+    // If order is being delivered (and not already delivered before), update stocks
     if (updateOrderDto.deliveryType && !order.status.startsWith('GÖNDERİLDİ')) {
+      await this.exitService.createExitsFromOrder(order);
+
       await this.stockService.updateStocksFromOrderProducts(
         order.orderProducts,
         order.type,
       );
     }
+
     return await this.orderService.update(updateOrderDto);
   }
 

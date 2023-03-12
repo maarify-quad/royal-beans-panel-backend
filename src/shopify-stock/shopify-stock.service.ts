@@ -7,6 +7,7 @@ import { ShopifyProductService } from 'src/shopify-product/shopify-product.servi
 import { OrderService } from 'src/order/order.service';
 import { ProductService } from 'src/product/product.service';
 import { ShopifyFulfillmentService } from 'src/shopify-fulfillment/shopify-fulfillment.service';
+import { ExitService } from 'src/exit/exit.service';
 
 // DTOs
 import { CreateManualOrderDto } from 'src/order/dto/create-manual-order.dto';
@@ -20,6 +21,7 @@ export class ShopifyStockService {
     private readonly orderService: OrderService,
     private readonly productService: ProductService,
     private readonly shopifyFulfillmentService: ShopifyFulfillmentService,
+    private readonly exitService: ExitService,
   ) {}
 
   private readonly logger = new Logger(ShopifyStockService.name);
@@ -120,9 +122,12 @@ export class ShopifyStockService {
             });
           }
 
+          // Check if product is already in basket
           const inBasketProduct = manualOrder.orderProducts.find(
             (op) => op.productId === product.id,
           );
+
+          // If product is already in basket, update quantity, subTotal and total
           if (inBasketProduct) {
             inBasketProduct.quantity += lineItem.quantity;
             inBasketProduct.subTotal += unitPrice * lineItem.quantity;
@@ -131,6 +136,7 @@ export class ShopifyStockService {
           } else {
             manualOrder.orderProducts.push({
               productId: product.id,
+              shopifyProductId: shopifyProduct.id,
               grindType: '-',
               quantity: lineItem.quantity,
               unitPrice,
@@ -140,6 +146,7 @@ export class ShopifyStockService {
             } as any);
           }
 
+          // Update stocks
           await this.stockService.updateStocksFromShopifyProduct(
             shopifyProduct,
             lineItem.quantity,
@@ -154,15 +161,20 @@ export class ShopifyStockService {
       this.logger.log('*'.repeat(50));
     }
 
-    const { orderId } = await this.orderService.create(
+    // Create order
+    const order = await this.orderService.create(
       manualOrder,
       priceSet,
       'MANUAL',
     );
+
+    // Update order status
     await this.orderService.update({
-      orderId,
+      orderId: order.orderId,
       status: 'GÖNDERİLDİ',
     });
+
+    await this.exitService.createExitsFromShopifyOrder(order);
 
     for (const order of orders) {
       await this.shopifyFulfillmentService.deleteByOrderId(String(order.id));

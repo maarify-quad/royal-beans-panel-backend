@@ -12,6 +12,7 @@ import {
 import { Order } from 'src/order/entities/order.entity';
 import { PriceListProduct } from 'src/price-list-product/entities/price-list-product.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { ShopifyProduct } from 'src/shopify-product/entities/shopify-product.entity';
 
 @Entity({ name: 'order_products' })
 export class OrderProduct {
@@ -26,6 +27,9 @@ export class OrderProduct {
 
   @Column({ type: 'int', nullable: true, default: null })
   productId: number | null;
+
+  @Column({ type: 'int', nullable: true, default: null })
+  shopifyProductId: number | null;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   grindType: string;
@@ -64,4 +68,8 @@ export class OrderProduct {
   @ManyToOne(() => Product)
   @JoinColumn({ name: 'productId' })
   product: Product | null;
+
+  @ManyToOne(() => ShopifyProduct)
+  @JoinColumn({ name: 'shopifyProductId' })
+  shopifyProduct: ShopifyProduct | null;
 }

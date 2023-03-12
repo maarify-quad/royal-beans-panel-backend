@@ -18,6 +18,11 @@ export class ShopifyWebhookController {
 
   @Post('/orders/fulfilled')
   async orderFulfilled(@Req() req: Request) {
+    if (process.env.NODE_ENV !== 'production') {
+      this.logger.log('Skipping webhook in development mode');
+      return { success: true };
+    }
+
     this.logger.log('Webhook received for order fulfilled');
 
     const order = req.body;

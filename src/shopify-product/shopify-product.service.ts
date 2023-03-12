@@ -33,6 +33,12 @@ export class ShopifyProductService {
     });
   }
 
+  async findShopifyProductToProduct(
+    options?: FindManyOptions<ShopifyProductToProduct>,
+  ) {
+    return await this.shopifyProductToProductRepo.find(options);
+  }
+
   async create(dto: CreateShopifyProductDto) {
     return await this.shopifyProductRepo.save(dto);
   }

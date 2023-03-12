@@ -50,8 +50,10 @@ export class StockService {
           );
         } else {
           const ingredients = product.ingredients;
+
           for (let j = 0; j < ingredients.length; j++) {
             const ingredient = ingredients[j];
+
             await this.productService.decrementAmount(
               ingredient.ingredientProductId,
               orderProduct.quantity * ingredient.ratio,

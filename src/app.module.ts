@@ -35,6 +35,7 @@ import { TagModule } from './tag/tag.module';
 import { ParasutModule } from './parasut/parasut.module';
 import { ShopifyWebhookModule } from './shopify-webhook/shopify-webhook.module';
 import { ShopifyFulfillmentModule } from './shopify-fulfillment/shopify-fulfillment.module';
+import { ExitModule } from './exit/exit.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { ShopifyFulfillmentModule } from './shopify-fulfillment/shopify-fulfillm
     ShopifyStockModule,
     ShopifyFulfillmentModule,
     TagModule,
+    ExitModule,
     ParasutModule,
     ShopifyWebhookModule,
   ],

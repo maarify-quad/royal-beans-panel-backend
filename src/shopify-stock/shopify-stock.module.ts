@@ -7,6 +7,7 @@ import { StockModule } from 'src/stock/stock.module';
 import { OrderModule } from 'src/order/order.module';
 import { ProductModule } from 'src/product/product.module';
 import { ShopifyFulfillmentModule } from 'src/shopify-fulfillment/shopify-fulfillment.module';
+import { ExitModule } from 'src/exit/exit.module';
 
 // Services
 import { ShopifyStockService } from './shopify-stock.service';
@@ -17,6 +18,7 @@ import { ShopifyStockService } from './shopify-stock.service';
     ShopifyApiModule,
     ProductModule,
     ShopifyFulfillmentModule,
+    ExitModule,
     forwardRef(() => StockModule),
     forwardRef(() => OrderModule),
   ],
@@ -24,3 +26,9 @@ import { ShopifyStockService } from './shopify-stock.service';
   exports: [ShopifyStockService],
 })
 export class ShopifyStockModule {}
+
+// 4788072185909
+// 4788071890997
+// 4788071890997
+// 4788058947637
+// 4788028440629

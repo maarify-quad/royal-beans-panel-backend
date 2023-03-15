@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 // Utils
-import { compare } from 'bcryptjs';
+import { compareSync } from 'bcryptjs';
 import { instanceToPlain } from 'class-transformer';
 
 // Services
@@ -20,43 +20,35 @@ export class AuthService {
     private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
-  async validateUser(username: string, pass: string) {
+  async validateUser(username: string, password: string) {
     const user = await this.userService.findOneByUsername(username);
-    const isValid = user ? await compare(pass, user.password) : false;
-    if (isValid) {
+    const isPasswordMatch = user ? compareSync(password, user.password) : false;
+    if (user && isPasswordMatch) {
       return user;
     }
     return null;
   }
 
-  async login(user: User, withRefreshToken = true) {
+  async login(user: User) {
     // Convert User instance to plain object for JWT payload
     const payload = instanceToPlain(user);
 
-    if (withRefreshToken) {
-      // Generate refresh token
-      const refreshToken = await this.refreshTokenService.generateRefreshToken(
-        user.id,
-      );
-
-      return {
-        accessToken: this.jwtService.sign(payload),
-        refreshToken,
-      };
-    }
+    // Generate refresh token
+    const refreshToken = await this.refreshTokenService.generateRefreshToken(
+      user.id,
+    );
 
     return {
       accessToken: this.jwtService.sign(payload),
+      refreshToken,
     };
   }
 
-  async logout(refreshToken: string) {
-    const refreshTokenEntity = await this.refreshTokenService.findOne(
-      refreshToken,
-    );
-    if (!refreshTokenEntity) {
+  async logout(userId: number) {
+    const refreshToken = await this.refreshTokenService.findOneByUserId(userId);
+    if (!refreshToken) {
       throw new UnauthorizedException();
     }
-    await this.refreshTokenService.delete(refreshToken);
+    await this.refreshTokenService.deleteByUserId(userId);
   }
 }

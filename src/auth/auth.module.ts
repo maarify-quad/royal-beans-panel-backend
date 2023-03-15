@@ -21,6 +21,9 @@ import { AuthController } from './auth.controller';
 // Entities
 import { RefreshToken } from './entities/refresh-token.entity';
 
+// Guards
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([RefreshToken]),
@@ -46,6 +49,7 @@ import { RefreshToken } from './entities/refresh-token.entity';
     RefreshTokenService,
     LocalStrategy,
     JwtStrategy,
+    RefreshTokenGuard,
   ],
   controllers: [AuthController],
 })

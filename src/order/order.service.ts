@@ -76,6 +76,7 @@ export class OrderService {
       relations: {
         customer: true,
         orderProducts: {
+          shopifyProduct: true,
           priceListProduct: {
             product: true,
           },

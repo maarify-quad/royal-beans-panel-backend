@@ -42,25 +42,23 @@ export class StockService {
           ? orderProduct.priceListProduct.product
           : orderProduct.product;
 
-      if (product.storageType === 'FN') {
-        if (product.amount > 0) {
+      if (product.storageType === 'FN' && product.amount > 0) {
+        await this.productService.decrementAmount(
+          product.id,
+          orderProduct.quantity,
+        );
+      }
+
+      if (product.storageType === 'FN' && product.amount <= 0) {
+        for (const ingredient of product.ingredients) {
           await this.productService.decrementAmount(
-            product.id,
-            orderProduct.quantity,
+            ingredient.ingredientProductId,
+            orderProduct.quantity * ingredient.ratio,
           );
-        } else {
-          const ingredients = product.ingredients;
-
-          for (let j = 0; j < ingredients.length; j++) {
-            const ingredient = ingredients[j];
-
-            await this.productService.decrementAmount(
-              ingredient.ingredientProductId,
-              orderProduct.quantity * ingredient.ratio,
-            );
-          }
         }
-      } else {
+      }
+
+      if (product.storageType !== 'FN') {
         await this.productService.decrementAmount(
           product.id,
           orderProduct.quantity,
@@ -76,18 +74,27 @@ export class StockService {
     for (const ingredient of shopifyProduct.ingredients) {
       const product = ingredient.product;
 
-      if (product.amount > 0) {
+      if (product.storageType === 'FN' && product.amount > 0) {
         await this.productService.decrementAmount(
           product.id,
           ingredient.quantity * lineItemQuantity,
         );
-      } else {
+      }
+
+      if (product.storageType === 'FN' && product.amount <= 0) {
         for (const ingredient of product.ingredients) {
           await this.productService.decrementAmount(
             ingredient.ingredientProductId,
             ingredient.ratio * lineItemQuantity,
           );
         }
+      }
+
+      if (product.storageType !== 'FN') {
+        await this.productService.decrementAmount(
+          product.id,
+          ingredient.quantity * lineItemQuantity,
+        );
       }
     }
   }

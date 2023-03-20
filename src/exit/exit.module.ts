@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 // Modules
 import { OrderProductModule } from 'src/order-product/order-product.module';
 import { ShopifyProductModule } from 'src/shopify-product/shopify-product.module';
+import { ProductionModule } from 'src/production/production.module';
 
 // Controllers
 import { ExitController } from './exit.controller';
@@ -19,6 +20,7 @@ import { Exit } from './entities/exit.entity';
     TypeOrmModule.forFeature([Exit]),
     OrderProductModule,
     ShopifyProductModule,
+    ProductionModule,
   ],
   controllers: [ExitController],
   providers: [ExitService],

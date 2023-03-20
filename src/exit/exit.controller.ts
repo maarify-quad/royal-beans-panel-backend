@@ -10,8 +10,8 @@ import { GetExitsDTO } from './dto/get-exits.dto';
 export class ExitController {
   constructor(private readonly exitService: ExitService) {}
 
-  @Get(':productId')
-  async getExits(
+  @Get('/product/:productId')
+  async getExitsByProductId(
     @Param('productId') productId: number,
     @Query() query: GetExitsDTO,
   ) {

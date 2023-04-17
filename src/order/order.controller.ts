@@ -229,20 +229,25 @@ export class OrderController {
       throw new NotFoundException('Sipariş bulunamadı');
     }
 
-    const customer = await this.customerService.findOneById(order.customerId);
-    if (!customer) {
-      throw new NotFoundException('Sipariş bulunamadı');
-    }
+    if (order.type === 'BULK') {
+      const customer = await this.customerService.findOneById(order.customerId);
+      if (!customer) {
+        throw new NotFoundException('Sipariş bulunamadı');
+      }
 
-    await this.customerService.update({
-      id: order.customer.id,
-      currentBalance: customer.currentBalance - order.total,
-    });
+      await this.customerService.update({
+        id: order.customer.id,
+        currentBalance: customer.currentBalance - order.total,
+      });
+    }
 
     await this.orderService.update({
       orderId,
       isCancelled: true,
-      customerBalanceAfterOrder: order.customerBalanceAfterOrder - order.total,
+      customerBalanceAfterOrder:
+        order.type === 'BULK'
+          ? order.customerBalanceAfterOrder - order.total
+          : 0,
     });
 
     return { success: true };

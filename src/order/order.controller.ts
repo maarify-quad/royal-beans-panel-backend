@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -15,6 +16,7 @@ import { OrderService } from './order.service';
 import { StockService } from 'src/stock/stock.service';
 import { CustomerService } from 'src/customer/customer.service';
 import { ExitService } from 'src/exit/exit.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -34,6 +36,7 @@ export class OrderController {
     private readonly stockService: StockService,
     private readonly customerService: CustomerService,
     private readonly exitService: ExitService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   @Get()
@@ -69,7 +72,7 @@ export class OrderController {
   }
 
   @Post()
-  async createOrder(@Body() createOrderDto: CreateOrderDto) {
+  async createOrder(@Req() req, @Body() createOrderDto: CreateOrderDto) {
     // Order price set
     const priceSet = {
       subTotal: 0,
@@ -98,11 +101,27 @@ export class OrderController {
       currentBalance: priceSet.customerBalanceAfterOrder,
     });
 
-    return await this.orderService.create(createOrderDto, priceSet, 'BULK');
+    const order = await this.orderService.create(
+      createOrderDto,
+      priceSet,
+      'BULK',
+    );
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} siparişi oluşturuldu.`,
+        resource: 'order',
+        operation: 'create',
+      });
+    } catch {}
+
+    return order;
   }
 
   @Post('/manual')
-  async createManualOrder(@Body() dto: CreateManualOrderDto) {
+  async createManualOrder(@Req() req, @Body() dto: CreateManualOrderDto) {
     // Order price set
     const priceSet = {
       subTotal: 0,
@@ -117,28 +136,57 @@ export class OrderController {
       priceSet.total += orderProduct.total;
     });
 
-    return await this.orderService.create(dto, priceSet, 'MANUAL');
+    const order = await this.orderService.create(dto, priceSet, 'MANUAL');
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} siparişi oluşturuldu.`,
+        resource: 'order',
+        operation: 'create',
+      });
+    } catch {}
+
+    return order;
   }
 
   @Patch()
-  async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
+  async updateOrder(@Req() req, @Body() updateOrderDto: UpdateOrderDto) {
     const order = await this.orderService.findByOrderId(updateOrderDto.orderId);
 
     // If order is being delivered (and not already delivered before), update stocks
     if (updateOrderDto.deliveryType && !order.status.startsWith('GÖNDERİLDİ')) {
-      await this.exitService.createExitsFromOrder(order);
+      await this.exitService.createExitsFromOrder(order, {
+        userId: req.user.user.id,
+      });
 
       await this.stockService.updateStocksFromOrderProducts(
         order.orderProducts,
         order.type,
+        { userId: req.user.user.id, order },
       );
     }
 
-    return await this.orderService.update(updateOrderDto);
+    const updatedOrder = await this.orderService.update(updateOrderDto);
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} siparişi güncellendi.`,
+        resource: 'order',
+        operation: 'update',
+        jsonParams: JSON.stringify(updateOrderDto),
+      });
+    } catch {}
+
+    return updatedOrder;
   }
 
   @Patch('/order_products')
   async updateOrderProducts(
+    @Req() req,
     @Body() updateOrderProductsDto: UpdateOrderProductsDto,
   ) {
     const { orderId } = updateOrderProductsDto;
@@ -183,11 +231,23 @@ export class OrderController {
       ...priceSet,
     });
 
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} sipariş ürünleri güncellendi.`,
+        resource: 'order',
+        operation: 'update',
+        jsonParams: JSON.stringify(updateOrderProductsDto),
+      });
+    } catch {}
+
     return { success: true };
   }
 
   @Patch('/manual/order_products')
   async updateManualOrderProducts(
+    @Req() req,
     @Body() updateOrderProductsDto: UpdateOrderProductsDto,
   ) {
     const { orderId } = updateOrderProductsDto;
@@ -219,11 +279,22 @@ export class OrderController {
       ...priceSet,
     });
 
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} sipariş ürünleri güncellendi.`,
+        resource: 'order',
+        operation: 'update',
+        jsonParams: JSON.stringify(updateOrderProductsDto),
+      });
+    } catch {}
+
     return { success: true };
   }
 
   @Post('/cancel/:orderId')
-  async cancelOrder(@Param('orderId') orderId: string) {
+  async cancelOrder(@Req() req, @Param('orderId') orderId: string) {
     const order = await this.orderService.findByOrderId(orderId);
     if (!order || order.isCancelled) {
       throw new NotFoundException('Sipariş bulunamadı');
@@ -249,6 +320,16 @@ export class OrderController {
           ? order.customerBalanceAfterOrder - order.total
           : 0,
     });
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} siparişi iptal edildi.`,
+        resource: 'order',
+        operation: 'update',
+      });
+    } catch {}
 
     return { success: true };
   }

@@ -26,6 +26,7 @@ import { Tag } from 'src/tag/entities/tag.entity';
 import { ShopifyFulfillment } from 'src/shopify-fulfillment/entities/shopify-fulfillment.entity';
 import { Exit } from 'src/exit/entities/exit.entity';
 import { Production } from 'src/production/entities/production.entity';
+import { Logging } from 'src/logging/entities/logging.entity';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { Production } from 'src/production/entities/production.entity';
           Tag,
           Exit,
           Production,
+          Logging,
         ],
         synchronize: process.env.TYPEORM_SYNC === 'true',
       }),

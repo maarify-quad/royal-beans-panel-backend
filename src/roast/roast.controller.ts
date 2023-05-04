@@ -5,11 +5,13 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
 // Services
 import { RoastService } from './roast.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -21,7 +23,10 @@ import { GetRoastsDto } from './dto/get-roasts.dto';
 @Controller('roasts')
 @UseGuards(JwtAuthGuard)
 export class RoastController {
-  constructor(private readonly roastService: RoastService) {}
+  constructor(
+    private readonly roastService: RoastService,
+    private readonly loggingService: LoggingService,
+  ) {}
 
   @Get()
   async getRoasts(@Query() query: GetRoastsDto) {
@@ -60,7 +65,18 @@ export class RoastController {
   }
 
   @Post()
-  async createRoast(@Body() createRoastDto: CreateRoastDto) {
-    return await this.roastService.createRoast(createRoastDto);
+  async createRoast(@Req() req, @Body() createRoastDto: CreateRoastDto) {
+    const roast = await this.roastService.createRoast(createRoastDto);
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        message: `${roast.id} kodlu kavrum oluşturuldu.`,
+        resource: 'roast',
+        operation: 'create',
+      });
+    } catch {}
+
+    return roast;
   }
 }

@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import * as dayjs from 'dayjs';
@@ -11,6 +12,7 @@ import * as dayjs from 'dayjs';
 // Services
 import { ParasutService } from './parasut.service';
 import { OrderService } from 'src/order/order.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -21,10 +23,11 @@ export class ParasutController {
   constructor(
     private readonly parasutService: ParasutService,
     private readonly orderService: OrderService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   @Post('/sales_invoices/:orderId')
-  async createSalesInvoice(@Param('orderId') orderId: string) {
+  async createSalesInvoice(@Req() req, @Param('orderId') orderId: string) {
     if (!orderId) {
       throw new BadRequestException('Sipariş numarası gereklidir');
     }
@@ -114,6 +117,16 @@ export class ParasutController {
 
     await this.parasutService.createSalesInvoice(invoice);
     await this.orderService.update({ orderId, isParasutVerified: true });
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} nolu sipariş için Paraşüt faturası oluşturuldu`,
+        resource: 'order',
+        operation: 'create',
+      });
+    } catch {}
 
     return { success: true };
   }

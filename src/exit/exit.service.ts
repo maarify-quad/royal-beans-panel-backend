@@ -6,6 +6,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { OrderProductService } from 'src/order-product/order-product.service';
 import { ShopifyProductService } from 'src/shopify-product/shopify-product.service';
 import { ProductionService } from 'src/production/production.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 // Entities
 import { Exit, ExitType } from './entities/exit.entity';
@@ -22,6 +23,7 @@ export class ExitService {
     private readonly orderProductService: OrderProductService,
     private readonly shopifyProductService: ShopifyProductService,
     private readonly productionService: ProductionService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   async findByPagination(
@@ -67,7 +69,7 @@ export class ExitService {
     return await this.exitRepo.save(exit);
   }
 
-  async createExitsFromOrder(order: Order) {
+  async createExitsFromOrder(order: Order, extra?: { userId?: number }) {
     const orderProducts = order.orderProducts;
     const productions: CreateProductionDTO[] = [];
 
@@ -101,11 +103,25 @@ export class ExitService {
       };
 
       if (product.storageType === 'FN' && product.amount > 0) {
-        await this.create({
+        const exitPayload = {
           ...exit,
           productId: product.id,
           storageAmountAfterExit: product.amount - orderProduct.quantity,
-        });
+        };
+
+        await this.create(exitPayload);
+
+        try {
+          await this.loggingService.create({
+            userId: extra?.userId,
+            orderId: order.id,
+            productId: product.id,
+            message: `#${order.orderId} nolu siparişte, ${product.name} ürünü için çıkış yapıldı. İşlem: ${product.amount} - ${orderProduct.quantity}`,
+            resource: 'exit',
+            operation: 'create',
+            jsonParams: JSON.stringify(exitPayload),
+          });
+        } catch {}
       }
 
       if (
@@ -134,6 +150,17 @@ export class ExitService {
 
     if (productions.length) {
       await this.productionService.bulkCreate(productions);
+
+      try {
+        await this.loggingService.create({
+          userId: extra?.userId,
+          orderId: order.id,
+          message: `#${order.orderId} nolu siparişte, ürünler için üretim yapıldı.`,
+          resource: 'production',
+          operation: 'bulkCreate',
+          jsonParams: JSON.stringify(productions),
+        });
+      } catch {}
     }
   }
 
@@ -231,10 +258,30 @@ export class ExitService {
 
     if (exits.length) {
       await this.exitRepo.save(exits);
+
+      try {
+        await this.loggingService.create({
+          orderId: order.id,
+          message: `#${order.orderId} nolu siparişte, ürünler için çıkış yapıldı.`,
+          resource: 'exit',
+          operation: 'bulkCreate',
+          jsonParams: JSON.stringify(exits),
+        });
+      } catch {}
     }
 
     if (productions.length) {
       await this.productionService.bulkCreate(productions);
+
+      try {
+        await this.loggingService.create({
+          orderId: order.id,
+          message: `#${order.orderId} nolu siparişte, ürünler için üretim yapıldı.`,
+          resource: 'production',
+          operation: 'bulkCreate',
+          jsonParams: JSON.stringify(productions),
+        });
+      } catch {}
     }
   }
 }

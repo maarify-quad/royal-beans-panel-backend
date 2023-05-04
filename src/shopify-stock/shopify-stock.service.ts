@@ -8,6 +8,7 @@ import { OrderService } from 'src/order/order.service';
 import { ProductService } from 'src/product/product.service';
 import { ShopifyFulfillmentService } from 'src/shopify-fulfillment/shopify-fulfillment.service';
 import { ExitService } from 'src/exit/exit.service';
+import { LoggingService } from 'src/logging/logging.service';
 
 // DTOs
 import { CreateManualOrderDto } from 'src/order/dto/create-manual-order.dto';
@@ -22,6 +23,7 @@ export class ShopifyStockService {
     private readonly productService: ProductService,
     private readonly shopifyFulfillmentService: ShopifyFulfillmentService,
     private readonly exitService: ExitService,
+    private readonly loggingService: LoggingService,
   ) {}
 
   private readonly logger = new Logger(ShopifyStockService.name);
@@ -173,6 +175,16 @@ export class ShopifyStockService {
       orderId: order.orderId,
       status: 'GÖNDERİLDİ',
     });
+
+    try {
+      await this.loggingService.create({
+        orderId: order.id,
+        message: `#${order.orderId} numaralı Shopify siparişi oluşturuldu ve GÖNDERİLDİ olarak güncellendi.`,
+        resource: 'order',
+        operation: 'create',
+        jsonParams: JSON.stringify({ manualOrder, priceSet }),
+      });
+    } catch {}
 
     await this.exitService.createExitsFromShopifyOrder(order);
 

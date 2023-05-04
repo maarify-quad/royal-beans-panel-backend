@@ -37,6 +37,7 @@ import { ShopifyWebhookModule } from './shopify-webhook/shopify-webhook.module';
 import { ShopifyFulfillmentModule } from './shopify-fulfillment/shopify-fulfillment.module';
 import { ExitModule } from './exit/exit.module';
 import { ProductionModule } from './production/production.module';
+import { LoggingModule } from './logging/logging.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ProductionModule } from './production/production.module';
       limit: 60,
     }),
     DatabaseModule,
+    LoggingModule,
     UserModule,
     RoleModule,
     AuthModule,

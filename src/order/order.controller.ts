@@ -113,7 +113,7 @@ export class OrderController {
         orderId: order.id,
         message: `#${order.orderId} siparişi oluşturuldu.`,
         resource: 'order',
-        operation: 'create',
+        operation: 'createOrder',
       });
     } catch {}
 
@@ -144,7 +144,7 @@ export class OrderController {
         orderId: order.id,
         message: `#${order.orderId} siparişi oluşturuldu.`,
         resource: 'order',
-        operation: 'create',
+        operation: 'createManualOrder',
       });
     } catch {}
 
@@ -176,7 +176,7 @@ export class OrderController {
         orderId: order.id,
         message: `#${order.orderId} siparişi güncellendi.`,
         resource: 'order',
-        operation: 'update',
+        operation: 'updateOrder',
         jsonParams: JSON.stringify(updateOrderDto),
       });
     } catch {}
@@ -237,7 +237,7 @@ export class OrderController {
         orderId: order.id,
         message: `#${order.orderId} sipariş ürünleri güncellendi.`,
         resource: 'order',
-        operation: 'update',
+        operation: 'updateOrderProducts',
         jsonParams: JSON.stringify(updateOrderProductsDto),
       });
     } catch {}
@@ -285,7 +285,7 @@ export class OrderController {
         orderId: order.id,
         message: `#${order.orderId} sipariş ürünleri güncellendi.`,
         resource: 'order',
-        operation: 'update',
+        operation: 'updateManualOrderProducts',
         jsonParams: JSON.stringify(updateOrderProductsDto),
       });
     } catch {}
@@ -327,7 +327,7 @@ export class OrderController {
         orderId: order.id,
         message: `#${order.orderId} siparişi iptal edildi.`,
         resource: 'order',
-        operation: 'update',
+        operation: 'cancelOrder',
       });
     } catch {}
 

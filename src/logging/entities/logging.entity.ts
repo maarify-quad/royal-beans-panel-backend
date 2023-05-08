@@ -68,4 +68,10 @@ export type LogginOperation =
   | 'create'
   | 'bulkCreate'
   | 'update'
-  | 'delete';
+  | 'delete'
+  | 'createOrder'
+  | 'createManualOrder'
+  | 'updateOrder'
+  | 'updateOrderProducts'
+  | 'updateManualOrderProducts'
+  | 'cancelOrder';

@@ -10,6 +10,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import * as ExcelJS from 'exceljs';
+import * as dayjs from 'dayjs';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Between } from 'typeorm';
 
 // Services
 import { OrderService } from './order.service';
@@ -27,6 +31,11 @@ import { GetOrdersDto } from './dto/get-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderProductsDto } from './dto/update-order-products.dto';
 import { CreateManualOrderDto } from './dto/create-manual-order.dto';
+import { ExcelExportOrdersDTO } from './dto/excel-export-orders.dto';
+
+const s3Client = new S3Client({
+  region: 'eu-central-1',
+});
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -332,5 +341,86 @@ export class OrderController {
     } catch {}
 
     return { success: true };
+  }
+
+  @Post('/excel-export')
+  async exportOrdersExcel(@Body() dto: ExcelExportOrdersDTO) {
+    const { startDate, endDate } = dto;
+
+    const orders = await this.orderService.findAll({
+      where: {
+        ...(startDate &&
+          endDate && {
+            createdAt: Between(new Date(startDate), new Date(endDate)),
+          }),
+      },
+      relations: {
+        customer: true,
+        orderProducts: { product: true, priceListProduct: { product: true } },
+      },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Siparişler');
+
+    worksheet.columns = [
+      { header: 'Sipariş No', key: 'orderNumber', width: 15 },
+      { header: 'Müşteri', key: 'customerName', width: 15 },
+      { header: 'Ürün', key: 'productName', width: 15 },
+      { header: 'Öğütme', key: 'grindType', width: 15 },
+      { header: 'Birim Fiyat', key: 'unitPrice', width: 15 },
+      { header: 'Adet', key: 'quantity', width: 15 },
+      { header: 'Sipariş Tutar', key: 'totalPrice', width: 15 },
+      { header: 'Fatura', key: 'invoiceStatus', width: 15 },
+      { header: 'Durum', key: 'status', width: 15 },
+      { header: 'Tarih', key: 'createdAt', width: 15 },
+    ];
+
+    const currencyFormatter = Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
+    });
+
+    orders.forEach((order) => {
+      order.orderProducts.forEach((orderProduct) => {
+        worksheet.addRow({
+          orderNumber: order.orderId,
+          customerName: order.customer?.name || order.receiver,
+          productName:
+            orderProduct.priceListProduct?.product.name ||
+            orderProduct.product.name,
+          grindType: orderProduct.grindType,
+          unitPrice: currencyFormatter.format(orderProduct.unitPrice),
+          quantity: orderProduct.quantity,
+          totalPrice: currencyFormatter.format(order.total),
+          invoiceStatus:
+            order.type === 'BULK'
+              ? order.isParasutVerified
+                ? 'Faturalı (Paraşüt)'
+                : 'Faturasız (Paraşüt)'
+              : order.manualInvoiceStatus,
+          status: order.status,
+          createdAt: dayjs(order.createdAt).format('DD MMMM YYYY'),
+        });
+      });
+    });
+
+    worksheet.getRow(1).font = { bold: true };
+
+    const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+    const params = {
+      Bucket: 'taft-coffee-panel',
+      Key: `excel/orders/${dayjs().format('DD-MMM-YYYY HH:mm')}.xlsx`,
+      Body: buffer,
+      ContentType:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    return {
+      success: true,
+      url: `https://taft-coffee-panel.s3.eu-central-1.amazonaws.com/${params.Key}`,
+    };
   }
 }

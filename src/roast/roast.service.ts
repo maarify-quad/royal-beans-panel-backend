@@ -20,11 +20,12 @@ export class RoastService {
     private readonly roastIngredientService: RoastIngredientService,
   ) {}
 
-  async findAll(): Promise<Roast[]> {
+  async findAll(options?: FindManyOptions<Roast>): Promise<Roast[]> {
     return await this.roastRepository.find({
       order: {
         id: 'DESC',
       },
+      ...options,
     });
   }
 

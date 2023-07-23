@@ -54,6 +54,14 @@ export class CustomerService {
     return await this.customerRepository.update({ id: customer.id }, customer);
   }
 
+  async incrementCurrentBalance(id: string, amount: number) {
+    return await this.customerRepository.increment(
+      { id },
+      'currentBalance',
+      amount,
+    );
+  }
+
   async deleteById(id: string) {
     return await this.customerRepository.softDelete({ id });
   }

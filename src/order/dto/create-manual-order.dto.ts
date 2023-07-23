@@ -2,8 +2,10 @@ import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEmpty,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -18,6 +20,12 @@ import { CreateOrderProductDto } from 'src/order-product/dto/create-order-produc
 import { OrderSource } from '../entities/order.entity';
 
 export class CreateManualOrderDto {
+  userId?: number | null;
+
+  @IsNumber()
+  @IsOptional()
+  receiverId?: number | null;
+
   @MaxLength(255)
   @IsString()
   @IsNotEmpty()
@@ -46,6 +54,9 @@ export class CreateManualOrderDto {
   @IsString()
   @IsOptional()
   receiverPhone?: string;
+
+  @IsBoolean()
+  isSaveReceiverChecked: boolean;
 
   @IsEmpty()
   deliveryAddressId?: number;

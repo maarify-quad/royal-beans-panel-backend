@@ -21,6 +21,7 @@ import { StockService } from 'src/stock/stock.service';
 import { CustomerService } from 'src/customer/customer.service';
 import { ExitService } from 'src/exit/exit.service';
 import { LoggingService } from 'src/logging/logging.service';
+import { ReceiverService } from 'src/receiver/receiver.service';
 
 // Guards
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -46,10 +47,23 @@ export class OrderController {
     private readonly customerService: CustomerService,
     private readonly exitService: ExitService,
     private readonly loggingService: LoggingService,
+    private readonly receiverService: ReceiverService,
   ) {}
 
   @Get()
   async getOrders(@Query() query: GetOrdersDto) {
+    if (query.search) {
+      const search = query.search.toLowerCase();
+      return await this.orderService.findBySearch(
+        { ...query, search },
+        {
+          ...(query.type && { where: { type: query.type } }),
+          relations: { customer: true },
+          withDeleted: true,
+        },
+      );
+    }
+
     return await this.orderService.findByPagination(query, {
       ...(query.type && { where: { type: query.type } }),
       relations: { customer: true },
@@ -82,6 +96,8 @@ export class OrderController {
 
   @Post()
   async createOrder(@Req() req, @Body() createOrderDto: CreateOrderDto) {
+    createOrderDto.userId = req.user.user.id;
+
     // Order price set
     const priceSet = {
       subTotal: 0,
@@ -131,6 +147,8 @@ export class OrderController {
 
   @Post('/manual')
   async createManualOrder(@Req() req, @Body() dto: CreateManualOrderDto) {
+    dto.userId = req.user.user.id;
+
     // Order price set
     const priceSet = {
       subTotal: 0,
@@ -146,6 +164,26 @@ export class OrderController {
     });
 
     const order = await this.orderService.create(dto, priceSet, 'MANUAL');
+
+    if (dto.isSaveReceiverChecked) {
+      const {
+        receiver,
+        receiverAddress,
+        receiverCity,
+        receiverNeighborhood,
+        receiverPhone,
+        receiverProvince,
+      } = dto;
+
+      await this.receiverService.create({
+        name: receiver,
+        address: receiverAddress,
+        city: receiverCity,
+        neighborhood: receiverNeighborhood,
+        phone: receiverPhone,
+        province: receiverProvince,
+      });
+    }
 
     try {
       await this.loggingService.create({

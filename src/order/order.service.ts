@@ -56,6 +56,40 @@ export class OrderService {
     return { orders, totalPages, totalCount };
   }
 
+  async findBySearch(
+    query: {
+      page?: string;
+      limit?: string;
+      sortBy?: string;
+      sortOrder?: 'ASC' | 'DESC';
+      search: string;
+    },
+    options?: FindManyOptions<Order>,
+  ) {
+    const search = query.search.toLocaleLowerCase();
+    const page = query.page ? parseInt(query.page, 10) : 25;
+    const limit = query.limit ? parseInt(query.limit, 10) : 1;
+
+    const result = await this.orderRepository
+      .createQueryBuilder('order')
+      .select()
+      .leftJoinAndSelect('order.customer', 'customer')
+      .where(options?.where || '1=1')
+      .andWhere(`LOWER(customer.name) LIKE '%${search}%'`)
+      .orWhere(options?.where)
+      .andWhere(`LOWER(receiver) LIKE '%${search}%'`)
+      .take(limit)
+      .skip((page - 1) * limit)
+      .orderBy(`order.${query.sortBy || 'id'}`, query.sortOrder || 'ASC')
+      .getManyAndCount();
+
+    const orders = result[0];
+    const totalCount = result[1];
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { orders, totalPages, totalCount };
+  }
+
   async findAll(options?: FindManyOptions<Order>) {
     return await this.orderRepository.find({
       relations: {
@@ -75,6 +109,7 @@ export class OrderService {
       },
       relations: {
         customer: true,
+        user: true,
         orderProducts: {
           shopifyProduct: true,
           priceListProduct: {
@@ -180,5 +215,17 @@ export class OrderService {
 
     // Save order
     return await this.orderRepository.save(order);
+  }
+
+  async updatePriceSet(dto: {
+    orderId: string;
+    subTotal: number;
+    taxTotal: number;
+    total: number;
+    customerBalanceAfterOrder: number;
+  }) {
+    const { orderId, ...update } = dto;
+
+    return await this.orderRepository.update({ orderId }, update);
   }
 }

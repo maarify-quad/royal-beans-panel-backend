@@ -59,6 +59,8 @@ export class ShopifyStockService {
     this.logger.debug(`Found ${orders.length} orders, updating stocks...`);
 
     const manualOrder: CreateManualOrderDto = {
+      receiverId: null,
+      isSaveReceiverChecked: false,
       receiver: 'Shopify',
       receiverNeighborhood: '-',
       receiverAddress: '-',

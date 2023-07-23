@@ -7,12 +7,14 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 // Entities
 import { Role } from 'src/role/entities/role.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -60,4 +62,7 @@ export class User {
     },
   })
   roles: Role[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

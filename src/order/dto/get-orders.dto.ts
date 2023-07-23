@@ -4,19 +4,23 @@ import { OrderType } from '../entities/order.entity';
 export class GetOrdersDto {
   @IsNumberString()
   @IsOptional()
-  page?: string;
+  readonly page?: string;
 
   @IsNumberString()
   @IsOptional()
-  limit?: string;
+  readonly limit?: string;
 
   @IsString()
   @IsOptional()
-  sortBy?: string;
+  readonly sortBy?: string;
 
   @IsString()
   @IsOptional()
-  sortOrder?: 'ASC' | 'DESC' = 'ASC';
+  readonly search?: string;
+
+  @IsString()
+  @IsOptional()
+  readonly sortOrder?: 'ASC' | 'DESC' = 'ASC';
 
   @IsIn(['BULK', 'MANUAL'])
   @IsString()

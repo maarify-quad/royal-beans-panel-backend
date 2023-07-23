@@ -18,6 +18,8 @@ import { CreateOrderProductDto } from 'src/order-product/dto/create-order-produc
 import { OrderSource } from '../entities/order.entity';
 
 export class CreateOrderDto {
+  userId?: number | null;
+
   @IsString()
   customerId: string;
 

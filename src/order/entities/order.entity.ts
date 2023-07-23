@@ -13,6 +13,8 @@ import {
 import { Customer } from 'src/customer/entities/customer.entity';
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
 import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Receiver } from 'src/receiver/entities/receiver.entity';
 
 export type OrderType = 'BULK' | 'MANUAL';
 export type OrderSource = 'dashboard' | 'shopify';
@@ -24,6 +26,12 @@ export class Order {
 
   @Column({ type: 'varchar', length: 255, default: null })
   customerId: string | null;
+
+  @Column({ type: 'int', default: null })
+  userId: number | null;
+
+  @Column({ type: 'int', default: null })
+  receiverId: number | null;
 
   @Column({ type: 'varchar', length: 255, default: null })
   receiver: string | null;
@@ -115,6 +123,19 @@ export class Order {
   })
   @JoinColumn({ name: 'customerId' })
   customer: Customer | null;
+
+  @ManyToOne(() => Receiver, (receiver) => receiver.orders, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'receiverId' })
+  receiverRelation: Receiver | null;
+
+  @ManyToOne(() => User, (user) => user.orders, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'userId' })
+  user: User | null;
 
   @ManyToOne(
     () => DeliveryAddress,

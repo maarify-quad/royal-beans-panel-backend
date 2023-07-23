@@ -13,6 +13,9 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import * as ExcelJS from 'exceljs';
+import * as dayjs from 'dayjs';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 // Services
@@ -27,6 +30,11 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto } from './dto/get-products.dto';
 import { BulkUpdateProductsDto } from './dto/bulk-update-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ExcelExportProductsDTO } from './dto/excel-export-products.dto';
+
+const s3Client = new S3Client({
+  region: 'eu-central-1',
+});
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -148,5 +156,60 @@ export class ProductController {
     }
 
     return await this.productService.deleteByStockCode(stockCode);
+  }
+
+  @Post('/excel-export')
+  async exportProductsExcel(@Body() dto: ExcelExportProductsDTO) {
+    const storageTypes = Object.entries(dto)
+      .filter(([_key, value]) => value === true)
+      .map(([key]) => key);
+
+    if (!storageTypes.length) {
+      throw new BadRequestException('En az bir depolama türü seçilmelidir');
+    }
+
+    const products = await this.productService.findAll({
+      where: storageTypes.map((storageType) => ({ storageType })),
+      order: { storageType: 'ASC' },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Ürünler');
+
+    worksheet.columns = [
+      { header: 'Ürün', key: 'name', width: 15 },
+      { header: 'Stok Kodu', key: 'stockCode', width: 15 },
+      { header: 'Miktar', key: 'amount', width: 15 },
+      { header: 'Miktar Birimi', key: 'amountUnit', width: 15 },
+      { header: 'Etiket', key: 'tag', width: 15 },
+    ];
+
+    products.forEach((product) => {
+      worksheet.addRow({
+        name: product.name,
+        stockCode: product.stockCode,
+        amount: product.amount,
+        amountUnit: product.amountUnit,
+        tag: product.tag,
+      });
+    });
+
+    worksheet.getRow(1).font = { bold: true };
+
+    const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+    const params = {
+      Bucket: 'taft-coffee-panel',
+      Key: `excel/products/${dayjs().format('DD-MMM-YYYY HH:mm')}.xlsx`,
+      Body: buffer,
+      ContentType:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    };
+
+    await s3Client.send(new PutObjectCommand(params));
+
+    return {
+      success: true,
+      url: `https://taft-coffee-panel.s3.eu-central-1.amazonaws.com/${params.Key}`,
+    };
   }
 }

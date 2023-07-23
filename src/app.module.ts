@@ -38,6 +38,7 @@ import { ShopifyFulfillmentModule } from './shopify-fulfillment/shopify-fulfillm
 import { ExitModule } from './exit/exit.module';
 import { ProductionModule } from './production/production.module';
 import { LoggingModule } from './logging/logging.module';
+import { ReceiverModule } from './receiver/receiver.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { LoggingModule } from './logging/logging.module';
     RoastIngredientModule,
     ExcelModule,
     CustomerModule,
+    ReceiverModule,
     PriceListModule,
     PriceListProductModule,
     OrderModule,

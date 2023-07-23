@@ -43,4 +43,12 @@ export class OrderProductService {
   async create(orderProduct: OrderProduct) {
     return await this.orderProductRepository.save(orderProduct);
   }
+
+  async update(id: number, orderProduct: Partial<OrderProduct>) {
+    return await this.orderProductRepository.update({ id }, orderProduct);
+  }
+
+  async delete(id: number) {
+    return await this.orderProductRepository.delete(id);
+  }
 }

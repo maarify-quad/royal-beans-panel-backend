@@ -27,6 +27,7 @@ import { ShopifyFulfillment } from 'src/shopify-fulfillment/entities/shopify-ful
 import { Exit } from 'src/exit/entities/exit.entity';
 import { Production } from 'src/production/entities/production.entity';
 import { Logging } from 'src/logging/entities/logging.entity';
+import { Receiver } from 'src/receiver/entities/receiver.entity';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { Logging } from 'src/logging/entities/logging.entity';
           RoastDetail,
           RoastIngredient,
           Customer,
+          Receiver,
           PriceList,
           PriceListProduct,
           Order,

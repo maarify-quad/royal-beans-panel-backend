@@ -22,5 +22,6 @@ import { Delivery } from './entities/delivery.entity';
   ],
   providers: [DeliveryService],
   controllers: [DeliveryController],
+  exports: [DeliveryService],
 })
 export class DeliveryModule {}

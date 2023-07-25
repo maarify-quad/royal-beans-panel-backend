@@ -39,6 +39,7 @@ import { ExitModule } from './exit/exit.module';
 import { ProductionModule } from './production/production.module';
 import { LoggingModule } from './logging/logging.module';
 import { ReceiverModule } from './receiver/receiver.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { ReceiverModule } from './receiver/receiver.module';
     TagModule,
     ExitModule,
     ProductionModule,
+    FinanceModule,
     ParasutModule,
     ShopifyWebhookModule,
   ],

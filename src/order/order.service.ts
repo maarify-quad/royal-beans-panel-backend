@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
 
 // Entities
 import { Order, OrderType } from './entities/order.entity';
@@ -76,7 +76,7 @@ export class OrderService {
       .leftJoinAndSelect('order.customer', 'customer')
       .where(options?.where || '1=1')
       .andWhere(`LOWER(customer.name) LIKE '%${search}%'`)
-      .orWhere(options?.where)
+      .orWhere(options?.where || '1=1')
       .andWhere(`LOWER(receiver) LIKE '%${search}%'`)
       .take(limit)
       .skip((page - 1) * limit)
@@ -124,6 +124,10 @@ export class OrderService {
 
   async findAndCount(options?: FindManyOptions<Order>) {
     return await this.orderRepository.findAndCount(options);
+  }
+
+  async sum(options?: FindOptionsWhere<Order>) {
+    return await this.orderRepository.sum('total', options);
   }
 
   async create(

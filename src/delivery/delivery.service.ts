@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
+import {
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 
 // Entities
 import { Delivery } from './entities/delivery.entity';
@@ -72,6 +77,10 @@ export class DeliveryService {
       },
       ...options,
     });
+  }
+
+  async sumTotal(options?: FindOptionsWhere<Delivery>) {
+    return this.deliveryRepository.sum('total', options);
   }
 
   async create(

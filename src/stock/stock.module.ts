@@ -6,6 +6,9 @@ import { ProductModule } from 'src/product/product.module';
 import { OrderProductModule } from 'src/order-product/order-product.module';
 import { ShopifyStockModule } from 'src/shopify-stock/shopify-stock.module';
 
+// Controllers
+import { StockController } from './stock.controller';
+
 // Services
 import { StockService } from './stock.service';
 import { StockCronService } from './stock.cron.service';
@@ -17,6 +20,7 @@ import { StockCronService } from './stock.cron.service';
     OrderProductModule,
     ShopifyStockModule,
   ],
+  controllers: [StockController],
   providers: [StockService, StockCronService],
   exports: [StockService],
 })

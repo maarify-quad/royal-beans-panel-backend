@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 // Services
 import { ShopifyApiService } from 'src/shopify-api/shopify-api.service';
@@ -53,7 +53,8 @@ export class ShopifyStockService {
 
     if (!orders.length) {
       this.logger.debug(`No orders found, skipping...`);
-      return;
+      throw new NotFoundException('Bekleyen sipariş bulunamadı.');
+      // return;
     }
 
     this.logger.debug(`Found ${orders.length} orders, updating stocks...`);

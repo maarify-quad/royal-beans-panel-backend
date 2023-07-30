@@ -62,7 +62,7 @@ export class ShopifyProductController {
     const { products } = await this.shopifyApiService.get<any>(
       'products.json',
       {
-        limit: 250,
+        limit: '250',
         fields: 'title,variants',
       },
     );

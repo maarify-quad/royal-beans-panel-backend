@@ -5,6 +5,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ProductModule } from 'src/product/product.module';
 import { OrderProductModule } from 'src/order-product/order-product.module';
 import { ShopifyStockModule } from 'src/shopify-stock/shopify-stock.module';
+import { ExitModule } from 'src/exit/exit.module';
+import { ShopifyProductModule } from 'src/shopify-product/shopify-product.module';
+import { ProductionModule } from 'src/production/production.module';
 
 // Controllers
 import { StockController } from './stock.controller';
@@ -19,6 +22,9 @@ import { StockCronService } from './stock.cron.service';
     ProductModule,
     OrderProductModule,
     ShopifyStockModule,
+    ExitModule,
+    ProductionModule,
+    ShopifyProductModule,
   ],
   controllers: [StockController],
   providers: [StockService, StockCronService],

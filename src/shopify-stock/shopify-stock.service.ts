@@ -7,7 +7,6 @@ import { ShopifyProductService } from 'src/shopify-product/shopify-product.servi
 import { OrderService } from 'src/order/order.service';
 import { ProductService } from 'src/product/product.service';
 import { ShopifyFulfillmentService } from 'src/shopify-fulfillment/shopify-fulfillment.service';
-import { ExitService } from 'src/exit/exit.service';
 import { LoggingService } from 'src/logging/logging.service';
 
 // DTOs
@@ -22,7 +21,6 @@ export class ShopifyStockService {
     private readonly orderService: OrderService,
     private readonly productService: ProductService,
     private readonly shopifyFulfillmentService: ShopifyFulfillmentService,
-    private readonly exitService: ExitService,
     private readonly loggingService: LoggingService,
   ) {}
 
@@ -109,6 +107,7 @@ export class ShopifyStockService {
           const unitPrice = parseFloat(lineItem.price);
           const taxRate = parseFloat(lineItem.tax_lines[0].rate);
 
+          // Check if Shopify product exists in database
           let product = await this.productService.findOne({
             where: {
               name: `${productTitle} / ${variantTitle}`,
@@ -117,6 +116,8 @@ export class ShopifyStockService {
             relations: { ingredients: { product: { ingredients: true } } },
             withDeleted: true,
           });
+
+          // If not, create it
           if (!product) {
             product = await this.productService.create({
               name: `${productTitle} / ${variantTitle}`,
@@ -152,10 +153,10 @@ export class ShopifyStockService {
           }
 
           // Update stocks
-          await this.stockService.updateStocksFromShopifyProduct(
-            shopifyProduct,
-            lineItem.quantity,
-          );
+          // await this.stockService.updateStocksFromShopifyProduct(
+          //   shopifyProduct,
+          //   lineItem.quantity,
+          // );
         } else {
           this.logger.debug(
             `Could not find matching variant in database for variant id ${variantId}`,
@@ -173,6 +174,8 @@ export class ShopifyStockService {
       'MANUAL',
     );
 
+    await this.stockService.updateStocksFromShopifyOrder(order);
+
     // Update order status
     await this.orderService.update({
       orderId: order.orderId,
@@ -189,11 +192,11 @@ export class ShopifyStockService {
       });
     } catch {}
 
-    await this.exitService.createExitsFromShopifyOrder(order);
+    // await this.exitService.createExitsFromShopifyOrder(order);
 
-    for (const order of orders) {
-      await this.shopifyFulfillmentService.deleteByOrderId(String(order.id));
-    }
+    // for (const order of orders) {
+    //   await this.shopifyFulfillmentService.deleteByOrderId(String(order.id));
+    // }
 
     this.logger.debug('Finished processDailyShopifyOrders cron job');
   }

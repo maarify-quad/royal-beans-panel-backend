@@ -58,8 +58,8 @@ export class ProductionService {
     return await this.productionRepo.save(production);
   }
 
-  async bulkCreate(dto: CreateProductionDTO[]) {
+  bulkCreate(dto: CreateProductionDTO[]) {
     const productions = this.productionRepo.create(dto);
-    return await this.productionRepo.save(productions);
+    return this.productionRepo.save(productions);
   }
 }

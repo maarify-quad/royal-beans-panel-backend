@@ -23,6 +23,10 @@ export class ShopifyProductService {
     return await this.shopifyProductRepo.find(options);
   }
 
+  async findOne(options?: FindOneOptions<ShopifyProduct>) {
+    return await this.shopifyProductRepo.findOne(options);
+  }
+
   async findByVariantId(
     variantId: number,
     options?: FindOneOptions<ShopifyProduct>,

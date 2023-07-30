@@ -69,6 +69,11 @@ export class ExitService {
     return await this.exitRepo.save(exit);
   }
 
+  bulkCreate(dto: CreateExitDTO[]) {
+    const exit = this.exitRepo.create(dto);
+    return this.exitRepo.save(exit);
+  }
+
   async createExitsFromOrder(order: Order, extra?: { userId?: number }) {
     const orderProducts = order.orderProducts;
     const productions: CreateProductionDTO[] = [];
@@ -164,6 +169,10 @@ export class ExitService {
     }
   }
 
+  /**
+   * @deprecated Use StockService.updateStocksFromShopifyProduct instead
+   *
+   */
   async createExitsFromShopifyOrder(order: Order) {
     const orderProducts = order.orderProducts;
     const exits: CreateExitDTO[] = [];
@@ -190,73 +199,73 @@ export class ExitService {
           },
         });
 
+      console.log('ingredients', ingredients);
+
       for (const ingredient of ingredients) {
-        const existingExit = exits.find(
-          (e) => e.productId === ingredient.productId,
-        );
+        // const existingExit = exits.find(
+        //   (e) => e.productId === ingredient.productId,
+        // );
 
-        if (existingExit) {
-          existingExit.amount += orderProduct.quantity * ingredient.quantity;
-        } else {
-          if (
-            ingredient.product.storageType === 'FN' &&
-            ingredient.product.amount > 0
-          ) {
-            exits.push({
-              orderId: order.id,
-              productId: ingredient.productId,
-              date: new Date().toISOString(),
-              amount: orderProduct.quantity * ingredient.quantity,
-              storageAmountAfterExit: ingredient.product.amount,
-              type: 'order',
-            });
-          }
+        if (
+          ingredient.product.storageType === 'FN' &&
+          ingredient.product.amount > 0
+        ) {
+          exits.push({
+            orderId: order.id,
+            productId: ingredient.productId,
+            date: new Date().toISOString(),
+            amount: orderProduct.quantity * ingredient.quantity,
+            storageAmountAfterExit: ingredient.product.amount,
+            type: 'order',
+          });
+        }
 
-          if (
-            ingredient.product.storageType === 'FN' &&
-            ingredient.product.amount <= 0
-          ) {
-            for (const fnIngredient of ingredient.product.ingredients) {
-              const existingProduction = productions.find(
-                (p) => p.producedProductId === fnIngredient.productId,
-              );
-
-              if (existingProduction) {
-                existingProduction.usageAmount +=
-                  orderProduct.quantity * fnIngredient.ratio;
-              } else {
-                productions.push({
-                  productId: fnIngredient.ingredientProductId,
-                  producedProductId: fnIngredient.productId,
-                  orderId: order.id,
-                  usageAmount: orderProduct.quantity * fnIngredient.ratio,
-                });
-              }
-            }
-          }
-
-          if (ingredient.product.storageType !== 'FN') {
+        if (
+          ingredient.product.storageType === 'FN' &&
+          ingredient.product.amount <= 0
+        ) {
+          for (const fnIngredient of ingredient.product.ingredients) {
             const existingProduction = productions.find(
-              (p) => p.producedProductId === ingredient.productId,
+              (p) => p.producedProductId === fnIngredient.ingredientProductId,
             );
 
             if (existingProduction) {
               existingProduction.usageAmount +=
-                orderProduct.quantity * ingredient.quantity;
+                orderProduct.quantity * fnIngredient.ratio;
             } else {
               productions.push({
-                productId: ingredient.productId,
-                producedProductId: ingredient.product.id,
+                productId: fnIngredient.ingredientProductId,
+                producedProductId: fnIngredient.productId,
                 orderId: order.id,
-                usageAmount: orderProduct.quantity * ingredient.quantity,
+                usageAmount: orderProduct.quantity * fnIngredient.ratio,
               });
             }
+          }
+        }
+
+        if (ingredient.product.storageType !== 'FN') {
+          const existingProduction = productions.find(
+            (p) => p.producedProductId === ingredient.productId,
+          );
+
+          if (existingProduction) {
+            existingProduction.usageAmount +=
+              orderProduct.quantity * ingredient.quantity;
+          } else {
+            productions.push({
+              productId: ingredient.productId,
+              producedProductId: ingredient.product.id,
+              orderId: order.id,
+              usageAmount: orderProduct.quantity * ingredient.quantity,
+            });
           }
         }
       }
     }
 
     if (exits.length) {
+      console.log('exits', exits);
+
       await this.exitRepo.save(exits);
 
       try {
@@ -271,6 +280,8 @@ export class ExitService {
     }
 
     if (productions.length) {
+      console.log('productions', productions);
+
       await this.productionService.bulkCreate(productions);
 
       try {

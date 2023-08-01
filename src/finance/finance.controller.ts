@@ -18,8 +18,8 @@ export class FinanceController {
     private readonly deliveryService: DeliveryService,
   ) {}
 
-  @Post('calculate')
-  async calculateFinance(@Body() dto: CalculateFinanceDTO) {
+  @Post()
+  async getFinance(@Body() dto: CalculateFinanceDTO) {
     const {
       totalConstantExpense,
       marketingExpense,
@@ -27,8 +27,10 @@ export class FinanceController {
       bulkOrderCargoCost,
       shopifyOrderCargoCost,
     } = dto;
-    const startDate = dayjs(dto.month).startOf('month').toDate();
-    const endDate = dayjs(dto.month).endOf('month').toDate();
+
+    const thisMonth = dayjs().set('month', dto.month - 1);
+    const startDate = thisMonth.startOf('month').toDate();
+    const endDate = thisMonth.endOf('month').toDate();
 
     const [bulkOrders, manualOrders, totalDeliveriesCost] = await Promise.all([
       this.orderService.findAll({
@@ -58,60 +60,79 @@ export class FinanceController {
       (order) => order.receiver === 'dükkan satış',
     );
 
-    // Siparişlerin toplam cirosu
+    // S siparişlerin toplam cirosu
     const totalBulkOrdersRevenue =
       this.financeService.calculateOrdersRevenue(bulkOrders);
+
+    // MG siparişlerin toplam cirosu
     const totalManualOrdersRevenue =
       this.financeService.calculateOrdersRevenue(manualOrders);
 
-    // Giden tüm ürünlerin toplam maliyeti
+    // Giden tüm S ürünlerin toplam maliyeti
     const totalBulkOrderProductsCost =
       this.financeService.calculateOrderProductsCost(bulkOrders);
+
+    // Giden tüm MG ürünlerin toplam maliyeti
     const totalManualOrderProductsCost =
       this.financeService.calculateOrderProductsCost(manualOrders);
+
+    // Giden tüm Shopify ürünlerin toplam maliyeti
     const totalShopifyOrderProductsCost =
       this.financeService.calculateOrderProductsCost(shopifyOrders);
 
-    // Müşteri -> Shopify toplam ciro
+    // Müşteri: Shopify toplam ciro
     const totalShopifyRevenue =
       this.financeService.calculateOrdersRevenue(shopifyOrders);
 
-    // Müşteri -> Trendyol toplam ciro
+    // Müşteri: Trendyol toplam ciro
     const totalTrendyolRevenue =
       this.financeService.calculateOrdersRevenue(trendyolOrders);
 
-    // Müşteri -> Hepsi Burada toplam ciro
+    // Müşteri: Hepsi Burada toplam ciro
     const totalHepsiBuradaRevenue =
       this.financeService.calculateOrdersRevenue(hepsiBuradaOrders);
 
-    // Müşteri -> Dükkan Satış toplam ciro
+    // Müşteri: Dükkan Satış toplam ciro
     const totalStoreSaleRevenue =
       this.financeService.calculateOrdersRevenue(storeSaleOrders);
 
-    // Ciro
-    const totalRevenue = totalManualOrdersRevenue + totalBulkOrdersRevenue;
+    // Toplam e-ticaret cirosu
     const totalEcommerceRevenue =
       totalShopifyRevenue + totalTrendyolRevenue + totalHepsiBuradaRevenue;
 
-    // Maliyet
+    // Toplam ciro
+    const totalRevenue =
+      totalManualOrdersRevenue + totalBulkOrdersRevenue + totalEcommerceRevenue;
+
+    // Toplam işletme gideri
     const totalBusinessExpense =
       totalConstantExpense +
       marketingExpense +
       totalDeliveriesCost +
       generalCost;
+
+    // Toplam sipariş ürün maliyeti
     const totalOrderProductsCost =
       totalBulkOrderProductsCost + totalManualOrderProductsCost;
+
+    // Toplam teorik gider
     const theoryTotalExpense =
       totalConstantExpense +
       marketingExpense +
       generalCost +
       totalOrderProductsCost;
 
-    // Kar
+    // Reel kar
     const realProfit = totalRevenue - totalBusinessExpense;
+
+    // Teorik kar
     const theoryProfit = totalRevenue - theoryTotalExpense;
+
+    // Toplam sipariş kar
     const bulkOrdersProfit =
       totalBulkOrdersRevenue - totalBulkOrderProductsCost - bulkOrderCargoCost;
+
+    // Shopify kar
     const shopifyProfit =
       totalShopifyRevenue -
       totalShopifyOrderProductsCost -

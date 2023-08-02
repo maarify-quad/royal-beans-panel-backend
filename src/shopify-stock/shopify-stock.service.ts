@@ -194,9 +194,9 @@ export class ShopifyStockService {
 
     // await this.exitService.createExitsFromShopifyOrder(order);
 
-    // for (const order of orders) {
-    //   await this.shopifyFulfillmentService.deleteByOrderId(String(order.id));
-    // }
+    for (const order of orders) {
+      await this.shopifyFulfillmentService.deleteByOrderId(String(order.id));
+    }
 
     this.logger.debug('Finished processDailyShopifyOrders cron job');
   }

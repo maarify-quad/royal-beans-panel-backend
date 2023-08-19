@@ -20,7 +20,17 @@ export class FinanceService {
 
     orders.forEach((order) => {
       order.orderProducts.forEach((orderProduct) => {
-        cost += orderProduct.subTotal;
+        const product = orderProduct.product;
+
+        if (product.storageType === 'FN') {
+          for (const ingredient of product.ingredients) {
+            cost +=
+              ingredient.product.unitCost *
+              (orderProduct.quantity * ingredient.ratio);
+          }
+        } else {
+          cost += product.unitCost * orderProduct.quantity;
+        }
       });
     });
 

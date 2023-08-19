@@ -42,6 +42,9 @@ export class Product {
   amountUnit: string;
 
   @Column({ type: 'float', nullable: false, default: 0 })
+  unitCost: number;
+
+  @Column({ type: 'float', nullable: false, default: 0 })
   reservedAmount: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

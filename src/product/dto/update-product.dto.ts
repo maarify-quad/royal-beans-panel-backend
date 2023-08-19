@@ -11,6 +11,9 @@ export class UpdateProductDto {
   @IsNumber({}, { message: 'Miktar sayı türünde olmalıdır' })
   amount: number;
 
+  @IsNumber({}, { message: 'Birim maliyet sayı türünde olmalıdır' })
+  unitCost: number;
+
   @IsString({ message: 'Miktar birimi metinsel bir değer olmalıdır' })
   @IsNotEmpty({ message: 'Miktarı birimi gereklidir' })
   amountUnit: string;

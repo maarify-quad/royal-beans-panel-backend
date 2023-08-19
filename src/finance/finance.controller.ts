@@ -35,11 +35,11 @@ export class FinanceController {
     const [bulkOrders, manualOrders, totalDeliveriesCost] = await Promise.all([
       this.orderService.findAll({
         where: { type: 'BULK', createdAt: Between(startDate, endDate) },
-        relations: { orderProducts: true },
+        relations: { orderProducts: { product: { ingredients: true } } },
       }),
       this.orderService.findAll({
         where: { type: 'MANUAL', createdAt: Between(startDate, endDate) },
-        relations: { orderProducts: true },
+        relations: { orderProducts: { product: { ingredients: true } } },
       }),
       this.deliveryService.sumTotal({
         createdAt: Between(startDate, endDate),

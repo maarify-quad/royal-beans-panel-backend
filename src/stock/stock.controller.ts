@@ -19,9 +19,12 @@ export class StockController {
 
   @Post('update-daily-stocks')
   async updateDailyStocks(@Req() req) {
-    if (!req.user.user.roles.find((role) => role.name === 'admin')) {
-      throw new ForbiddenException();
+    const user = req.user.user;
+    if (!user.roles.find((role) => role.name === 'updateDailyStocks')) {
+      throw new ForbiddenException('Bu işlem için yetkiniz bulunmamaktadır.');
     }
+
+    return { success: true };
 
     await this.stockCronService.updateDailyStocks();
 

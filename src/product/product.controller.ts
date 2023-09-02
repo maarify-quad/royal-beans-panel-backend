@@ -31,6 +31,7 @@ import { GetProductsDto } from './dto/get-products.dto';
 import { BulkUpdateProductsDto } from './dto/bulk-update-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ExcelExportProductsDTO } from './dto/excel-export-products.dto';
+import { In } from 'typeorm';
 
 const s3Client = new S3Client({
   region: 'eu-central-1',
@@ -100,6 +101,23 @@ export class ProductController {
       where: { storageType: 'YM' },
       relations: { roastIngredients: true },
       withDeleted: true,
+    });
+  }
+
+  @Get('/stockCodes')
+  async getProductsByStockCodes(@Query('stockCodes') stockCodes: string) {
+    if (!stockCodes) {
+      throw new BadRequestException('stockCodes is required');
+    }
+
+    const stockCodesArray = stockCodes.split(',');
+
+    if (!stockCodesArray.length) {
+      throw new BadRequestException('stockCodes is required');
+    }
+
+    return await this.productService.findAll({
+      where: { stockCode: In(stockCodesArray) },
     });
   }
 

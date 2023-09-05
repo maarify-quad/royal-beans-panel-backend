@@ -24,8 +24,6 @@ export class StockController {
       throw new ForbiddenException('Bu işlem için yetkiniz bulunmamaktadır.');
     }
 
-    return { success: true };
-
     await this.stockCronService.updateDailyStocks();
 
     return { success: true };

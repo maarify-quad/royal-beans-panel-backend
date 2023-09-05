@@ -34,6 +34,8 @@ export class ShopifyStockService {
 
     for (const fulfilledOrder of fulfilledOrders) {
       try {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
         const { order } = await this.shopifyApiService.get<any>(
           `orders/${fulfilledOrder.orderId}.json`,
           {

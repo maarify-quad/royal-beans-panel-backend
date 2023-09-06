@@ -20,7 +20,8 @@ export class StockController {
   @Post('update-daily-stocks')
   async updateDailyStocks(@Req() req) {
     const user = req.user.user;
-    if (!user.roles.find((role) => role.name === 'updateDailyStocks')) {
+    const allowedRoles = ['admin', 'updateDailyStocks'];
+    if (!user.roles.some((role) => allowedRoles.includes(role))) {
       throw new ForbiddenException('Bu işlem için yetkiniz bulunmamaktadır.');
     }
 

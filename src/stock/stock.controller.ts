@@ -21,7 +21,8 @@ export class StockController {
   async updateDailyStocks(@Req() req) {
     const user = req.user.user;
     const allowedRoles = ['admin', 'updateDailyStocks'];
-    if (!user.roles.some((role) => allowedRoles.includes(role))) {
+    const userRoles = user.roles.map((role) => role.name);
+    if (!userRoles.some((role) => allowedRoles.includes(role))) {
       throw new ForbiddenException('Bu işlem için yetkiniz bulunmamaktadır.');
     }
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 
 // Modules
@@ -8,6 +8,7 @@ import { ShopifyStockModule } from 'src/shopify-stock/shopify-stock.module';
 import { ExitModule } from 'src/exit/exit.module';
 import { ShopifyProductModule } from 'src/shopify-product/shopify-product.module';
 import { ProductionModule } from 'src/production/production.module';
+import { OrderModule } from 'src/order/order.module';
 
 // Controllers
 import { StockController } from './stock.controller';
@@ -25,6 +26,7 @@ import { StockCronService } from './stock.cron.service';
     ExitModule,
     ProductionModule,
     ShopifyProductModule,
+    forwardRef(() => OrderModule),
   ],
   controllers: [StockController],
   providers: [StockService, StockCronService],

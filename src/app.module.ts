@@ -40,6 +40,7 @@ import { ProductionModule } from './production/production.module';
 import { LoggingModule } from './logging/logging.module';
 import { ReceiverModule } from './receiver/receiver.module';
 import { FinanceModule } from './finance/finance.module';
+import { DeciModule } from './deci/deci.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { FinanceModule } from './finance/finance.module';
     ExitModule,
     ProductionModule,
     FinanceModule,
+    DeciModule,
     ParasutModule,
     ShopifyWebhookModule,
   ],

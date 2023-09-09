@@ -213,6 +213,8 @@ export class OrderController {
         order.type,
         { userId: req.user.user.id, order },
       );
+
+      await this.stockService.updateBoxStocks(order);
     }
 
     const updatedOrder = await this.orderService.update(updateOrderDto);

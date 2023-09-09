@@ -26,26 +26,32 @@ export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   name: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   stockCode: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   storageType: string;
 
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'float' })
   amount: number;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   amountUnit: string;
 
-  @Column({ type: 'float', nullable: false, default: 0 })
+  @Column({ type: 'float', default: 0 })
   unitCost: number;
 
-  @Column({ type: 'float', nullable: false, default: 0 })
+  @Column({ type: 'float', default: 0 })
   reservedAmount: number;
+
+  @Column({ type: 'float', nullable: true, default: null })
+  weight: number | null;
+
+  @Column({ type: 'float', nullable: true, default: null })
+  deci: number | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   tag: string | null;

@@ -6,6 +6,9 @@ import * as dayjs from 'dayjs';
 import { OrderService } from 'src/order/order.service';
 import { FinanceService } from './finance.service';
 import { DeliveryService } from 'src/delivery/delivery.service';
+import { DeciService } from 'src/deci/deci.service';
+import { ProductService } from 'src/product/product.service';
+import { OrderLogic } from 'src/order/order.logic';
 
 // DTOs
 import { CalculateFinanceDTO } from './dto/calculate-finance.dto';
@@ -16,23 +19,27 @@ export class FinanceController {
     private readonly financeService: FinanceService,
     private readonly orderService: OrderService,
     private readonly deliveryService: DeliveryService,
+    private readonly deciService: DeciService,
+    private readonly productService: ProductService,
+    private readonly orderLogic: OrderLogic,
   ) {}
 
   @Post()
   async getFinance(@Body() dto: CalculateFinanceDTO) {
-    const {
-      totalConstantExpense,
-      marketingExpense,
-      generalCost,
-      bulkOrderCargoCost,
-      shopifyOrderCargoCost,
-    } = dto;
+    const { totalConstantExpense, marketingExpense, generalCost } = dto;
 
     const thisMonth = dayjs().set('month', dto.month - 1);
     const startDate = thisMonth.startOf('month').toDate();
     const endDate = thisMonth.endOf('month').toDate();
 
-    const [bulkOrders, manualOrders, totalDeliveriesCost] = await Promise.all([
+    const [
+      bulkOrders,
+      manualOrders,
+      totalDeliveriesCost,
+      decis,
+      box285,
+      box155,
+    ] = await Promise.all([
       this.orderService.findAll({
         where: { type: 'BULK', createdAt: Between(startDate, endDate) },
         relations: { orderProducts: { product: { ingredients: true } } },
@@ -44,7 +51,15 @@ export class FinanceController {
       this.deliveryService.sumTotal({
         createdAt: Between(startDate, endDate),
       }),
+      this.deciService.findAll(),
+      this.productService.findOne({ where: { id: 285 } }),
+      this.productService.findOne({ where: { id: 155 } }),
     ]);
+
+    const deciPricingMap = decis.reduce((acc, deci) => {
+      acc[deci.value] = deci.price;
+      return acc;
+    }, {});
 
     // Müşteriye göre siparişler
     const shopifyOrders = manualOrders.filter(
@@ -96,6 +111,62 @@ export class FinanceController {
     const totalStoreSaleRevenue =
       this.financeService.calculateOrdersRevenue(storeSaleOrders);
 
+    // Kargo maaliyetleri
+    let bulkOrderCargoCost = 0;
+    let manualOrderCargoCost = 0;
+    let shopifyOrderCargoCost = 0;
+
+    // Kutu maaliyetleri
+    let bulkOrderBoxCost = 0;
+    let manualOrderBoxCost = 0;
+    const shopifyOrderBoxCost = shopifyOrders.length * 0.4; // Dolar
+
+    // S Siparişlerin kutu & kargo maliyeti
+    bulkOrders.forEach((order) => {
+      const { box285Count, box155Count } =
+        this.orderLogic.calculateBoxCounts(order);
+
+      bulkOrderBoxCost += box285Count * box285.unitCost;
+      bulkOrderBoxCost += box155Count * box155.unitCost;
+
+      bulkOrderCargoCost += box285Count * deciPricingMap[box285.deci];
+      bulkOrderCargoCost += box155Count * deciPricingMap[box155.deci];
+    });
+
+    // MG Siparişlerin kutu & kargo maliyeti
+    manualOrders.forEach((order) => {
+      const { box285Count, box155Count } =
+        this.orderLogic.calculateBoxCounts(order);
+
+      manualOrderBoxCost += box285Count * box285.unitCost;
+      manualOrderBoxCost += box155Count * box155.unitCost;
+
+      if (order.receiver !== 'Shopify') {
+        manualOrderCargoCost += box285Count * deciPricingMap[box285.deci];
+        manualOrderCargoCost += box155Count * deciPricingMap[box155.deci];
+      }
+    });
+
+    // Shopify Siparişlerin kargo maliyeti
+    shopifyOrders.forEach((order) => {
+      const { box285Count, box155Count } =
+        this.orderLogic.calculateBoxCounts(order);
+
+      shopifyOrderCargoCost += box285Count * deciPricingMap[box285.deci];
+      shopifyOrderCargoCost += box155Count * deciPricingMap[box155.deci];
+    });
+
+    // Toplam kargo maliyeti
+    const totalCargoCost =
+      bulkOrderCargoCost + manualOrderCargoCost + shopifyOrderCargoCost;
+
+    // Toplam kutu maliyeti
+    const totalBoxCost =
+      bulkOrderBoxCost + manualOrderBoxCost + shopifyOrderBoxCost;
+
+    // Navlun maliyeti
+    const navlunCost = totalBoxCost + totalCargoCost;
+
     // Toplam e-ticaret cirosu
     const totalEcommerceRevenue =
       totalShopifyRevenue + totalTrendyolRevenue + totalHepsiBuradaRevenue;
@@ -130,13 +201,17 @@ export class FinanceController {
 
     // Toplam sipariş kar
     const bulkOrdersProfit =
-      totalBulkOrdersRevenue - totalBulkOrderProductsCost - bulkOrderCargoCost;
+      totalBulkOrdersRevenue -
+      totalBulkOrderProductsCost -
+      bulkOrderCargoCost -
+      bulkOrderBoxCost;
 
     // Shopify kar
     const shopifyProfit =
       totalShopifyRevenue -
       totalShopifyOrderProductsCost -
-      shopifyOrderCargoCost;
+      shopifyOrderCargoCost -
+      shopifyOrderBoxCost;
 
     return {
       realProfit,
@@ -160,6 +235,14 @@ export class FinanceController {
       totalTrendyolRevenue,
       totalHepsiBuradaRevenue,
       totalRevenue,
+      bulkOrderBoxCost,
+      manualOrderBoxCost,
+      shopifyOrderBoxCost,
+      bulkOrderCargoCost,
+      manualOrderCargoCost,
+      shopifyOrderCargoCost,
+      totalCargoCost,
+      navlunCost,
     };
   }
 }

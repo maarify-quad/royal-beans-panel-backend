@@ -18,6 +18,14 @@ export class UpdateProductDto {
   @IsNotEmpty({ message: 'Miktarı birimi gereklidir' })
   amountUnit: string;
 
+  @IsNumber({}, { message: 'Ağırlık sayısal bir değer olmalıdır' })
+  @IsOptional()
+  weight: number | null;
+
+  @IsNumber({}, { message: 'Desi sayısal bir değer olmalıdır' })
+  @IsOptional()
+  deci: number | null;
+
   @IsString({ message: 'Etiket metinsel bir değer olmalıdır' })
   @IsOptional()
   tag: string | null;

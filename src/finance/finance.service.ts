@@ -20,7 +20,8 @@ export class FinanceService {
 
     orders.forEach((order) => {
       order.orderProducts.forEach((orderProduct) => {
-        const product = orderProduct.product;
+        const product =
+          orderProduct.priceListProduct?.product ?? orderProduct.product;
 
         if (product.storageType === 'FN') {
           for (const ingredient of product.ingredients) {

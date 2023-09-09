@@ -13,6 +13,7 @@ import { OrderController } from './order.controller';
 
 // Services
 import { OrderService } from './order.service';
+import { OrderLogic } from './order.logic';
 
 // Entities
 import { Order } from './entities/order.entity';
@@ -27,7 +28,7 @@ import { Order } from './entities/order.entity';
     ReceiverModule,
   ],
   controllers: [OrderController],
-  providers: [OrderService],
-  exports: [OrderService],
+  providers: [OrderService, OrderLogic],
+  exports: [OrderService, OrderLogic],
 })
 export class OrderModule {}

@@ -7,6 +7,7 @@ import { LoggingService } from 'src/logging/logging.service';
 import { ExitService } from 'src/exit/exit.service';
 import { ProductionService } from 'src/production/production.service';
 import { ShopifyProductService } from 'src/shopify-product/shopify-product.service';
+import { OrderLogic } from 'src/order/order.logic';
 
 // Entities
 import { OrderProduct } from 'src/order-product/entities/order-product.entity';
@@ -27,6 +28,7 @@ export class StockService {
     private readonly loggingService: LoggingService,
     private readonly exitService: ExitService,
     private readonly shopifyProductService: ShopifyProductService,
+    private readonly orderLogic: OrderLogic,
   ) {}
 
   async updateStocksFromOrderProducts(
@@ -213,6 +215,28 @@ export class StockService {
     if (productions.length) {
       await this.productionService.bulkCreate(productions);
     }
+  }
+
+  async updateBoxStocks(order: Order) {
+    const { box285Count, box155Count } =
+      this.orderLogic.calculateBoxCounts(order);
+
+    // count of product.id 285 is X
+    // if Y < 7 count of product.id 155 is 1 else 2
+
+    const [box285, box155] = await Promise.all([
+      this.productService.findOne({
+        where: { id: 285 },
+      }),
+      this.productService.findOne({
+        where: { id: 155 },
+      }),
+    ]);
+
+    await Promise.all([
+      this.productService.decrementAmount(box285.id, box285Count),
+      this.productService.decrementAmount(box155.id, box155Count),
+    ]);
   }
 
   async logUpdateStocks(

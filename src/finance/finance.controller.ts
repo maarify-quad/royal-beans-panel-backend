@@ -42,7 +42,12 @@ export class FinanceController {
     ] = await Promise.all([
       this.orderService.findAll({
         where: { type: 'BULK', createdAt: Between(startDate, endDate) },
-        relations: { orderProducts: { product: { ingredients: true } } },
+        relations: {
+          orderProducts: {
+            priceListProduct: { product: { ingredients: true } },
+            product: { ingredients: true },
+          },
+        },
       }),
       this.orderService.findAll({
         where: { type: 'MANUAL', createdAt: Between(startDate, endDate) },
@@ -116,7 +121,7 @@ export class FinanceController {
     let manualOrderCargoCost = 0;
     let shopifyOrderCargoCost = 0;
 
-    // Kutu maaliyetleri
+    // Kutu maliyetleri
     let bulkOrderBoxCost = 0;
     let manualOrderBoxCost = 0;
     const shopifyOrderBoxCost = shopifyOrders.length * 0.4; // Dolar
@@ -129,8 +134,8 @@ export class FinanceController {
       bulkOrderBoxCost += box285Count * box285.unitCost;
       bulkOrderBoxCost += box155Count * box155.unitCost;
 
-      bulkOrderCargoCost += box285Count * deciPricingMap[box285.deci];
-      bulkOrderCargoCost += box155Count * deciPricingMap[box155.deci];
+      bulkOrderCargoCost += box285Count * (deciPricingMap[box285.deci] ?? 0);
+      bulkOrderCargoCost += box155Count * (deciPricingMap[box155.deci] ?? 0);
     });
 
     // MG Siparişlerin kutu & kargo maliyeti
@@ -142,8 +147,10 @@ export class FinanceController {
       manualOrderBoxCost += box155Count * box155.unitCost;
 
       if (order.receiver !== 'Shopify') {
-        manualOrderCargoCost += box285Count * deciPricingMap[box285.deci];
-        manualOrderCargoCost += box155Count * deciPricingMap[box155.deci];
+        manualOrderCargoCost +=
+          box285Count * (deciPricingMap[box285.deci] ?? 0);
+        manualOrderCargoCost +=
+          box155Count * (deciPricingMap[box155.deci] ?? 0);
       }
     });
 
@@ -152,8 +159,8 @@ export class FinanceController {
       const { box285Count, box155Count } =
         this.orderLogic.calculateBoxCounts(order);
 
-      shopifyOrderCargoCost += box285Count * deciPricingMap[box285.deci];
-      shopifyOrderCargoCost += box155Count * deciPricingMap[box155.deci];
+      shopifyOrderCargoCost += box285Count * (deciPricingMap[box285.deci] ?? 0);
+      shopifyOrderCargoCost += box155Count * (deciPricingMap[box155.deci] ?? 0);
     });
 
     // Toplam kargo maliyeti

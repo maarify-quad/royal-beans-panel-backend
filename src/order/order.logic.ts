@@ -7,7 +7,7 @@ import { Order } from './entities/order.entity';
 export class OrderLogic {
   calculateBoxCounts(order: Order) {
     const orderWeight = order.orderProducts.reduce((acc, curr) => {
-      const product = curr.priceListProduct.product ?? curr.product;
+      const product = curr.priceListProduct?.product ?? curr.product;
       return acc + product.weight * curr.quantity;
     }, 0);
 

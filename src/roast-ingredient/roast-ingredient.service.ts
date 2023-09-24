@@ -44,13 +44,20 @@ export class RoastIngredientService {
       );
     }
 
-    for (const ingredient of ingredients) {
-      const decrementAmount = inputAmount * (ingredient.rate / 100);
+    try {
+      await Promise.all(
+        ingredients.map(async (ingredient) => {
+          const decrementAmount = inputAmount * (ingredient.rate / 100);
+          const unitCost = decrementAmount * ingredient.ingredient.unitCost;
 
-      await this.productService.decrementAmount(
-        ingredient.ingredientId,
-        decrementAmount,
+          await this.productService.updateUnitCost(productId, unitCost);
+
+          await this.productService.decrementAmount(
+            ingredient.ingredientId,
+            decrementAmount,
+          );
+        }),
       );
-    }
+    } catch {}
   }
 }

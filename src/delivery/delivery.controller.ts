@@ -109,6 +109,16 @@ export class DeliveryController {
       total,
     );
 
+    try {
+      await Promise.all(
+        createDeliveryDto.deliveryDetails.map(
+          async ({ productId, unitPriceTRY }) => {
+            await this.productService.updateUnitCost(productId, unitPriceTRY);
+          },
+        ),
+      );
+    } catch {}
+
     // Create new delivery
     return this.deliveryService.create(createDeliveryDto, {
       subTotal,

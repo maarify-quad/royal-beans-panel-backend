@@ -136,6 +136,10 @@ export class ProductService {
     return this.productRepository.save(dto.products);
   }
 
+  async updateUnitCost(id: number, unitCost: number) {
+    return this.productRepository.update(id, { unitCost });
+  }
+
   async incrementAmount(id: number, byAmount: number) {
     return this.productRepository.increment({ id }, 'amount', byAmount);
   }

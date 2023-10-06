@@ -55,4 +55,4 @@ jobs:
           ARGS: '-rltgoDzvO'
           EXCLUDE: '/node_modules/'
           SCRIPT_AFTER: |
-            bash ~/reload.sh royal-beans-api
+            sudo -E pm2 reload royal-beans-api

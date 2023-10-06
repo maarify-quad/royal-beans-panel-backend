@@ -54,3 +54,5 @@ jobs:
           TARGET: ${{ secrets.TARGET_DIR }}
           ARGS: "-rltgoDzvO"
           EXCLUDE: "/node_modules/"
+          SCRIPT_AFTER: |
+            pm2 reload "royal-beans-api"

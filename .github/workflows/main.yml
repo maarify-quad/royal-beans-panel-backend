@@ -4,7 +4,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
 
   workflow_dispatch:
 
@@ -52,7 +52,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: ${{ secrets.TARGET_DIR }}
-          ARGS: "-rltgoDzvO"
-          EXCLUDE: "/node_modules/"
+          ARGS: '-rltgoDzvO'
+          EXCLUDE: '/node_modules/'
           SCRIPT_AFTER: |
-            pm2 reload "royal-beans-api"
+            npm run pm2:reload

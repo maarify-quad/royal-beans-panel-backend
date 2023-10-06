@@ -55,4 +55,4 @@ jobs:
           ARGS: '-rltgoDzvO'
           EXCLUDE: '/node_modules/'
           SCRIPT_AFTER: |
-            npm run pm2:reload
+            bash ~/reload.sh royal-beans-api

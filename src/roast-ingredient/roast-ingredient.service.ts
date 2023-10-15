@@ -44,13 +44,16 @@ export class RoastIngredientService {
       );
     }
 
+    const totalUnitCost = ingredients.reduce((acc, curr) => {
+      const decrementAmount = inputAmount * (curr.rate / 100);
+      const unitCost = decrementAmount * curr.ingredient.unitCost;
+      return acc + unitCost;
+    }, 0);
+
     try {
       await Promise.all(
         ingredients.map(async (ingredient) => {
           const decrementAmount = inputAmount * (ingredient.rate / 100);
-          const unitCost = decrementAmount * ingredient.ingredient.unitCost;
-
-          await this.productService.updateUnitCost(productId, unitCost);
 
           await this.productService.decrementAmount(
             ingredient.ingredientId,
@@ -58,6 +61,8 @@ export class RoastIngredientService {
           );
         }),
       );
+
+      await this.productService.updateUnitCost(productId, totalUnitCost);
     } catch {}
   }
 }

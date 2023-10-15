@@ -111,10 +111,8 @@ export class DeliveryController {
 
     try {
       await Promise.all(
-        createDeliveryDto.deliveryDetails.map(
-          async ({ productId, unitPriceTRY }) => {
-            await this.productService.updateUnitCost(productId, unitPriceTRY);
-          },
+        createDeliveryDto.deliveryDetails.map(({ productId, unitPriceTRY }) =>
+          this.productService.updateUnitCost(productId, unitPriceTRY),
         ),
       );
     } catch {}

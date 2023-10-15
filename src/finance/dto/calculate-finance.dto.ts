@@ -1,29 +1,33 @@
-import { IsNumber, Max, Min } from 'class-validator';
+import { IsDateString, IsNumber, IsOptional } from 'class-validator';
 
 export class CalculateFinanceDTO {
-  @Max(12)
-  @Min(1)
-  @IsNumber()
-  month: number;
+  @IsDateString()
+  startDate: string;
+
+  @IsDateString()
+  endDate: string;
 
   @IsNumber()
-  totalConstantExpense: number;
+  @IsOptional()
+  totalConstantExpense?: number = 0;
 
   @IsNumber()
-  marketingExpense: number;
+  @IsOptional()
+  marketingExpense?: number = 0;
 
   @IsNumber()
-  generalCost: number;
+  @IsOptional()
+  generalCost?: number = 0;
 
-  @IsNumber()
-  cargoCost: number;
+  // @IsNumber()
+  // cargoCost: number;
 
-  @IsNumber()
-  bulkOrderCargoCost: number;
+  // @IsNumber()
+  // bulkOrderCargoCost: number;
 
-  @IsNumber()
-  manualOrderCargoCost: number;
+  // @IsNumber()
+  // manualOrderCargoCost: number;
 
-  @IsNumber()
-  shopifyOrderCargoCost: number;
+  // @IsNumber()
+  // shopifyOrderCargoCost: number;
 }

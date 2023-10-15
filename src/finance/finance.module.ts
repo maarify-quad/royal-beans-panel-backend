@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Modules
 import { OrderModule } from 'src/order/order.module';
@@ -12,8 +13,17 @@ import { FinanceController } from './finance.controller';
 // Services
 import { FinanceService } from './finance.service';
 
+// Entities
+import { Finance } from './entities/finance.entity';
+
 @Module({
-  imports: [OrderModule, DeliveryModule, DeciModule, ProductModule],
+  imports: [
+    TypeOrmModule.forFeature([Finance]),
+    OrderModule,
+    DeliveryModule,
+    DeciModule,
+    ProductModule,
+  ],
   controllers: [FinanceController],
   providers: [FinanceService],
 })

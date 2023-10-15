@@ -29,6 +29,7 @@ import { Production } from 'src/production/entities/production.entity';
 import { Logging } from 'src/logging/entities/logging.entity';
 import { Receiver } from 'src/receiver/entities/receiver.entity';
 import { Deci } from 'src/deci/entities/deci.entity';
+import { Finance } from 'src/finance/entities/finance.entity';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { Deci } from 'src/deci/entities/deci.entity';
           Exit,
           Production,
           Deci,
+          Finance,
           Logging,
         ],
         synchronize: process.env.TYPEORM_SYNC === 'true',

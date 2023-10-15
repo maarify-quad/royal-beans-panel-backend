@@ -1,6 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Between } from 'typeorm';
-import * as dayjs from 'dayjs';
 
 // Services
 import { OrderService } from 'src/order/order.service';
@@ -13,7 +12,11 @@ import { OrderLogic } from 'src/order/order.logic';
 // DTOs
 import { CalculateFinanceDTO } from './dto/calculate-finance.dto';
 
+// Guards
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+
 @Controller('finance')
+@UseGuards(JwtAuthGuard)
 export class FinanceController {
   constructor(
     private readonly financeService: FinanceService,
@@ -24,13 +27,27 @@ export class FinanceController {
     private readonly orderLogic: OrderLogic,
   ) {}
 
-  @Post()
-  async getFinance(@Body() dto: CalculateFinanceDTO) {
-    const { totalConstantExpense, marketingExpense, generalCost } = dto;
+  @Get()
+  async getAllFinances() {
+    return await this.financeService.findAll();
+  }
 
-    const thisMonth = dayjs().set('month', dto.month - 1);
-    const startDate = thisMonth.startOf('month').toDate();
-    const endDate = thisMonth.endOf('month').toDate();
+  @Post()
+  async calculatFinance(@Body() dto: CalculateFinanceDTO) {
+    const startDate = new Date(dto.startDate);
+    const endDate = new Date(dto.endDate);
+
+    let finance = await this.financeService.findOne({
+      where: {
+        startDate,
+        endDate,
+      },
+    });
+
+    const totalConstantExpense =
+      finance?.totalConstantExpense ?? dto.totalConstantExpense;
+    const marketingExpense = finance?.marketingExpense ?? dto.marketingExpense;
+    const generalCost = finance?.generalCost ?? dto.generalCost;
 
     const [
       bulkOrders,
@@ -220,7 +237,25 @@ export class FinanceController {
       shopifyOrderCargoCost -
       shopifyOrderBoxCost;
 
+    if (!finance) {
+      finance = await this.financeService.create({
+        startDate,
+        endDate,
+        totalRevenue,
+        totalCost: -1,
+        sentCost: -1,
+        financialStatus: -1,
+        profitLossRatio: -1,
+        totalConstantExpense,
+        marketingExpense,
+        generalCost,
+        totalAdditionalExpense: -1,
+        totalAdditionalRevenue: -1,
+      });
+    }
+
     return {
+      id: finance.id,
       realProfit,
       theoryProfit,
       bulkOrdersProfit,
@@ -250,6 +285,7 @@ export class FinanceController {
       shopifyOrderCargoCost,
       totalCargoCost,
       navlunCost,
+      ...finance,
     };
   }
 }

@@ -1,10 +1,30 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeepPartial, FindOneOptions, Repository } from 'typeorm';
 
 // Entities
 import { Order } from 'src/order/entities/order.entity';
+import { Finance } from './entities/finance.entity';
 
 @Injectable()
 export class FinanceService {
+  constructor(
+    @InjectRepository(Finance)
+    private readonly financeRepo: Repository<Finance>,
+  ) {}
+
+  findAll() {
+    return this.financeRepo.find();
+  }
+
+  findOne(options: FindOneOptions<Finance>) {
+    return this.financeRepo.findOne(options);
+  }
+
+  create(entity: DeepPartial<Finance>) {
+    return this.financeRepo.save(entity);
+  }
+
   calculateOrdersRevenue(orders: Order[]) {
     let revenue = 0;
 

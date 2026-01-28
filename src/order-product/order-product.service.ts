@@ -33,6 +33,7 @@ export class OrderProductService {
         priceListProduct: {
           product: true,
         },
+        product: true,
       },
       order: { createdAt: 'DESC' },
       take: last,

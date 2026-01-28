@@ -10,6 +10,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderProductsDto } from './dto/update-order-products.dto';
 import { CreateManualOrderDto } from './dto/create-manual-order.dto';
+import { CreateFasonOrderDto } from './dto/create-fason-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -131,7 +132,7 @@ export class OrderService {
   }
 
   async create(
-    dto: CreateOrderDto | CreateManualOrderDto,
+    dto: CreateOrderDto | CreateManualOrderDto | CreateFasonOrderDto,
     priceSet: {
       subTotal: number;
       taxTotal: number;
@@ -149,7 +150,12 @@ export class OrderService {
 
     // Generate new order number and id
     const orderNumber = order ? order.orderNumber + 1 : 1001;
-    const orderIdPrefix = type === 'BULK' ? 'S' : 'MG';
+    let orderIdPrefix = 'S';
+    if (type === 'MANUAL') {
+      orderIdPrefix = 'MG';
+    } else if (type === 'FASON') {
+      orderIdPrefix = 'F';
+    }
     const orderId = `${orderIdPrefix}${orderNumber}`;
 
     // Create new order
@@ -159,7 +165,7 @@ export class OrderService {
       orderNumber,
       orderId,
       type,
-      deliveryAddressId: dto.deliveryAddressId || null,
+      deliveryAddressId: (dto as any).deliveryAddressId || null,
     });
 
     // Save order

@@ -71,6 +71,7 @@ export type LogginOperation =
   | 'delete'
   | 'createOrder'
   | 'createManualOrder'
+  | 'createFasonOrder'
   | 'updateOrder'
   | 'updateOrderProducts'
   | 'updateManualOrderProducts'

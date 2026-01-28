@@ -34,6 +34,9 @@ export class OrderProduct {
   @Column({ type: 'varchar', length: 255, nullable: false })
   grindType: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, default: null })
+  weight: string | null;
+
   @Column({ type: 'float', nullable: false })
   unitPrice: number;
 

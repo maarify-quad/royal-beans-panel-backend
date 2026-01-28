@@ -9,7 +9,10 @@ async function bootstrap() {
     rawBody: true,
   });
   app.enableCors({
-    origin: process.env.CORS_ORIGIN,
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? ['https://royal-beans.maarify.com', 'https://taft.maarify.com']
+        : ['http://localhost:3000'],
     credentials: true,
   });
   app.use(cookieParser());

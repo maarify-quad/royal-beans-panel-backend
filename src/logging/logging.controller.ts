@@ -35,6 +35,7 @@ export class LoggingController {
     }
 
     return await this.loggingService.findAll({
+      take: 100,
       order: {
         createdAt: 'DESC',
       },

@@ -22,7 +22,7 @@ export class GetOrdersDto {
   @IsOptional()
   readonly sortOrder?: 'ASC' | 'DESC' = 'ASC';
 
-  @IsIn(['BULK', 'MANUAL'])
+  @IsIn(['BULK', 'MANUAL', 'FASON'])
   @IsString()
   @IsOptional()
   readonly type?: OrderType;

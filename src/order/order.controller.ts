@@ -32,6 +32,7 @@ import { GetOrdersDto } from './dto/get-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { UpdateOrderProductsDto } from './dto/update-order-products.dto';
 import { CreateManualOrderDto } from './dto/create-manual-order.dto';
+import { CreateFasonOrderDto } from './dto/create-fason-order.dto';
 import { ExcelExportOrdersDTO } from './dto/excel-export-orders.dto';
 
 const s3Client = new S3Client({
@@ -192,6 +193,52 @@ export class OrderController {
         message: `#${order.orderId} siparişi oluşturuldu.`,
         resource: 'order',
         operation: 'createManualOrder',
+      });
+    } catch {}
+
+    return order;
+  }
+
+  @Post('/fason')
+  async createFasonOrder(@Req() req, @Body() dto: CreateFasonOrderDto) {
+    dto.userId = req.user.user.id;
+
+    // Order price set - Fason siparişlerde fiyat bilgileri 0 olarak setlenir
+    const priceSet = {
+      subTotal: 0,
+      taxTotal: 0,
+      total: 0,
+    };
+
+    // Transform order products to include price information
+    const transformedOrderProducts = dto.orderProducts.map((op) => ({
+      productId: op.productId,
+      grindType: op.grindType,
+      weight: op.weight,
+      quantity: op.quantity,
+      unitPrice: 0,
+      taxRate: 0,
+      subTotal: 0,
+      total: 0,
+    }));
+
+    // Create order data with transformed products
+    const orderData = {
+      userId: dto.userId,
+      customerId: dto.customerId,
+      specialNote: dto.specialNote || null,
+      orderProducts: transformedOrderProducts,
+    };
+
+    const order = await this.orderService.create(orderData, priceSet, 'FASON');
+
+    try {
+      await this.loggingService.create({
+        userId: req.user.user.id,
+        orderId: order.id,
+        message: `#${order.orderId} fason siparişi oluşturuldu.`,
+        resource: 'order',
+        operation: 'createFasonOrder',
       });
     } catch {}
 

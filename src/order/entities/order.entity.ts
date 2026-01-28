@@ -16,7 +16,7 @@ import { DeliveryAddress } from 'src/delivery-address/entities/delivery-address.
 import { User } from 'src/user/entities/user.entity';
 import { Receiver } from 'src/receiver/entities/receiver.entity';
 
-export type OrderType = 'BULK' | 'MANUAL';
+export type OrderType = 'BULK' | 'MANUAL' | 'FASON';
 export type OrderSource = 'dashboard' | 'shopify';
 
 @Entity({ name: 'orders' })

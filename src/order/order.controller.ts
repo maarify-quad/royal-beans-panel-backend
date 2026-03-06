@@ -478,7 +478,10 @@ export class OrderController {
             orderProduct.product.name,
           grindType: orderProduct.grindType,
           unitPrice: currencyFormatter.format(orderProduct.unitPrice),
-          quantity: orderProduct.quantity,
+          quantity:
+            order.type === 'FASON'
+              ? orderProduct.weight
+              : orderProduct.quantity,
           totalPrice: currencyFormatter.format(order.total),
           invoiceStatus:
             order.type === 'BULK'

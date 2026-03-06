@@ -454,7 +454,7 @@ export class OrderController {
       { header: 'Sipariş No', key: 'orderNumber', width: 15 },
       { header: 'Müşteri', key: 'customerName', width: 15 },
       { header: 'Ürün', key: 'productName', width: 15 },
-      { header: 'Öğütme', key: 'grindType', width: 15 },
+      { header: 'Gramaj', key: 'weight', width: 15 },
       { header: 'Birim Fiyat', key: 'unitPrice', width: 15 },
       { header: 'Adet', key: 'quantity', width: 15 },
       { header: 'Sipariş Tutar', key: 'totalPrice', width: 15 },
@@ -476,12 +476,9 @@ export class OrderController {
           productName:
             orderProduct.priceListProduct?.product.name ||
             orderProduct.product.name,
-          grindType: orderProduct.grindType,
+          weight: orderProduct.weight ?? '-',
           unitPrice: currencyFormatter.format(orderProduct.unitPrice),
-          quantity:
-            order.type === 'FASON'
-              ? orderProduct.weight
-              : orderProduct.quantity,
+          quantity: orderProduct.quantity,
           totalPrice: currencyFormatter.format(order.total),
           invoiceStatus:
             order.type === 'BULK'

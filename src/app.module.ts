@@ -41,6 +41,7 @@ import { LoggingModule } from './logging/logging.module';
 import { ReceiverModule } from './receiver/receiver.module';
 import { FinanceModule } from './finance/finance.module';
 import { DeciModule } from './deci/deci.module';
+import { ProductMappingModule } from './product-mapping/product-mapping.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { DeciModule } from './deci/deci.module';
     DeciModule,
     ParasutModule,
     ShopifyWebhookModule,
+    ProductMappingModule,
   ],
   controllers: [AppController],
   providers: [
